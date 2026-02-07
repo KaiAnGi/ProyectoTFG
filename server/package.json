@@ -1,6 +1,7 @@
 {
   "name": "server",
   "version": "1.0.0",
+  "type": "module",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -15,5 +16,8 @@
     "express": "^5.2.1",
     "mongoose": "^9.1.5",
     "socket.io": "^4.8.3"
+  },
+  "devDependencies": {
+    "ts-node": "^10.9.2"
   }
 }
