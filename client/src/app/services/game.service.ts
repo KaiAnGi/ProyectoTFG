@@ -89,13 +89,13 @@ this.socketService.on('round_result').subscribe((data: any) => {
   }
 
   /** Elegir gesto */
-  makeChoice(choice: Choice): void {
-    const roomId = this.gameStateSubject.value.roomId;
-    if (!roomId) return;
+makeChoice(choice: Choice): void {
+  const roomId = this.gameStateSubject.value.roomId;
+  if (!roomId || !this.gameStateSubject.value.isRoundActive) return;
 
-    this.updateGameState({ playerChoice: choice, isRoundActive: false });
-    this.socketService.emit('player_choice', { roomId, choice });
-  }
+  this.updateGameState({ playerChoice: choice });
+  this.socketService.emit('player_choice', { roomId, choice }); // EMIT A DIEGUITO
+}
 
   /** Actualizar estado de forma inmutable */
   private updateGameState(partial: PartialGameState): void {

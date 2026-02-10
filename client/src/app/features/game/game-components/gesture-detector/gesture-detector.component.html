@@ -1,44 +1,29 @@
 <!-- gesture-detector.component.html -->
 <div class="gesture-detector">
-  <h3>Detector de Gestos</h3>
-
   <div class="video-container">
-    <video #videoElement class="video-hidden"></video>
-    <canvas #canvasElement width="320" height="240" class="gesture-canvas"></canvas>
+    <video #videoElement class="video-hidden" autoplay playsinline></video>
+    <canvas #canvasElement width="640" height="480" class="gesture-canvas"></canvas>
   </div>
 
-  <div class="gesture-status">
-    @if (isCameraReady) {
-      <div class="status-ready">
-        <span class="indicator"></span>
-        Cámara activa
-      </div>
-    } @else {
-      <div class="status-loading">Iniciando cámara...</div>
-    }
+  @if (isCameraReady()) {
+    <div class="status ready">
+      Cámara activa
+    </div>
+  }
 
-    @if (currentGesture) {
-      <div class="detected-gesture">
-        <div class="gesture-icon {{ getGestureIconClass(currentGesture) }}"></div>
-        <div class="gesture-info">
-          <h4>{{ getGestureDisplay(currentGesture) }}</h4>
-          <div class="confidence-row">
-            <span class="confidence-bar">
-              <span [style.width.%]="confidence * 100"></span>
-            </span>
-            <span class="confidence">{{ (confidence * 100) | number:'1.0-0' }}%</span>
-          </div>
-        </div>
-      </div>
-    } @else {
-      <div class="no-gesture">
-        <div class="hand-open-icon"></div>
-        ¡Muestra tu mano!
-      </div>
-    }
+  @if (currentGesture()) {
+    <div class="gesture-display">
+      <div class="{{ getGestureClass(currentGesture()) }}"></div>
+      <p>¡{{ getGestureName(currentGesture()) }}!
+         Confianza: {{ confidence() | number:'1.2-2' }}</p>
+    </div>
+  } @else {
+    <div class="no-gesture">
+      👋 Muestra tu mano claramente
+    </div>
+  }
 
-    @if (error) {
-      <div class="error">{{ error }}</div>
-    }
-  </div>
+  @if (error()) {
+    <div class="error">{{ error() }}</div>
+  }
 </div>
