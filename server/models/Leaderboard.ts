@@ -12,10 +12,10 @@ const leaderboardSchema: Schema<ILeaderboard> = new Schema(
       required: true,
       unique: true,
       index: true,
-      maxlength: 15,
     },
     consecutiveWins: {
       type: Number,
+      required: true,
       default: 0,
     },
   },
@@ -24,9 +24,8 @@ const leaderboardSchema: Schema<ILeaderboard> = new Schema(
   },
 );
 
-const Leaderboard: Model<ILeaderboard> = mongoose.model<ILeaderboard>(
-  "Leaderboard",
-  leaderboardSchema,
-);
+const Leaderboard: Model<ILeaderboard> =
+  mongoose.models.Leaderboard ||
+  mongoose.model<ILeaderboard>("Leaderboard", leaderboardSchema);
 
 export default Leaderboard;
