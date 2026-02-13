@@ -1,26 +1,34 @@
-<div class="splash-screen">
+<div class="room-menu-screen">
     <h1 class="game-title">ROCK, PAPER OR SCISSORS</h1>
 
     <div class="hands-container">
-        <!-- Mano izquierda - ROCK (Piedra) -->
+        <!-- Mano izquierda - ROCK -->
         <div class="hand-item">
             <img src="images/rockHand.png" alt="Rock" class="hand-icon">
         </div>
 
-        <!-- Mano centro - PAPER (Papel) -->
+        <!-- Mano centro - PAPER -->
         <div class="hand-item">
             <img src="images/PaperHand.png" alt="Paper" class="hand-icon">
         </div>
 
-        <!-- Mano derecha - SCISSORS (Tijeras) -->
+        <!-- Mano derecha - SCISSORS -->
         <div class="hand-item">
             <img src="images/scissorsHand.png" alt="Scissors" class="hand-icon">
         </div>
     </div>
 
-    <p class="game-subtitle">THE GAME</p>
+    <div class="menu-buttons">
+        <button class="menu-button" (click)="onCreateRoom()">
+            CREATE A ROOM
+        </button>
 
-    <button class="start-button" (click)="onStart()">
-        START
+        <button class="menu-button" (click)="onJoinRoom()">
+            JOIN THE ROOM
+        </button>
+    </div>
+
+    <button class="back-button" (click)="onBack()">
+        BACK
     </button>
 </div>
