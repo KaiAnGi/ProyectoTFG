@@ -42,29 +42,42 @@ export function setupGameHandlers(io: Server<ClientToServerEvents, ServerToClien
           const room = gameRooms.getRoom(roomId);
           
           if (room && room.player2) {
-            // Emitir resultado a ambos
+            // Emitir resultado a ambos y esperar decisión de revancha/retiro
             io.to(roomId).emit('round_result', {
-              playerChoice: room.player1.choice || 'rock',
-              opponentChoice: room.player2.choice || 'rock',
+              playerChoice: roundResult.player1Choice,
+              opponentChoice: roundResult.player2Choice,
               result: roundResult.result,
-              playerScore: room.player1.score,
-              opponentScore: room.player2.score,
+              playerScore: roundResult.player1Score,
+              opponentScore: roundResult.player2Score,
               roundNumber: roundResult.roundNumber
             });
-
-            if (roundResult.isFinished) {
-              const winner = room.player1.score > room.player2.score ? room.player1 : room.player2;
-              io.to(roomId).emit('match_finished', {
-                winner: winner.name,
-                finalScore: { player1: room.player1.score, player2: room.player2.score }
-              });
-              console.log(`🏆 Partida terminada en ${roomId}. Ganador: ${winner.name}`);
-              gameRooms.cleanupRoom(roomId);
-            } else {
-              io.to(roomId).emit('start_round', { roundNumber: roundResult.roundNumber });
-            }
+            
+            // Esperar decisión de rematch/retire
+            io.to(roomId).emit('waiting_action', {
+              message: 'Elige: rematch o retire'
+            });
           }
         }
+      }
+    });
+
+    // Decisión de revancha o retiro
+    socket.on('player_action', ({ roomId, action }) => {
+      const actionResult = gameRooms.setPlayerAction(roomId, socket.id, action);
+      
+      if (actionResult.gameEnded) {
+        const room = gameRooms.getRoom(roomId);
+        if (room) {
+          io.to(roomId).emit('match_finished', {
+            winner: actionResult.winner || 'unknown',
+            finalScore: { player1: room.player1.consecutiveWins, player2: room.player2?.consecutiveWins || 0 }
+          });
+          console.log(`🏆 Partida terminada en ${roomId}. Ganador: ${actionResult.winner}`);
+          gameRooms.cleanupRoom(roomId);
+        }
+      } else if (actionResult.bothReady) {
+        // Ambos piden revancha, iniciar nueva ronda
+        io.to(roomId).emit('start_round', { roundNumber: gameRooms.getRoom(roomId)?.roundNumber || 1 });
       }
     });
 

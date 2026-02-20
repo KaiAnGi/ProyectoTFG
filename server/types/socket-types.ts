@@ -12,6 +12,7 @@ export interface ServerToClientEvents {
     opponentScore: number;
     roundNumber: number;
   }) => void;
+  waiting_action: (data: { message: string }) => void;
   match_finished: (data: {
     winner: string;
     finalScore: { player1: number; player2: number };
@@ -23,4 +24,5 @@ export interface ClientToServerEvents {
   create_room: (data: { username: string }) => void;
   join_room: (data: { roomId: string; username: string }) => void;
   player_choice: (data: { roomId: string; choice: GameChoice }) => void;
+  player_action: (data: { roomId: string; action: 'rematch' | 'retire' }) => void;
 }
