@@ -5,7 +5,7 @@ const gameRooms = new GameRooms();
 
 module.exports = (io) => {
   io.on('connection', (socket) => {
-    console.log('👤 Cliente conectado:', socket.id);
+    console.log('Cliente conectado:', socket.id);
 
     // Crear o unirse a sala
     socket.on('create_room', async ({ username }) => {
@@ -59,7 +59,7 @@ module.exports = (io) => {
     });
 
     socket.on('disconnect', () => {
-      console.log('👋 Cliente desconectado:', socket.id);
+      console.log('Cliente desconectado:', socket.id);
     });
   });
 };

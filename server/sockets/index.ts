@@ -15,7 +15,7 @@ export function initializeSocketIO(app: Express) {
 
   setupGameHandlers(io);
   
-  console.log('🔌 Socket.IO configurado');
+  console.log('Socket.IO configurado');
   
   return httpServer;
 }

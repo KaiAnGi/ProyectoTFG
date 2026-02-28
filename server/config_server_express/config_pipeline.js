@@ -12,8 +12,8 @@ module.exports = (serverExpress) => {
 
   // Conectar MongoDB
   mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/piedrapapeltijera')
-    .then(() => console.log('✅ MongoDB conectado'))
-    .catch(err => console.error('❌ Error MongoDB:', err));
+    .then(() => console.log('MongoDB conectado'))
+    .catch(err => console.error('Error MongoDB:', err));
 
   serverExpress.use('/api/ranking', require('./config_enrutamiento/endpointsRanking'));
   serverExpress.use('/api/game', require('./config_enrutamiento/endpointsGame'));

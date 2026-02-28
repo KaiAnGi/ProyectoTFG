@@ -51,7 +51,7 @@ async function testRegister(data, shouldSucceed, label) {
     if (json.user.password) {
       throw new Error(`${label} - Password leaked in response!`);
     }
-    console.log(`✓ ${label}`);
+    console.log(`[PASS] ${label}`);
     return json;
   } else {
     if (json.success) {
@@ -60,13 +60,13 @@ async function testRegister(data, shouldSucceed, label) {
     if (!json.error) {
       throw new Error(`${label} - Expected error message`);
     }
-    console.log(`✓ ${label} - Error: "${json.error}"`);
+    console.log(`[PASS] ${label} - Error: "${json.error}"`);
     return json;
   }
 }
 
 async function main() {
-  console.log("🔐 Auth Registration Smoke Test\n");
+  console.log("Auth Registration Smoke Test\n");
 
   // Generar un username único para evitar colisiones
   const timestamp = Date.now();
@@ -185,10 +185,10 @@ async function main() {
     "Reject duplicate username",
   );
 
-  console.log("\n✅ All auth registration tests passed!");
+  console.log("\nAll auth registration tests passed!");
 }
 
 main().catch((err) => {
-  console.error("\n❌ Auth registration test failed:", err.message);
+  console.error("\nAuth registration test failed:", err.message);
   process.exit(1);
 });

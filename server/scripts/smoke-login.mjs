@@ -74,7 +74,7 @@ async function test(
 }
 
 async function runTests() {
-  console.log("🧪 Iniciando pruebas de autenticación...\n");
+  console.log("Iniciando pruebas de autenticación...\n");
 
   // Registrar un nuevo usuario
   const timestamp = Date.now();
@@ -148,15 +148,15 @@ async function runTests() {
 
   // Resumen
   console.log("\n\n" + "=".repeat(50));
-  console.log("📊 RESUMEN DE PRUEBAS");
+  console.log("RESUMEN DE PRUEBAS");
   console.log("=".repeat(50));
 
   const passed = results.filter((r) => r.success).length;
   const total = results.length;
 
   results.forEach((result) => {
-    const icon = result.success ? "✅" : "❌";
-    console.log(`${icon} ${result.name}: ${result.message}`);
+    const status = result.success ? "PASS" : "FAIL";
+    console.log(`[${status}] ${result.name}: ${result.message}`);
   });
 
   console.log("\n" + "=".repeat(50));

@@ -33,7 +33,7 @@ await connectDB();
 // Ruta principal
 app.get("/", (req, res) => {
   res.json({
-    message: "🚀 Servidor RPS Buckshot Roulette",
+    message: "Servidor RPS Buckshot Roulette",
     version: "2.0.0",
     environment: process.env.NODE_ENV || "development",
     endpoints: {
@@ -53,15 +53,13 @@ const httpServer = initializeSocketIO(app);
 // Puerto desde tu .env (3000)
 const PORT = process.env.PORT || 3000;
 
-// Full chatjepetado ya modificaré
 httpServer.listen(Number(PORT), "0.0.0.0", () => {
-  console.log("\n╔════════════════════════════════════════════╗");
-  console.log("║   🚀 Servidor RPS Iniciado Exitosamente   ║");
-  console.log("╚════════════════════════════════════════════╝");
-  console.log(`📡 HTTP/REST: http://localhost:${PORT}`);
-  console.log(`🔌 WebSocket: ws://localhost:${PORT}`);
-  console.log(`📊 Ranking API: http://localhost:${PORT}/api/ranking`);
-  console.log(`💚 Health Check: http://localhost:${PORT}/health`);
-  console.log(`🌍 Environment: ${process.env.NODE_ENV || "development"}`);
-  console.log("════════════════════════════════════════════\n");
+  console.log("\n============================================");
+  console.log("Servidor RPS iniciado exitosamente");
+  console.log(`HTTP/REST: http://localhost:${PORT}`);
+  console.log(`WebSocket: ws://localhost:${PORT}`);
+  console.log(`Ranking API: http://localhost:${PORT}/api/ranking`);
+  console.log(`Health Check: http://localhost:${PORT}/health`);
+  console.log(`Environment: ${process.env.NODE_ENV || "development"}`);
+  console.log("============================================\n");
 });

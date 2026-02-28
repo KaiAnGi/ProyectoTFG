@@ -6,7 +6,7 @@ async function check() {
   const top = await Leaderboard.find()
     .sort({ consecutiveWins: -1 })
     .limit(10);
-  console.log('🏆 Datos OK:');
+  console.log('Datos OK:');
   top.forEach((p: any) => console.log(`${p.playerName}: ${p.consecutiveWins}`));
 }
 
