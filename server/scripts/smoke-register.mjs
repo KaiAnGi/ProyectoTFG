@@ -3,6 +3,35 @@ const fetchFn = globalThis.fetch
   ? globalThis.fetch.bind(globalThis)
   : (await import("node-fetch")).default;
 
+/*
+  Smoke test específico de registro de usuarios.
+
+  Qué valida:
+  - Validaciones de formulario en backend:
+   * contraseñas distintas,
+   * contraseña demasiado corta,
+   * username demasiado corto,
+   * email con formato inválido,
+   * campos obligatorios faltantes.
+  - Registro exitoso con datos válidos.
+  - Detección de duplicados por email y por username.
+  - Ausencia de fuga de contraseña en la respuesta del registro exitoso.
+
+  Cómo funciona:
+  1) `testRegister(...)` envía `POST /api/auth/register` y valida según el caso
+    esperado (éxito o error).
+  2) Para casos de éxito, comprueba `success`, `user` y que no exista
+    `user.password` en el payload.
+  3) Para casos de fallo, exige `success === false` y mensaje de error.
+  4) `main` crea credenciales únicas con timestamp y ejecuta todos los
+    escenarios en orden lógico: validaciones -> alta correcta -> duplicados.
+  5) Si cualquier aserción falla, el script aborta con código 1; si todo pasa,
+    finaliza con código 0.
+
+  Criterio de éxito:
+  - Todas las validaciones y el registro correcto se comportan como se espera.
+*/
+
 async function testRegister(data, shouldSucceed, label) {
   const res = await fetchFn(`${baseUrl}/api/auth/register`, {
     method: "POST",

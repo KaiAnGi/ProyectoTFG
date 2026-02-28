@@ -3,6 +3,37 @@ import { io } from "socket.io-client";
 const baseUrl = process.env.BASE_URL || "http://localhost:3000";
 let roomId = null;
 
+/*
+  Smoke test de juego por WebSocket (flujo completo de partida).
+
+  Qué valida:
+  - Conexión de dos clientes (`alice` y `bob`) al servidor Socket.IO.
+  - Creación de sala, unión de segundo jugador e inicio de rondas.
+  - Emisión y recepción de elecciones por ronda (`player_choice`).
+  - Coherencia de `round_result`: ganador, elecciones y marcador consecutivo.
+  - Flujo de continuidad (`rematch`) y cierre de partida (`retire` ->
+   `match_finished`).
+
+  Cómo funciona:
+  1) Crea dos sockets cliente con transportes websocket/polling.
+  2) `alice` crea sala y `bob` se une cuando recibe `room_created`.
+  3) En cada `start_round`, ambos envían jugada predefinida con pequeño retardo
+    aleatorio para simular latencia real.
+  4) Al recibir `round_result` en `alice`, el script calcula localmente el
+    resultado esperado y verifica:
+    - `result`,
+    - `playerScore` y `opponentScore` (racha de victorias),
+    - `playerChoice` y `opponentChoice`.
+    Si algo no coincide, falla inmediatamente.
+  5) Tras cada ronda usa `waiting_action`: hasta 10 rondas pide `rematch`, y
+    luego `alice` envía `retire` para forzar fin controlado del match.
+  6) Incluye timeout global configurable (`SMOKE_TIMEOUT_MS`, por defecto
+    20s) para evitar bloqueos infinitos.
+
+  Criterio de éxito:
+  - Se completa el flujo entero sin inconsistencias y llega `match_finished`.
+*/
+
 const timeoutMs = Number(process.env.SMOKE_TIMEOUT_MS || 20000);
 const failTimer = setTimeout(() => {
   console.error("Socket smoke test failed: timeout");

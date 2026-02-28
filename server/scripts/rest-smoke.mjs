@@ -4,6 +4,29 @@ const fetchFn = globalThis.fetch
   : (await import("node-fetch")).default;
 const playerName = `smoke_${Date.now()}`;
 
+/*
+  Smoke test REST del backend.
+
+  Qué valida:
+  - Disponibilidad del servidor (`GET /health`).
+  - Escritura básica en ranking (`POST /api/ranking/update`).
+  - Lectura del jugador recién actualizado (`GET /api/ranking/:playerName`).
+  - Lectura del listado de ranking con límite (`GET /api/ranking?limit=5`).
+
+  Cómo funciona:
+  1) Genera un `playerName` único con timestamp para no colisionar datos.
+  2) Ejecuta peticiones secuenciales y corta en cuanto una falle.
+  3) `assertOk` centraliza validación HTTP: si status no es 2xx, devuelve error
+    con status y cuerpo de respuesta para facilitar diagnóstico.
+  4) Además del status, valida estructura mínima de JSON esperado en cada
+    endpoint (por ejemplo, existencia de `player` o array de ranking).
+  5) Si todo pasa, termina con código 0; si algo falla, imprime el error y sale
+    con código 1.
+
+  Criterio de éxito:
+  - Todas las llamadas completan con respuestas válidas y coherentes.
+*/
+
 async function assertOk(res, label) {
   if (!res.ok) {
     const text = await res.text();
