@@ -1,41 +1,37 @@
-import { Component } from '@angular/core';
-import { Router } from '@angular/router';
-import { FormsModule } from '@angular/forms';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
+import { AuthService } from '../../services/auth';
 
 @Component({
   selector: 'app-join-room',
   standalone: true,
-  imports: [FormsModule, CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './join-room.component.html',
-  styleUrl: './join-room.component.css'
+  styleUrls: ['./join-room.component.css']
 })
-export class JoinRoomComponent {
-  yourName: string = '';
-  roomName: string = '';
-  roomCode: string = '';
-  password: string = '';
+export class JoinRoomComponent implements OnInit {
+  roomName = '';
+  roomCode = '';
+  password = '';
+  
+  username = ''; // se rellena solo desde AuthService
 
-  constructor(private router: Router) { }
+  constructor(private router: Router, private auth: AuthService) {}
 
-  onJoin(): void {
-    if (this.yourName && this.roomCode) {
-      console.log('Joining room:', {
-        yourName: this.yourName,
-        roomName: this.roomName,
-        roomCode: this.roomCode,
-        password: this.password
-      });
-      // TODO: Llamar al servicio para unirse a la sala
-      this.router.navigate(['/waiting-room']);
+  ngOnInit() {
+    const user = this.auth.getCurrentUser();
+    if (user) {
+      this.username = user.username; // coge nombre del usuario logueado, creo xd
     }
   }
 
-  onCancel() {
-    this.router.navigate(['/room-menu']);
+  onJoin() {
+    console.log('Uniendo a sala como:', this.username);
+    this.router.navigate(['/waiting-room']);
   }
 
-  onBack() {
-    this.router.navigate(['/room-menu']);
-  }
+  onCancel() { this.router.navigate(['/room-menu']); }
+  onBack() { this.router.navigate(['/room-menu']); }
 }

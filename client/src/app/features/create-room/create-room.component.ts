@@ -1,45 +1,41 @@
-import { Component } from '@angular/core';
-import { Router } from '@angular/router';
-import { FormsModule } from '@angular/forms';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
+import { AuthService } from '../../services/auth';
 
 @Component({
   selector: 'app-create-room',
   standalone: true,
-  imports: [FormsModule, CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './create-room.component.html',
-  styleUrl: './create-room.component.css'
+  styleUrls: ['./create-room.component.css']
 })
-export class CreateRoomComponent {
-  yourName: string = '';
-  roomName: string = '';
-  password: string = '';
-  selectedRounds: number = 6; // Por defecto 6 rounds
+export class CreateRoomComponent implements OnInit {
+  roomName = '';
+  password = '';
+  username = '';
+  selectedRounds = 3;
 
-  constructor(private router: Router) {}
+  constructor(private router: Router, private auth: AuthService) {}
+
 
   selectRounds(rounds: number) {
     this.selectedRounds = rounds;
   }
 
-  onCreate(): void {
-    if (this.yourName && this.roomName && this.selectedRounds) {
-      console.log('Creating room:', {
-        yourName: this.yourName,
-        roomName: this.roomName,
-        password: this.password,
-        rounds: this.selectedRounds
-      });
-      // TODO: Llamar al servicio para crear la sala
-      this.router.navigate(['/waiting-room']);
+  ngOnInit() {
+    const user = this.auth.getCurrentUser();
+    if (user) {
+      this.username = user.username;
     }
   }
 
-  onCancel() {
-    this.router.navigate(['/room-menu']);
+  onCreate() {
+    console.log('Creando sala como:', this.username);
+    this.router.navigate(['/waiting-room']);
   }
 
-  onBack() {
-    this.router.navigate(['/room-menu']);
-  }
+  onCancel() { this.router.navigate(['/room-menu']); }
+  onBack() { this.router.navigate(['/room-menu']); }
 }
