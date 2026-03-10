@@ -2,7 +2,7 @@ import mongoose, { Schema, Document, Model } from "mongoose";
 
 export interface ILeaderboard extends Document {
   playerName: string;
-  consecutiveWins: number;
+  matchVictories: number;
 }
 
 const leaderboardSchema: Schema<ILeaderboard> = new Schema(
@@ -13,7 +13,7 @@ const leaderboardSchema: Schema<ILeaderboard> = new Schema(
       unique: true,
       index: true,
     },
-    consecutiveWins: {
+    matchVictories: {
       type: Number,
       required: true,
       default: 0,

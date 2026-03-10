@@ -1,8 +1,8 @@
 import type { GameChoice } from './game-types.ts';
 
 export interface ServerToClientEvents {
-  room_created: (data: { roomId: string; message: string }) => void;
-  room_joined: (data: { roomId: string; players: string[] }) => void;
+  room_created: (data: { roomId: string; message: string; maxRounds: number }) => void;
+  room_joined: (data: { roomId: string; players: string[]; maxRounds: number }) => void;
   start_round: (data: { roundNumber: number }) => void;
   round_result: (data: {
     playerChoice: GameChoice;
@@ -11,6 +11,7 @@ export interface ServerToClientEvents {
     playerScore: number;
     opponentScore: number;
     roundNumber: number;
+    isFinished: boolean;
   }) => void;
   waiting_action: (data: { message: string }) => void;
   match_finished: (data: {
@@ -21,7 +22,7 @@ export interface ServerToClientEvents {
 }
 
 export interface ClientToServerEvents {
-  create_room: (data: { username: string }) => void;
+  create_room: (data: { username: string; maxRounds?: 3 | 5 | 9 }) => void;
   join_room: (data: { roomId: string; username: string }) => void;
   player_choice: (data: { roomId: string; choice: GameChoice }) => void;
   player_action: (data: { roomId: string; action: 'rematch' | 'retire' }) => void;

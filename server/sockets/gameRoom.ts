@@ -7,13 +7,14 @@ export class GameRooms {
     this.rooms = new Map();
   }
 
-  createRoom(player1Id: string, player1Name: string): string {
+  createRoom(player1Id: string, player1Name: string, maxRounds: number = 3): string {
     const roomId = `room_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
     this.rooms.set(roomId, {
       roomId,
       player1: { id: player1Id, name: player1Name, consecutiveWins: 0 },
       player2: null,
       roundNumber: 1,
+      maxRounds,
       waitingForChoices: new Set(),
       waitingForActions: new Set()
     });
@@ -68,12 +69,16 @@ export class GameRooms {
     room.waitingForChoices.clear();
     room.waitingForActions.clear();
 
+    // Calculate wins needed to win the match
+    const winsNeeded = Math.floor(room.maxRounds / 2) + 1;
+    const isFinished = room.player1.consecutiveWins >= winsNeeded || room.player2!.consecutiveWins >= winsNeeded;
+
     return {
       result,
       player1Score: room.player1.consecutiveWins,
       player2Score: room.player2!.consecutiveWins,
       roundNumber: room.roundNumber,
-      isFinished: false,
+      isFinished,
       player1Choice,
       player2Choice
     };

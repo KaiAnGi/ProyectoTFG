@@ -36,6 +36,7 @@ export interface GameState {
   isWaitingOpponent: boolean;
   isRoundActive: boolean;
   canMakeChoice: boolean;
+  isMatchFinished: boolean;
 
   // Historial
   history: RoundHistory[];
@@ -111,6 +112,7 @@ export const INITIAL_GAME_STATE: GameState = {
   isWaitingOpponent: false,
   isRoundActive: false,
   canMakeChoice: false,
+  isMatchFinished: false,
   history: [],
   systemMessage: ''
 };

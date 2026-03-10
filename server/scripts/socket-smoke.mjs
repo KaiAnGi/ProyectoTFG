@@ -2,36 +2,38 @@ import { io } from "socket.io-client";
 
 const baseUrl = process.env.BASE_URL || "http://localhost:3000";
 let roomId = null;
+let maxRounds = 3; // Test con 3 rondas (necesita 2 victorias para ganar)
 
 /*
   Smoke test de juego por WebSocket (flujo completo de partida).
 
   Qué valida:
   - Conexión de dos clientes (`alice` y `bob`) al servidor Socket.IO.
-  - Creación de sala, unión de segundo jugador e inicio de rondas.
+  - Creación de sala con maxRounds (3, 5 o 9), unión de segundo jugador e inicio de rondas.
   - Emisión y recepción de elecciones por ronda (`player_choice`).
-  - Coherencia de `round_result`: ganador, elecciones y marcador consecutivo.
-  - Flujo de continuidad (`rematch`) y cierre de partida (`retire` ->
-   `match_finished`).
+  - Coherencia de `round_result`: ganador, elecciones, marcador y bandera isFinished.
+  - La partida termina automáticamente cuando alguien alcanza maxRounds/2 + 1 victorias.
+  - Flujo de terminación controlada de partida (`match_finished`).
 
   Cómo funciona:
   1) Crea dos sockets cliente con transportes websocket/polling.
-  2) `alice` crea sala y `bob` se une cuando recibe `room_created`.
+  2) `alice` crea sala con maxRounds=3 y `bob` se une cuando recibe `room_created`.
   3) En cada `start_round`, ambos envían jugada predefinida con pequeño retardo
     aleatorio para simular latencia real.
   4) Al recibir `round_result` en `alice`, el script calcula localmente el
     resultado esperado y verifica:
     - `result`,
-    - `playerScore` y `opponentScore` (racha de victorias),
-    - `playerChoice` y `opponentChoice`.
+    - `playerScore` y `opponentScore` (victorias en la partida actual),
+    - `playerChoice` y `opponentChoice`,
+    - `isFinished` (debe ser true cuando alguien tenga 2 victorias).
     Si algo no coincide, falla inmediatamente.
-  5) Tras cada ronda usa `waiting_action`: hasta 10 rondas pide `rematch`, y
-    luego `alice` envía `retire` para forzar fin controlado del match.
-  6) Incluye timeout global configurable (`SMOKE_TIMEOUT_MS`, por defecto
-    20s) para evitar bloqueos infinitos.
+  5) Continúa hasta que `isFinished` es true, momento en el que recibe `match_finished`.
+  6) Incluye timeout global configurable (`SMOKE_TIMEOUT_MS`, por defecto 20s).
 
   Criterio de éxito:
-  - Se completa el flujo entero sin inconsistencias y llega `match_finished`.
+  - Se completa el flujo entero sin inconsistencias.
+  - La partida termina automáticamente cuando alguien alcanza 2 victorias.
+  - Se recibe `match_finished` con información correcta.
 */
 
 const timeoutMs = Number(process.env.SMOKE_TIMEOUT_MS || 20000);
@@ -78,6 +80,7 @@ let roundsPlayed = 0;
 let expectedAliceScore = 0;
 let expectedBobScore = 0;
 let lastRoundNumber = 0;
+let matchFinished = false;
 
 function getChoice(choices, roundNumber) {
   return choices[roundNumber - 1] || choices[choices.length - 1];
@@ -95,9 +98,14 @@ function calculateWinner(aliceChoice, bobChoice) {
   return "player2";
 }
 
+function calculateIsFinished(aliceScore, bobScore) {
+  const winsNeeded = Math.floor(maxRounds / 2) + 1;
+  return aliceScore >= winsNeeded || bobScore >= winsNeeded;
+}
+
 alice.on("connect", () => {
   console.log("alice connected", alice.id);
-  alice.emit("create_room", { username: "alice" });
+  alice.emit("create_room", { username: "alice", maxRounds });
 });
 alice.on("connect_error", (err) => {
   console.error("alice connect_error", err.message);
@@ -116,11 +124,34 @@ bob.on("connect_error", (err) => {
 alice.on("room_created", (data) => {
   roomId = data.roomId;
   console.log("room_created", data);
+  if (data.maxRounds !== maxRounds) {
+    console.error(
+      `room_created mismatch: expected maxRounds=${maxRounds}, got ${data.maxRounds}`
+    );
+    cleanupAndExit(1);
+  }
   bob.emit("join_room", { roomId, username: "bob" });
 });
 
-alice.on("room_joined", (data) => console.log("alice room_joined", data));
-bob.on("room_joined", (data) => console.log("bob room_joined", data));
+alice.on("room_joined", (data) => {
+  console.log("alice room_joined", data);
+  if (data.maxRounds !== maxRounds) {
+    console.error(
+      `alice room_joined mismatch: expected maxRounds=${maxRounds}, got ${data.maxRounds}`
+    );
+    cleanupAndExit(1);
+  }
+});
+
+bob.on("room_joined", (data) => {
+  console.log("bob room_joined", data);
+  if (data.maxRounds !== maxRounds) {
+    console.error(
+      `bob room_joined mismatch: expected maxRounds=${maxRounds}, got ${data.maxRounds}`
+    );
+    cleanupAndExit(1);
+  }
+});
 
 alice.on("start_round", (data) => {
   console.log("alice start_round", data);
@@ -156,12 +187,15 @@ alice.on("round_result", (data) => {
     expectedAliceScore = 0;
   }
 
+  const expectedIsFinished = calculateIsFinished(expectedAliceScore, expectedBobScore);
+
   console.log("alice round_result", data, {
     roundNumber,
     aliceChoice,
     bobChoice,
     expectedResult,
-    expectedConsecutiveWins: { expectedAliceScore, expectedBobScore },
+    expectedScores: { expectedAliceScore, expectedBobScore },
+    expectedIsFinished,
   });
 
   if (
@@ -169,41 +203,75 @@ alice.on("round_result", (data) => {
     data.playerScore !== expectedAliceScore ||
     data.opponentScore !== expectedBobScore ||
     data.playerChoice !== aliceChoice ||
-    data.opponentChoice !== bobChoice
+    data.opponentChoice !== bobChoice ||
+    data.isFinished !== expectedIsFinished
   ) {
     console.error("round_result mismatch", {
       received: data,
       expectedResult,
-      expectedConsecutiveWins: { expectedAliceScore, expectedBobScore },
+      expectedScores: { expectedAliceScore, expectedBobScore },
       expectedChoices: { aliceChoice, bobChoice },
+      expectedIsFinished,
       roundNumber,
-      aliceChoice,
-      bobChoice,
     });
     cleanupAndExit(1);
   }
+
+  // Si la partida terminó, no pedimos más acciones
+  if (data.isFinished) {
+    matchFinished = true;
+  }
 });
 
-bob.on("round_result", (data) => console.log("bob round_result", data));
+bob.on("round_result", (data) => {
+  console.log("bob round_result", data);
+  if (data.isFinished) {
+    matchFinished = true;
+  }
+});
 
 alice.on("waiting_action", (data) => {
   console.log("alice waiting_action", data);
-  const action = roundsPlayed < 10 ? "rematch" : "retire";
+  // Si la partida ya terminó, no enviamos más acciones
+  if (matchFinished) {
+    console.log("Match already finished, skipping action");
+    return;
+  }
+  const action = "rematch"; // Con 3 rondas y nuestras elecciones, alice gana en 2 rondas
   console.log("alice action:", action);
   alice.emit("player_action", { roomId, action });
 });
 
 bob.on("waiting_action", (data) => {
   console.log("bob waiting_action", data);
+  // Si la partida ya terminó, no enviamos más acciones
+  if (matchFinished) {
+    console.log("Match already finished, skipping action");
+    return;
+  }
   bob.emit("player_action", { roomId, action: "rematch" });
 });
 
 alice.on("match_finished", (data) => {
   console.log("alice match_finished", data);
-  cleanupAndExit(0);
+  // Validar que el evento contiene información correcta
+  if (!data.winner || !data.finalScore) {
+    console.error("match_finished missing required fields", data);
+    cleanupAndExit(1);
+  }
+  // Esperar a que bob también reciba el evento antes de salir
+  setTimeout(() => {
+    cleanupAndExit(0);
+  }, 500);
 });
 
-bob.on("match_finished", (data) => console.log("bob match_finished", data));
+bob.on("match_finished", (data) => {
+  console.log("bob match_finished", data);
+  if (!data.winner || !data.finalScore) {
+    console.error("bob match_finished missing required fields", data);
+    cleanupAndExit(1);
+  }
+});
 
 alice.on("error", (e) => {
   console.error("alice error", e);

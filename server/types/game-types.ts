@@ -15,6 +15,7 @@ export interface GameRoom {
   player1: Player;
   player2: Player | null;
   roundNumber: number;
+  maxRounds: number;
   waitingForChoices: Set<string>;
   waitingForActions: Set<string>;
 }

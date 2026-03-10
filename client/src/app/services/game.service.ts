@@ -33,6 +33,7 @@ export class GameService {
     this.socketService.on('room_created').subscribe((data: any) => {
       this.updateGameState({
         roomId: data.roomId,
+        maxRounds: data.maxRounds || 3,
         isWaitingOpponent: true
       });
     });
@@ -41,6 +42,7 @@ export class GameService {
       this.updateGameState({
         roomId: data.roomId,
         opponentName: data.players[1],
+        maxRounds: data.maxRounds || 3,
         isWaitingOpponent: false
       });
     });
@@ -54,7 +56,7 @@ export class GameService {
       });
     });
 
-    this.socketService.on('round_result').subscribe((data: RoundResult) => {
+    this.socketService.on('round_result').subscribe((data: any) => {
       const currentState = this.gameStateSubject.value;
       this.updateGameState({
         opponentChoice: data.opponentChoice,
@@ -62,6 +64,7 @@ export class GameService {
         opponentScore: data.opponentScore,
         roundNumber: data.roundNumber,
         isRoundActive: false,
+        isMatchFinished: data.isFinished || false,
         history: [...currentState.history, {
           round: currentState.roundNumber,
           playerChoice: data.playerChoice,
@@ -73,13 +76,17 @@ export class GameService {
 
     this.socketService.on('match_finished').subscribe((data: any) => {
       console.log('PARTIDA FINALIZADA:', data);
+      this.updateGameState({
+        isMatchFinished: true,
+        systemMessage: `Partida terminada. Ganador: ${data.winner}`
+      });
     });
   }
 
-  createRoom(username: string): void {
+  createRoom(username: string, maxRounds: 3 | 5 | 9 = 3): void {
     this.socketService.connect();
-    this.updateGameState({ playerName: username });
-    this.socketService.emit('create_room', { username });
+    this.updateGameState({ playerName: username, maxRounds });
+    this.socketService.emit('create_room', { username, maxRounds });
   }
 
   joinRoom(roomId: string, username: string): void {
@@ -108,16 +115,20 @@ export class GameService {
     this.gameStateSubject.next({
       roomId: null,
       playerName: '',
-      opponentName: '',
+      opponentName: null,
       roundNumber: 1,
-      maxRounds: 10,
+      maxRounds: 3,
+      phase: 'waiting',
       playerChoice: null,
       opponentChoice: null,
       playerScore: 0,
       opponentScore: 0,
       isWaitingOpponent: false,
       isRoundActive: false,
-      history: []
+      canMakeChoice: false,
+      isMatchFinished: false,
+      history: [],
+      systemMessage: ''
     });
     this.socketService.disconnect();
   }

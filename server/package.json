@@ -11,6 +11,10 @@
     "smoke:all": "node scripts/smoke-all.mjs",
     "smoke:register": "node scripts/smoke-register.mjs",
     "smoke:login": "node scripts/smoke-login.mjs",
+    "test:ranking": "node scripts/test-ranking.mjs",
+    "test:maxrounds": "node scripts/test-max-rounds.mjs",
+    "test:default": "node scripts/test-default-max-rounds.mjs",
+    "test:game": "npm run smoke:sockets && npm run test:default && npm run test:maxrounds && npm run test:ranking",
     "db:reset": "node scripts/reset-db.mjs"
   },
   "keywords": [],

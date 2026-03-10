@@ -3,7 +3,7 @@ import type { ILeaderboard } from "../models/Leaderboard.ts";
 
 export class RankingService {
   async getTopRanking(limit: number = 50): Promise<ILeaderboard[]> {
-    return await Leaderboard.find().sort({ consecutiveWins: -1 }).limit(limit);
+    return await Leaderboard.find().sort({ matchVictories: -1 }).limit(limit);
   }
 
   async updatePlayerStats(
@@ -14,16 +14,15 @@ export class RankingService {
 
     if (player) {
       if (won) {
-        player.consecutiveWins += 1;
-      } else {
-        player.consecutiveWins = 0; // Se borra el conteo de victorias consecutivas si pierde
+        player.matchVictories += 1;
       }
+      // If lost, matchVictories stays the same (no reset)
       return await player.save();
     } else {
       // Crear nuevo jugador
       return await Leaderboard.create({
         playerName,
-        consecutiveWins: won ? 1 : 0,
+        matchVictories: won ? 1 : 0,
       });
     }
   }
