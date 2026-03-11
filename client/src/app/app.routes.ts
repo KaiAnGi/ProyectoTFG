@@ -7,6 +7,7 @@ import { WaitingRoomComponent } from './features/waiting-room/waiting-room.compo
 import { AuthComponent } from './features/auth/auth';
 import { RegisterComponent } from './features/register/register';
 import { LoginComponent } from './features/login/login';
+import { GameComponent } from './features/game/game.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -17,5 +18,6 @@ export const routes: Routes = [
   { path: 'create-room', component: CreateRoomComponent },
   { path: 'join-room', component: JoinRoomComponent },
   { path: 'waiting-room', component: WaitingRoomComponent},
+  { path: 'game', component: GameComponent },
   { path: '**', redirectTo: '' }
 ];
