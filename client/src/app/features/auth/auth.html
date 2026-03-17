@@ -1,0 +1,38 @@
+<div class="auth-splash">
+    <!-- Fondo splash igual que Home -->
+    <div class="splash-screen">
+        <h1 class="game-title">ROCK, PAPER OR SCISSORS</h1>
+
+        <div class="hands-container">
+            <div class="hand-item">
+                <img src="/images/rockHand.png" alt="Rock"
+                    class="hand-icon">
+            </div>
+            <div class="hand-item">
+                <img src="/images/PaperHand.png" alt="Paper"
+                    class="hand-icon">
+            </div>
+            <div class="hand-item">
+                <img src="/images/scissorsHand.png" alt="Scissors"
+                    class="hand-icon">
+            </div>
+        </div>
+
+        <p class="game-subtitle">THE GAME</p>
+
+        <!-- Los botones LOGIN / REGISTER del mockup -->
+        <div class="auth-buttons">
+            <button class="auth-btn login-btn" (click)="onLogin()">
+                LOGIN
+            </button>
+            <button class="auth-btn register-btn" (click)="onRegister()">
+                REGISTER
+            </button>
+        </div>
+
+        <!-- Botón atrás -->
+        <button class="back-btn" (click)="backHome()">
+            BACK
+        </button>
+    </div>
+</div>

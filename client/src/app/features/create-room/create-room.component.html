@@ -8,17 +8,9 @@
         <!-- Formulario -->
         <form class="create-form" (ngSubmit)="onCreate()">
 
-            <!-- Your Name -->
             <div class="form-group">
-                <label for="yourName" class="form-label">YOUR NAME:</label>
-                <input
-                    type="text"
-                    id="yourName"
-                    class="form-input"
-                    [(ngModel)]="yourName"
-                    name="yourName"
-                    required
-                    maxlength="20">
+                <label class="form-label">PLAYING AS:</label>
+                <p class="username-display">{{ username }}</p>
             </div>
 
             <!-- Room Name -->
@@ -61,9 +53,9 @@
                     <button
                         type="button"
                         class="round-button"
-                        [class.selected]="selectedRounds === 6"
-                        (click)="selectRounds(6)">
-                        6
+                        [class.selected]="selectedRounds === 5"
+                        (click)="selectRounds(5)">
+                        5
                     </button>
                     <button
                         type="button"

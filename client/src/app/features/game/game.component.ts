@@ -1,96 +1,92 @@
-// import { Component, inject, OnInit } from '@angular/core';
-// import { CommonModule } from '@angular/common';
-// import { RouterLink } from '@angular/router';
-// import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-// import { GameService } from '../../services/game.service';
-// import { MediaPipeService, GestureType } from '../../services/mediapipe.service';
-// import { GameState, Choice } from '../../models/game-state.model';
-// import { StatusPanelComponent } from '../../components/status-panel/status-panel.component';
-// import { GameArenaComponent } from '../../components/game-arena/game-arena.component';
-// import { ActionButtonsComponent } from '../../components/action-buttons/action-buttons.component';
-// import { GestureDetectorComponent } from '../../components/gesture-detector/gesture-detector.component';
-// import { HistoryComponent } from '../../components/history/history.component';
-
-// @Component({
-//   selector: 'app-game',
-//   standalone: true,
-//   imports: [
-//     CommonModule,
-//     RouterLink,
-//     StatusPanelComponent,
-//     GameArenaComponent,
-//     ActionButtonsComponent,
-//     GestureDetectorComponent,
-//     HistoryComponent,
-//   ],
-//   templateUrl: './game.component.html',
-//   styleUrls: ['./game.component.css']
-// })
-// export class GameComponent {
-//   private gameService = inject(GameService);
-//   private mediaPipeService = inject(MediaPipeService);
-//   private router = inject(Router);
-
-//   gameState$ = this.gameService.gameState$;
-//   currentGesture$ = this.mediaPipeService.currentGesture$;
-//   isCameraReady$ = this.mediaPipeService.isCameraReady$;
-
-//   ngOnInit(): void {
-//     this.gameState$
-//       .pipe(takeUntilDestroyed())
-//       .subscribe(state => {
-//         if (!state.roomId) {
-//           this.router.navigate(['/']);
-//         }
-//       });
-
-//     // Auto-jugar con gestos
-//     this.currentGesture$
-//       .pipe(takeUntilDestroyed())
-//       .subscribe(gesture => {
-//         if (gesture && this.gameService.gameState$.value.isRoundActive) {
-//           this.onGestureDetected(gesture);
-//         }
-//       });
-//   }
-
-//   onPlayerChoice(choice: Choice): void {
-//     this.gameService.makeChoice(choice);
-//   }
-
-//   onGestureDetected(gesture: GestureType): void {
-//     if (gesture) {
-//       this.gameService.makeChoice(gesture as Choice);
-//     }
-//   }
-
-//   async toggleCamera(): Promise<void> {
-//     if (this.mediaPipeService.isCameraReady$.value) {
-//       this.mediaPipeService.stopCamera();
-//     } else {
-//       await this.mediaPipeService.initCamera();
-//     }
-//   }
-
-//   leaveGame(): void {
-//     this.gameService.resetGame();
-//     this.router.navigate(['/']);
-//   }
-// }
-
-/* COMENTADO TEMPORALMENTE POR KAREN - ERRORES DE COMPILACIÓN
-
-// ... pega aquí TODO el contenido actual del archivo
-
-FIN DEL COMENTARIO */
-
-// Componente temporal vacío para que compile
-import { Component } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-game',
   standalone: true,
-  template: '<div>Game component - En desarrollo</div>',
-  styles: []
+  imports: [CommonModule],
+  templateUrl: './game.component.html',
+  styleUrls: ['./game.component.css']
 })
-export class GameComponent {}
+export class GameComponent implements OnInit, OnDestroy {
+  @ViewChild('localVideo') localVideo!: ElementRef<HTMLVideoElement>;
+
+  // Info partida
+  roomCode = 'KDS865';
+  roomName = 'Son\'s of MELOLA';
+  currentRound = 1;
+  totalRounds = 5;
+
+  // Gestos
+  myGesture = '';
+  opponentGesture = 'Paper!';
+
+  // Vidas (true = rojo, false = blanco/perdida)
+  myLives = [true, true, true];
+  opponentLives = [true, true, true];
+
+  // Camara
+  private stream: MediaStream | null = null;
+
+  constructor(private router: Router) {}
+
+  async ngOnInit() {
+    await this.startCamera();
+  }
+
+  async startCamera() {
+    try {
+      this.stream = await navigator.mediaDevices.getUserMedia({
+        video: true,
+        audio: false
+      });
+      setTimeout(() => {
+        if (this.localVideo?.nativeElement) {
+          this.localVideo.nativeElement.srcObject = this.stream;
+        }
+      }, 100);
+    } catch (error) {
+      console.error('Error accediendo a camara:', error);
+    }
+  }
+
+  // Pierde vida → ultimo corazon rojo se pone blanco
+  loseMyLife() {
+    const index = this.myLives.lastIndexOf(true);
+    if (index !== -1) {
+      this.myLives[index] = false;
+    }
+  }
+
+  loseOpponentLife() {
+    const index = this.opponentLives.lastIndexOf(true);
+    if (index !== -1) {
+      this.opponentLives[index] = false;
+    }
+  }
+
+  onNextRound() {
+    if (this.currentRound < this.totalRounds) {
+      this.currentRound++;
+      this.myGesture = '';
+      this.loseMyLife(); // ← TEMPORAL para probar, Kai lo conecta al resultado real
+    }
+  }
+
+  onExit() {
+    this.stopCamera();
+    this.router.navigate(['/room-menu']);
+  }
+
+  stopCamera() {
+    if (this.stream) {
+      this.stream.getTracks().forEach(track => track.stop());
+      this.stream = null;
+    }
+  }
+
+  ngOnDestroy() {
+    this.stopCamera();
+  }
+}

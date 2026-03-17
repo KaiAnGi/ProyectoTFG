@@ -1,0 +1,37 @@
+<div class="join-room-screen">
+    <div class="logo-background"></div>
+
+    <div class="join-room-content">
+        <h1 class="page-title">SIGN IN</h1>
+
+        <form class="join-form" (ngSubmit)="onLogin()">
+
+            <div class="form-group">
+                <label class="form-label">EMAIL ADDRESS:</label>
+                <input type="email" class="form-input"
+                    [(ngModel)]="correo" name="correo"
+                    required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">PASSWORD:</label>
+                <input type="password" class="form-input"
+                    [(ngModel)]="password" name="password"
+                    required maxlength="20">
+            </div>
+
+            <p class="error-msg" *ngIf="loginError">
+                Correo o contraseña incorrectos
+            </p>
+
+            <div class="action-buttons">
+                <button type="submit" class="submit-button">LOGIN</button>
+                <button type="button" class="cancel-button"
+                    (click)="goBack()">CANCEL</button>
+            </div>
+
+        </form>
+
+        <button class="back-button" (click)="goBack()">BACK</button>
+    </div>
+</div>

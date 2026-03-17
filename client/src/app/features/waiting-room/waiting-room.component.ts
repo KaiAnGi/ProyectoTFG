@@ -41,8 +41,7 @@ export class WaitingRoomComponent {
 
   startGame(): void {
     if (this.canStartGame()) {
-      // TODO: Navegar a pantalla de juego
-      console.log('Starting game...');
+      this.router.navigate(['/game']);
     }
   }
 

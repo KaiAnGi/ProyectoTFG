@@ -210,6 +210,16 @@
   transform: translateY(-2px);
 }
 
+.username-display {
+  font-size: clamp(1rem, 2vw, 1.2rem);
+  color: #e0e0e0;
+  padding: 0.6rem 1rem;
+  background: rgba(60,60,60,0.4);
+  border-radius: 8px;
+  font-family: 'Outfit', sans-serif;
+  letter-spacing: 0.1em;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .page-title {
