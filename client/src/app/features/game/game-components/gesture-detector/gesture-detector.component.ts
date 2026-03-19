@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { MediaPipeService, GestureType } from '../../../../services/mediapipe.service';
 import { GameService } from '../../../../services/game.service';
 import { Choice } from '../../../../models/game-state.model';
-// ✅ NO importar GestureDetectorService - se usa internamente en MediaPipeService
 
 @Component({
   selector: 'app-gesture-detector',
@@ -11,10 +10,8 @@ import { Choice } from '../../../../models/game-state.model';
   imports: [CommonModule],
   templateUrl: './gesture-detector.component.html',
   styleUrl: './gesture-detector.component.css',
-  // ✅ takeUntilDestroyed automático con destroyRef (Angular 16+)
 })
 export class GestureDetectorComponent implements AfterViewInit {
-  // ✅ SOLO servicios realmente usados
   private mediaPipeService = inject(MediaPipeService);
   private gameService = inject(GameService);
 
