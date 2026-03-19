@@ -4,7 +4,7 @@ import { SocketService } from './socket.service';
 import { GameState, Choice, RoundResult, PartialGameState } from '../models/game-state.model';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class GameService {
   private socketService = inject(SocketService);
@@ -21,7 +21,7 @@ export class GameService {
     opponentScore: 0,
     isWaitingOpponent: false,
     isRoundActive: false,
-    history: []
+    history: [],
   });
 
   public gameState$ = this.gameStateSubject.asObservable();
@@ -30,7 +30,7 @@ export class GameService {
     this.socketService.on('room_created').subscribe((data: any) => {
       this.updateGameState({
         roomId: data.roomId,
-        isWaitingOpponent: true
+        isWaitingOpponent: true,
       });
     });
 
@@ -38,7 +38,7 @@ export class GameService {
       this.updateGameState({
         roomId: data.roomId,
         opponentName: data.players[1],
-        isWaitingOpponent: false
+        isWaitingOpponent: false,
       });
     });
 
@@ -47,27 +47,29 @@ export class GameService {
         roundNumber: data.roundNumber,
         playerChoice: null,
         opponentChoice: null,
-        isRoundActive: true
+        isRoundActive: true,
       });
     });
 
-this.socketService.on('round_result').subscribe((data: any) => {
-  const currentState = this.gameStateSubject.value;
-  this.updateGameState({
-    opponentChoice: data.opponentChoice || null,
-    playerScore: data.playerScore || 0,
-    opponentScore: data.opponentScore || 0,
-    roundNumber: data.roundNumber || 1,
-    isRoundActive: false,
-    history: [...currentState.history, {
-      round: currentState.roundNumber,
-      playerChoice: (data.playerChoice as Choice) || 'rock',
-      opponentChoice: (data.opponentChoice as Choice) || 'rock',
-      result: (data.result as RoundResult) || 'tie'
-    }]
-  });
-});
-
+    this.socketService.on('round_result').subscribe((data: any) => {
+      const currentState = this.gameStateSubject.value;
+      this.updateGameState({
+        opponentChoice: data.opponentChoice || null,
+        playerScore: data.playerScore || 0,
+        opponentScore: data.opponentScore || 0,
+        roundNumber: data.roundNumber || 1,
+        isRoundActive: false,
+        history: [
+          ...currentState.history,
+          {
+            round: currentState.roundNumber,
+            playerChoice: (data.playerChoice as Choice) || 'rock',
+            opponentChoice: (data.opponentChoice as Choice) || 'rock',
+            result: (data.result as RoundResult) || 'tie',
+          },
+        ],
+      });
+    });
 
     this.socketService.on('match_finished').subscribe((data: any) => {
       console.log('PARTIDA FINALIZADA:', data);
@@ -89,13 +91,17 @@ this.socketService.on('round_result').subscribe((data: any) => {
   }
 
   /** Elegir gesto */
-makeChoice(choice: Choice): void {
-  const roomId = this.gameStateSubject.value.roomId;
-  if (!roomId || !this.gameStateSubject.value.isRoundActive) return;
+  makeChoice(choice: Choice): void {
+    const roomId = this.gameStateSubject.value.roomId;
+    if (
+      !roomId
+      //|| !this.gameStateSubject.value.isRoundActive //DEBUGGING TEMPORAL
+    )
+      return;
 
-  this.updateGameState({ playerChoice: choice });
-  this.socketService.emit('player_choice', { roomId, choice }); // EMIT A DIEGUITO
-}
+    this.updateGameState({ playerChoice: choice });
+    this.socketService.emit('player_choice', { roomId, choice }); // EMIT A DIEGUITO
+  }
 
   /** Actualizar estado de forma inmutable */
   private updateGameState(partial: PartialGameState): void {
@@ -117,7 +123,7 @@ makeChoice(choice: Choice): void {
       opponentScore: 0,
       isWaitingOpponent: false,
       isRoundActive: false,
-      history: []
+      history: [],
     });
     this.socketService.disconnect();
   }

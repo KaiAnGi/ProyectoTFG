@@ -1,65 +1,68 @@
 <div class="game-screen">
-    <div class="logo-background"></div>
+  <div class="logo-background"></div>
 
-    <!-- HEADER -->
-    <div class="game-header">
-        <div class="room-code">
-            ROOM CODE: <span class="code-badge">{{ roomCode }}</span>
-        </div>
-        <div class="header-center">
-            <h1 class="game-title">¡LET'S PLAY!</h1>
-            <p class="room-name">{{ roomName }}</p>
-        </div>
-        <div class="round-info">
-            ROUND: {{ currentRound }}/{{ totalRounds }}
-        </div>
+  <!-- HEADER -->
+  <div class="game-header">
+    <div class="room-code">
+      ROOM CODE: <span class="code-badge">{{ roomCode }}</span>
+    </div>
+    <div class="header-center">
+      <h1 class="game-title">¡LET'S PLAY!</h1>
+      <p class="room-name">{{ roomName }}</p>
+    </div>
+    <div class="round-info">
+      ROUND: {{ currentRound }}/{{ totalRounds }}
+    </div>
+  </div>
+
+  <!-- JUGADORES -->
+  <div class="players-container">
+
+    <!-- PLAYER 1 -->
+    <div class="player-section">
+      <h2 class="player-label">Player 1 (You)</h2>
+
+      <div class="camera-box">
+        <!-- el detector (Kai) gestiona la camara -->
+        <app-gesture-detector></app-gesture-detector>
+      </div>
+
+      <p class="gesture-label">
+        {{ getGestureText(myGesture) }}
+      </p>
+
+      <div class="lives">
+        <img *ngFor="let vida of myLives" [src]="vida ? '/images/CorazonRojo.png' : '/images/corazonBlanco.png'"
+          class="heart-icon" alt="vida">
+      </div>
     </div>
 
-    <!-- JUGADORES -->
-    <div class="players-container">
-
-        <!-- PLAYER 1 -->
-        <div class="player-section">
-            <h2 class="player-label">Player 1 (You)</h2>
-            <div class="camera-box">
-                <video #localVideo autoplay playsinline muted
-                    class="camera-feed"></video>
-            </div>
-            <p class="gesture-label">{{ myGesture }}</p>
-            <div class="lives">
-                <img *ngFor="let vida of myLives"
-                    [src]="vida ? '/images/CorazonRojo.png' : '/images/corazonBlanco.png'"
-                    class="heart-icon" alt="vida">
-            </div>
-        </div>
-
-        <!-- RAYO -->
-        <div class="vs-divider">
-            <img src="/images/rayo.png" alt="vs" class="lightning-img">
-        </div>
-
-        <!-- PLAYER 2 -->
-        <div class="player-section">
-            <h2 class="player-label">Player 2 (Opponent)</h2>
-            <div class="camera-box">
-                <video #remoteVideo autoplay playsinline
-                    class="camera-feed"></video>
-            </div>
-            <p class="gesture-label">{{ opponentGesture }}</p>
-            <div class="lives">
-                <img *ngFor="let vida of opponentLives"
-                    [src]="vida ? '/images/CorazonRojo.png' : '/images/corazonBlanco.png'"
-                    class="heart-icon" alt="vida">
-            </div>
-        </div>
-
+    <!-- RAYO -->
+    <div class="vs-divider">
+      <img src="/images/rayo.png" alt="vs" class="lightning-img">
     </div>
 
-    <!-- FOOTER -->
-    <div class="game-footer">
-        <button class="exit-btn" (click)="onExit()">EXIT</button>
-        <button class="next-round-btn" (click)="onNextRound()">NEXT
-            ROUND</button>
+    <!-- PLAYER 2 -->
+    <div class="player-section">
+      <h2 class="player-label">Player 2 (Opponent)</h2>
+      <div class="camera-box">
+        <video #remoteVideo autoplay playsinline class="camera-feed"></video>
+      </div>
+
+      <p class="gesture-label">{{ opponentGesture }}</p>
+
+      <div class="lives">
+        <img *ngFor="let vida of opponentLives" [src]="vida ? '/images/CorazonRojo.png' : '/images/corazonBlanco.png'"
+          class="heart-icon" alt="vida">
+      </div>
     </div>
+
+  </div>
+
+  <!-- FOOTER -->
+  <div class="game-footer">
+    <button class="exit-btn" (click)="onExit()">EXIT</button>
+    <button class="next-round-btn" (click)="onNextRound()">NEXT ROUND</button>
+  </div>
 
 </div>

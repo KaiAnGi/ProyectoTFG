@@ -1,92 +1,71 @@
-import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { Router } from '@angular/router';
+import { GameService } from '../../services/game.service';
+import { GestureDetectorComponent } from './game-components/gesture-detector/gesture-detector.component';
+import { CommonModule } from '@angular/common';
+import { Choice } from '../../models/game-state.model';
 
 @Component({
   selector: 'app-game',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, GestureDetectorComponent],
   templateUrl: './game.component.html',
-  styleUrls: ['./game.component.css']
+  styleUrls: ['./game.component.css'],
 })
 export class GameComponent implements OnInit, OnDestroy {
-  @ViewChild('localVideo') localVideo!: ElementRef<HTMLVideoElement>;
+  private router = inject(Router);
+  private gameService = inject(GameService);
 
-  // Info partida
   roomCode = 'KDS865';
-  roomName = 'Son\'s of MELOLA';
+  roomName = "Son's of MELOLA";
   currentRound = 1;
   totalRounds = 5;
 
-  // Gestos
-  myGesture = '';
+  myGesture: Choice | null = null;
   opponentGesture = 'Paper!';
 
-  // Vidas (true = rojo, false = blanco/perdida)
   myLives = [true, true, true];
   opponentLives = [true, true, true];
 
-  // Camara
-  private stream: MediaStream | null = null;
-
-  constructor(private router: Router) {}
-
-  async ngOnInit() {
-    await this.startCamera();
+  ngOnInit() {
+    this.gameService.gameState$.subscribe((state) => {
+      this.myGesture = state.playerChoice;
+    });
   }
 
-  async startCamera() {
-    try {
-      this.stream = await navigator.mediaDevices.getUserMedia({
-        video: true,
-        audio: false
-      });
-      setTimeout(() => {
-        if (this.localVideo?.nativeElement) {
-          this.localVideo.nativeElement.srcObject = this.stream;
-        }
-      }, 100);
-    } catch (error) {
-      console.error('Error accediendo a camara:', error);
-    }
-  }
-
-  // Pierde vida → ultimo corazon rojo se pone blanco
   loseMyLife() {
     const index = this.myLives.lastIndexOf(true);
-    if (index !== -1) {
-      this.myLives[index] = false;
-    }
+    if (index !== -1) this.myLives[index] = false;
   }
 
   loseOpponentLife() {
     const index = this.opponentLives.lastIndexOf(true);
-    if (index !== -1) {
-      this.opponentLives[index] = false;
-    }
+    if (index !== -1) this.opponentLives[index] = false;
   }
 
   onNextRound() {
     if (this.currentRound < this.totalRounds) {
       this.currentRound++;
-      this.myGesture = '';
-      this.loseMyLife(); // ← TEMPORAL para probar, Kai lo conecta al resultado real
+      this.myGesture = null;
+    }
+  }
+
+  getGestureText(choice: Choice | null): string {
+    switch (choice) {
+      case 'rock':
+        return 'Rock!';
+      case 'paper':
+        return 'Paper!';
+      case 'scissors':
+        return 'Scissors!';
+      default:
+        return '';
     }
   }
 
   onExit() {
-    this.stopCamera();
     this.router.navigate(['/room-menu']);
   }
 
-  stopCamera() {
-    if (this.stream) {
-      this.stream.getTracks().forEach(track => track.stop());
-      this.stream = null;
-    }
-  }
-
-  ngOnDestroy() {
-    this.stopCamera();
-  }
+  ngOnDestroy() {}
 }

@@ -8,6 +8,7 @@ import { AuthComponent } from './features/auth/auth';
 import { RegisterComponent } from './features/register/register';
 import { LoginComponent } from './features/login/login';
 import { GameComponent } from './features/game/game.component';
+import { GestureDetectorComponent } from './features/game/game-components/gesture-detector/gesture-detector.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -17,7 +18,8 @@ export const routes: Routes = [
   { path: 'room-menu', component: RoomMenuComponent },
   { path: 'create-room', component: CreateRoomComponent },
   { path: 'join-room', component: JoinRoomComponent },
-  { path: 'waiting-room', component: WaitingRoomComponent},
+  { path: 'waiting-room', component: WaitingRoomComponent },
   { path: 'game', component: GameComponent },
-  { path: '**', redirectTo: '' }
+  { path: 'gesture-detector', component: GestureDetectorComponent },
+  { path: '**', redirectTo: '' },
 ];

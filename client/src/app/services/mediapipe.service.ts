@@ -10,7 +10,6 @@ export type GestureType = 'rock' | 'paper' | 'scissors' | null;
 
 @Injectable({ providedIn: 'root' })
 export class MediaPipeService {
-
   private gestureDetector = inject(GestureDetectorService);
   private handRenderer = inject(HandRendererService);
 
@@ -37,23 +36,24 @@ export class MediaPipeService {
     try {
       await this.waitForVideoReady(video);
       this.hands = new Hands({
-        locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4/${file}`
+        locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4/${file}`,
       });
 
       this.hands.setOptions({
-        maxNumHands: 1, modelComplexity: 1,
-        minDetectionConfidence: 0.5, minTrackingConfidence: 0.5
+        maxNumHands: 1,
+        modelComplexity: 1,
+        minDetectionConfidence: 0.5,
+        minTrackingConfidence: 0.5,
       });
 
-      this.hands.onResults((results: Results) =>
-        this.onResults(results, canvas, video)
-      );
+      this.hands.onResults((results: Results) => this.onResults(results, canvas, video));
 
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      await new Promise((resolve) => setTimeout(resolve, 1500));
 
       this.camera = new Camera(video, {
         onFrame: () => this.hands.send({ image: video }),
-        width: 640, height: 480
+        width: 640,
+        height: 480,
       });
 
       await this.camera.start();
@@ -70,12 +70,22 @@ export class MediaPipeService {
   private onResults(results: Results, canvas: HTMLCanvasElement, video: HTMLVideoElement): void {
     const ctx = canvas.getContext('2d')!;
 
+    // RESET TOTAL del estado del canvas
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.globalAlpha = 1;
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.shadowBlur = 0;
+    ctx.shadowColor = 'transparent';
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
     if (results.multiHandLandmarks?.[0]) {
       const landmarks = results.multiHandLandmarks[0] as NormalizedLandmarkList;
 
       this.handRenderer.drawSkeleton(ctx, landmarks, canvas.width, canvas.height);
+
       const detection = this.gestureDetector.detect(landmarks);
 
       this.gestureSubject.next(detection.gesture);

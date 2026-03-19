@@ -1,0 +1,22 @@
+<!-- components/leaderboard/leaderboard.component.html -->
+<div class="leaderboard-container">
+  <h2>Ranking - Victorias Consecutivas</h2>
+  <table class="leaderboard-table">
+    <thead>
+      <tr>
+        <th>Posición</th>
+        <th>Jugador</th>
+        <th>Racha Actual</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (player of leaderboard$ | async; track player._id || player.playerName; let i = $index) {
+      <tr>
+        <td>{{ i + 1 }}</td>
+        <td>{{ player.playerName }}</td>
+        <td>{{ player.consecutiveWins }}</td>
+      </tr>
+      }
+    </tbody>
+  </table>
+</div>
