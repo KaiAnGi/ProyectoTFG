@@ -1,29 +1,10 @@
-<!-- gesture-detector.component.html -->
 <div class="gesture-detector">
   <div class="video-container">
-    <video #videoElement class="video-hidden" autoplay playsinline></video>
-    <canvas #canvasElement width="640" height="480" class="gesture-canvas"></canvas>
+    <!-- 🔴 IMPORTANTE: este video NO debe estar oculto -->
+    <video #videoElement autoplay playsinline class="camera-feed"></video>
+
+    <!-- Canvas encima -->
+    <canvas #canvasElement width="640" height="480" class="gesture-canvas">
+    </canvas>
   </div>
-
-  @if (isCameraReady()) {
-    <div class="status ready">
-      Cámara activa
-    </div>
-  }
-
-  @if (currentGesture()) {
-    <div class="gesture-display">
-      <div class="{{ getGestureClass(currentGesture()) }}"></div>
-      <p>¡{{ getGestureName(currentGesture()) }}!
-         Confianza: {{ confidence() | number:'1.2-2' }}</p>
-    </div>
-  } @else {
-    <div class="no-gesture">
-      👋 Muestra tu mano claramente
-    </div>
-  }
-
-  @if (error()) {
-    <div class="error">{{ error() }}</div>
-  }
 </div>

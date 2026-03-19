@@ -4,32 +4,64 @@ import { NormalizedLandmarkList } from '@mediapipe/hands';
 
 @Injectable({ providedIn: 'root' })
 export class HandRendererService {
-
-  drawSkeleton(ctx: CanvasRenderingContext2D, landmarks: NormalizedLandmarkList, width: number, height: number): void {
+  drawSkeleton(
+    ctx: CanvasRenderingContext2D,
+    landmarks: NormalizedLandmarkList,
+    width: number,
+    height: number,
+  ): void {
     this.setupCanvas(ctx);
     this.drawBones(ctx, landmarks, width, height);
     this.drawJoints(ctx, landmarks, width, height);
+    ctx.restore();
   }
 
   private setupCanvas(ctx: CanvasRenderingContext2D): void {
-    const pulseTime = Date.now() * 0.001;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
-    ctx.shadowBlur = 15;
-    ctx.shadowColor = `hsl(${200 + Math.sin(pulseTime)*20}, 100%, 50%)`;
+    ctx.shadowBlur = 0;
+    ctx.shadowColor = 'rgba(0,0,0,0)';
   }
 
-  private drawBones(ctx: CanvasRenderingContext2D, landmarks: NormalizedLandmarkList, width: number, height: number): void {
+  private drawBones(
+    ctx: CanvasRenderingContext2D,
+    landmarks: NormalizedLandmarkList,
+    width: number,
+    height: number,
+  ): void {
     const boneConnections = [
-      [0,1],[0,5],[0,9],[0,13],[0,17], [5,9],[9,13],[13,17], // Palma
-      [1,2],[2,3],[3,4], [5,6],[6,7],[7,8], [9,10],[10,11],[11,12],
-      [13,14],[14,15],[15,16], [17,18],[18,19],[19,20] // Dedos
+      [0, 1],
+      [0, 5],
+      [0, 9],
+      [0, 13],
+      [0, 17],
+      [5, 9],
+      [9, 13],
+      [13, 17], // Palma
+      [1, 2],
+      [2, 3],
+      [3, 4],
+      [5, 6],
+      [6, 7],
+      [7, 8],
+      [9, 10],
+      [10, 11],
+      [11, 12],
+      [13, 14],
+      [14, 15],
+      [15, 16],
+      [17, 18],
+      [18, 19],
+      [19, 20], // Dedos
     ];
 
     boneConnections.forEach(([startIdx, endIdx], index) => {
-      const start = landmarks[startIdx], end = landmarks[endIdx];
-      const x1 = start.x * width, y1 = start.y * height;
-      const x2 = end.x * width, y2 = end.y * height;
+      const start = landmarks[startIdx],
+        end = landmarks[endIdx];
+      const x1 = start.x * width,
+        y1 = start.y * height;
+      const x2 = end.x * width,
+        y2 = end.y * height;
 
       // Hueso con gradiente 3D
       const gradient = ctx.createLinearGradient(x1, y1, x2, y2);
@@ -52,23 +84,35 @@ export class HandRendererService {
     });
   }
 
-  private drawBoneHighlight(ctx: CanvasRenderingContext2D, x1: number, y1: number, x2: number, y2: number): void {
+  private drawBoneHighlight(
+    ctx: CanvasRenderingContext2D,
+    x1: number,
+    y1: number,
+    x2: number,
+    y2: number,
+  ): void {
     ctx.shadowBlur = 0;
     ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
     ctx.lineWidth = 2;
     ctx.beginPath();
-    ctx.moveTo(x1 + (x2-x1)*0.2, y1 + (y2-y1)*0.2);
-    ctx.lineTo(x2 - (x2-x1)*0.2, y2 - (y2-y1)*0.2);
+    ctx.moveTo(x1 + (x2 - x1) * 0.2, y1 + (y2 - y1) * 0.2);
+    ctx.lineTo(x2 - (x2 - x1) * 0.2, y2 - (y2 - y1) * 0.2);
     ctx.stroke();
   }
 
-  private drawJoints(ctx: CanvasRenderingContext2D, landmarks: NormalizedLandmarkList, width: number, height: number): void {
-    const joints = [0,1,5,9,13,17, 4,8,12,16,20];
+  private drawJoints(
+    ctx: CanvasRenderingContext2D,
+    landmarks: NormalizedLandmarkList,
+    width: number,
+    height: number,
+  ): void {
+    const joints = [0, 1, 5, 9, 13, 17, 4, 8, 12, 16, 20];
 
-    joints.forEach(jointIdx => {
+    joints.forEach((jointIdx) => {
       const joint = landmarks[jointIdx];
-      const jx = joint.x * width, jy = joint.y * height;
-      const radius = jointIdx === 0 ? 12 : (jointIdx <= 17 ? 9 : 7);
+      const jx = joint.x * width,
+        jy = joint.y * height;
+      const radius = jointIdx === 0 ? 12 : jointIdx <= 17 ? 9 : 7;
       this.drawJoint(ctx, jx, jy, radius);
     });
   }
