@@ -10,6 +10,9 @@ export interface ServerToClientEvents {
     result: string;
     playerScore: number;
     opponentScore: number;
+    player1Lives: number;
+    player2Lives: number;
+    roundEnded: boolean;
     roundNumber: number;
     isFinished: boolean;
   }) => void;

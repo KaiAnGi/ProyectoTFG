@@ -6,10 +6,12 @@ const baseUrl = process.env.BASE_URL || "http://localhost:3000";
   Test para verificar que maxRounds funciona correctamente con diferentes valores.
   
   Qué valida:
-  - maxRounds de 3 requiere 2 victorias para ganar
-  - maxRounds de 5 requiere 3 victorias para ganar
-  - maxRounds de 9 requiere 5 victorias para ganar
-  - Las partidas terminan automáticamente cuando se alcanza el número de victorias necesarias
+  - 3, 5 o 9 rondas se completan correctamente
+  - Cada ronda: jugadores tienen 3 vidas, pierden 1 por duelo perdido
+  - Cuando alguien llega a 0 vidas: ronda cierra, ganador suma 1 punto
+  - Siguiente ronda empieza automáticamente (sin waiting_action)
+  - Partida termina al completar N rondas (N=maxRounds)
+  - Score final refleja rondas ganadas, no duel wins
 */
 
 const testCases = [
@@ -40,9 +42,12 @@ function runTest(testCase) {
   let roomId = null;
   let alice;
   let bob;
-  let aliceVictories = 0;
-  let bobVictories = 0;
+  let aliceRoundsWon = 0;
+  let bobRoundsWon = 0;
   let roundCount = 0;
+  let aliceLives = 3;
+  let bobLives = 3;
+  let duelCount = 0;
   
   const failTimer = setTimeout(() => {
     console.error(`Timeout en test ${testCase.name}`);
@@ -119,17 +124,43 @@ function runTest(testCase) {
   });
 
   alice.on("round_result", (data) => {
+    duelCount++;
+    
     if (data.result === "player1") {
-      aliceVictories++;
+      bobLives -= 1;
     } else if (data.result === "player2") {
-      bobVictories++;
+      aliceLives -= 1;
     }
+
+    let wasRoundEnded = false;
+    if (aliceLives === 0 || bobLives === 0) {
+      wasRoundEnded = true;
+      if (aliceLives > bobLives) {
+        aliceRoundsWon += 1;
+      } else if (bobLives > aliceLives) {
+        bobRoundsWon += 1;
+      }
+      aliceLives = 3;
+      bobLives = 3;
+    }
+
     console.log(
-      `Ronda ${data.roundNumber}: Alice ${aliceVictories} - ${bobVictories} Bob | isFinished: ${data.isFinished}`
+      `Duelo ${duelCount}: Alice ${aliceRoundsWon}-${bobRoundsWon} Bob | roundEnded: ${data.roundEnded} | ronda ${data.roundNumber}/${maxRounds} | isFinished: ${data.isFinished}`
     );
 
-    // Verificar que isFinished es correcto
-    const expectedFinished = aliceVictories >= winsNeeded || bobVictories >= winsNeeded;
+    // Verificar que roundEnded es correcto
+    if (data.roundEnded !== wasRoundEnded) {
+      console.error(
+        `ERROR: roundEnded debería ser ${wasRoundEnded} pero es ${data.roundEnded}`
+      );
+      clearTimeout(failTimer);
+      alice.disconnect();
+      bob.disconnect();
+      process.exit(1);
+    }
+
+    // Verificar que isFinished es correcto (true solo cuando roundEnded AND roundNumber >= maxRounds)
+    const expectedFinished = wasRoundEnded && data.roundNumber >= maxRounds;
     if (data.isFinished !== expectedFinished) {
       console.error(
         `ERROR: isFinished debería ser ${expectedFinished} pero es ${data.isFinished}`
@@ -139,10 +170,6 @@ function runTest(testCase) {
       bob.disconnect();
       process.exit(1);
     }
-
-    if (!data.isFinished) {
-      // La partida continúa
-    }
   });
 
   bob.on("round_result", (data) => {
@@ -150,9 +177,7 @@ function runTest(testCase) {
   });
 
   alice.on("waiting_action", (data) => {
-    // En este test, nunca debería llegar a waiting_action porque la partida
-    // termina automáticamente cuando alguien alcanza las victorias necesarias
-    console.error("ERROR: Recibido waiting_action cuando no debería");
+    console.error("ERROR: No se esperaba waiting_action en nuevo flujo", data);
     clearTimeout(failTimer);
     alice.disconnect();
     bob.disconnect();
@@ -161,12 +186,12 @@ function runTest(testCase) {
 
   alice.on("match_finished", (data) => {
     console.log(`Partida terminada. Ganador: ${data.winner}`);
-    console.log(`Score final: ${data.finalScore.player1} - ${data.finalScore.player2}`);
+    console.log(`Score final: ${data.finalScore.player1} (Alice) vs ${data.finalScore.player2} (Bob) rondas ganadas`);
 
-    // Verificar que el marcador final es correcto
-    if (data.finalScore.player1 !== aliceVictories || data.finalScore.player2 !== bobVictories) {
+    // Verificar que el marcador final es correcto (rondas ganadas, no duels)
+    if (data.finalScore.player1 !== aliceRoundsWon || data.finalScore.player2 !== bobRoundsWon) {
       console.error(
-        `ERROR: Score incorrecto. Esperado ${aliceVictories}-${bobVictories}, obtuvo ${data.finalScore.player1}-${data.finalScore.player2}`
+        `ERROR: Score incorrecto. Esperado ${aliceRoundsWon}-${bobRoundsWon}, obtuvo ${data.finalScore.player1}-${data.finalScore.player2}`
       );
       clearTimeout(failTimer);
       alice.disconnect();
@@ -174,11 +199,11 @@ function runTest(testCase) {
       process.exit(1);
     }
 
-    // Verificar que el ganador es correcto
-    const expectedWinner = aliceVictories >= winsNeeded ? `alice_${maxRounds}` : `bob_${maxRounds}`;
-    if (data.winner !== expectedWinner) {
+    // Verificar que el ganador es el que ganó más rondas
+    const expectedWinnerName = aliceRoundsWon > bobRoundsWon ? `alice_${maxRounds}` : `bob_${maxRounds}`;
+    if (data.winner !== expectedWinnerName) {
       console.error(
-        `ERROR: Ganador incorrecto. Esperado ${expectedWinner}, obtuvo ${data.winner}`
+        `ERROR: Ganador incorrecto. Esperado ${expectedWinnerName}, obtuvo ${data.winner}`
       );
       clearTimeout(failTimer);
       alice.disconnect();

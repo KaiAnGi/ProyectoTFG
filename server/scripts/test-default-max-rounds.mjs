@@ -29,6 +29,11 @@ const bob = io(baseUrl, { transports: ["websocket", "polling"], reconnection: fa
 const DEFAULT_MAX_ROUNDS = 3;
 let matchStarted = false;
 let matchFinished = false;
+let aliceRoundsWon = 0;
+let bobRoundsWon = 0;
+let aliceLives = 3;
+let bobLives = 3;
+let duelCount = 0;
 
 alice.on("connect", () => {
   console.log("Alice conectada");
@@ -103,9 +108,19 @@ bob.on("start_round", (data) => {
 });
 
 alice.on("round_result", (data) => {
+  duelCount++;
   console.log(
-    `Ronda ${data.roundNumber}: Alice ${data.playerScore} - ${data.opponentScore} Bob | isFinished: ${data.isFinished}`
+    `Duelo ${duelCount}: Alice ${aliceRoundsWon}-${bobRoundsWon} Bob | roundEnded: ${data.roundEnded} | vidas: Alice=${data.player1Lives} Bob=${data.player2Lives} | rondaCompleta: ${data.roundNumber}/${DEFAULT_MAX_ROUNDS} | isFinished: ${data.isFinished}`
   );
+
+  if (data.roundEnded) {
+    if (data.playerScore > bobRoundsWon) {
+      aliceRoundsWon = data.playerScore;
+    }
+    if (data.opponentScore > aliceRoundsWon) {
+      bobRoundsWon = data.opponentScore;
+    }
+  }
 });
 
 bob.on("round_result", (data) => {
@@ -113,22 +128,21 @@ bob.on("round_result", (data) => {
 });
 
 alice.on("waiting_action", (data) => {
-  // Este test no debe llegar aquí porque alice siempre gana con rock vs scissors
-  // Entonces en 2 rondas alice gana y termina
-  console.error("ERROR: Recibido waiting_action cuando no debería");
+  console.error("ERROR: No se esperaba waiting_action en nuevo flujo", data);
   cleanupAndExit(1);
 });
 
 alice.on("match_finished", (data) => {
   if (!matchFinished) {
     matchFinished = true;
-    console.log(`Partida terminada. Ganador: ${data.winner}`);
-    console.log(`Score final: ${data.finalScore.player1} - ${data.finalScore.player2}`);
+    console.log(`\nPartida terminada. Ganador: ${data.winner}`);
+    console.log(`Score final: Rondas ganadas - ${data.finalScore.player1} (Alice) vs ${data.finalScore.player2} (Bob)`);
     
     console.log("\n=== ✓ TEST DEFAULTMAXROUNDS PASÓ EXITOSAMENTE ===");
     console.log("- maxRounds por defecto es 3");
-    console.log("- La partida se jugó correctamente");
-    console.log("- La partida terminó cuando alguien alcanzó 2 victorias\n");
+    console.log("- Sistema de 3 vidas por ronda implementado");
+    console.log("- Avance automático de ronda sin acciones manuales");
+    console.log("- Partida terminó al completar las rondas\n");
     
     clearTimeout(failTimer);
     alice.disconnect();

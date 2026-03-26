@@ -5,7 +5,8 @@ export type PlayerAction = 'rematch' | 'retire';
 export interface Player {
   id: string;
   name: string;
-  consecutiveWins: number;
+  roundsWon: number;
+  lives: number;
   choice?: GameChoice | null;
   action?: PlayerAction | null;
 }
@@ -24,6 +25,9 @@ export interface RoundResult {
   result: GameResult;
   player1Score: number;
   player2Score: number;
+  player1Lives: number;
+  player2Lives: number;
+  roundEnded: boolean;
   roundNumber: number;
   isFinished: boolean;
   winner?: string;

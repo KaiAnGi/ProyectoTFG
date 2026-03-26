@@ -2,38 +2,35 @@ import { io } from "socket.io-client";
 
 const baseUrl = process.env.BASE_URL || "http://localhost:3000";
 let roomId = null;
-let maxRounds = 3; // Test con 3 rondas (necesita 2 victorias para ganar)
+let maxRounds = 3;
 
 /*
   Smoke test de juego por WebSocket (flujo completo de partida).
 
   Qué valida:
   - Conexión de dos clientes (`alice` y `bob`) al servidor Socket.IO.
-  - Creación de sala con maxRounds (3, 5 o 9), unión de segundo jugador e inicio de rondas.
-  - Emisión y recepción de elecciones por ronda (`player_choice`).
-  - Coherencia de `round_result`: ganador, elecciones, marcador y bandera isFinished.
-  - La partida termina automáticamente cuando alguien alcanza maxRounds/2 + 1 victorias.
-  - Flujo de terminación controlada de partida (`match_finished`).
+  - Creación y unión a sala con maxRounds.
+  - Cada ronda: jugadores tienen 3 vidas, pierden 1 por derrota.
+  - Cuando alguien llega a 0 vidas: ronda cierra automáticamente, ganador suma 1 punto de ronda.
+  - Siguiente ronda empieza automáticamente vía `start_round` (sin `waiting_action`).
+  - Partida termina cuando se alcanza `maxRounds` rondas y cierra última ronda.
+  - `round_result` incluye `roundEnded`, `player1Lives`, `player2Lives`.
 
   Cómo funciona:
-  1) Crea dos sockets cliente con transportes websocket/polling.
-  2) `alice` crea sala con maxRounds=3 y `bob` se une cuando recibe `room_created`.
-  3) En cada `start_round`, ambos envían jugada predefinida con pequeño retardo
-    aleatorio para simular latencia real.
-  4) Al recibir `round_result` en `alice`, el script calcula localmente el
-    resultado esperado y verifica:
-    - `result`,
-    - `playerScore` y `opponentScore` (victorias en la partida actual),
-    - `playerChoice` y `opponentChoice`,
-    - `isFinished` (debe ser true cuando alguien tenga 2 victorias).
-    Si algo no coincide, falla inmediatamente.
-  5) Continúa hasta que `isFinished` es true, momento en el que recibe `match_finished`.
-  6) Incluye timeout global configurable (`SMOKE_TIMEOUT_MS`, por defecto 20s).
+  1) Dos clientes con transporte websocket/polling.
+  2) Alice crea sala, Bob se une.
+  3) En cada ronda (empezando con 3 vidas c/u):
+     - Ambos envían elección.
+     - Servidor calcula ganador, pierde 1 vida quien pierde.
+     - Si alguien llega a 0: ronda cierra, punto al ganador.
+  4) Siguiente ronda arranca automáticamente (3 vidas de nuevo).
+  5) Al cerrar ronda N (N >= maxRounds): partida termina.
 
   Criterio de éxito:
-  - Se completa el flujo entero sin inconsistencias.
-  - La partida termina automáticamente cuando alguien alcanza 2 victorias.
-  - Se recibe `match_finished` con información correcta.
+  - Vidas se decrementan correctamente.
+  - roundEnded es true cuando alguien llega a 0 vidas.
+  - Transición de ronda es automática (sin acciones manuales).
+  - match_finished se recibe tras cerrar última ronda.
 */
 
 const timeoutMs = Number(process.env.SMOKE_TIMEOUT_MS || 20000);
@@ -76,14 +73,16 @@ const bobChoices = [
   "paper",
 ];
 
-let roundsPlayed = 0;
-let expectedAliceScore = 0;
-let expectedBobScore = 0;
+let expectedAliceRoundsWon = 0;
+let expectedBobRoundsWon = 0;
 let lastRoundNumber = 0;
 let matchFinished = false;
+let aliceLives = 3;
+let bobLives = 3;
+let duelCount = 0;
 
-function getChoice(choices, roundNumber) {
-  return choices[roundNumber - 1] || choices[choices.length - 1];
+function getChoice(choices, duelIndex) {
+  return choices[duelIndex] || choices[choices.length - 1];
 }
 
 function calculateWinner(aliceChoice, bobChoice) {
@@ -98,9 +97,8 @@ function calculateWinner(aliceChoice, bobChoice) {
   return "player2";
 }
 
-function calculateIsFinished(aliceScore, bobScore) {
-  const winsNeeded = Math.floor(maxRounds / 2) + 1;
-  return aliceScore >= winsNeeded || bobScore >= winsNeeded;
+function calculateIsFinished(roundNumber, roundEnded) {
+  return roundEnded && roundNumber >= maxRounds;
 }
 
 alice.on("connect", () => {
@@ -156,7 +154,7 @@ bob.on("room_joined", (data) => {
 alice.on("start_round", (data) => {
   console.log("alice start_round", data);
   lastRoundNumber = data.roundNumber;
-  const choice = getChoice(aliceChoices, data.roundNumber);
+  const choice = getChoice(aliceChoices, duelCount);
   const delayMs = 100 + Math.floor(Math.random() * 200);
   setTimeout(() => {
     alice.emit("player_choice", { roomId, choice });
@@ -165,7 +163,7 @@ alice.on("start_round", (data) => {
 
 bob.on("start_round", (data) => {
   console.log("bob start_round", data);
-  const choice = getChoice(bobChoices, data.roundNumber);
+  const choice = getChoice(bobChoices, duelCount);
   const delayMs = 100 + Math.floor(Math.random() * 200);
   setTimeout(() => {
     bob.emit("player_choice", { roomId, choice });
@@ -173,51 +171,62 @@ bob.on("start_round", (data) => {
 });
 
 alice.on("round_result", (data) => {
-  roundsPlayed += 1;
-  const roundNumber = lastRoundNumber || roundsPlayed;
-  const aliceChoice = getChoice(aliceChoices, roundNumber);
-  const bobChoice = getChoice(bobChoices, roundNumber);
+  const roundNumber = data.roundNumber || lastRoundNumber || 1;
+  const aliceChoice = getChoice(aliceChoices, duelCount);
+  const bobChoice = getChoice(bobChoices, duelCount);
   const expectedResult = calculateWinner(aliceChoice, bobChoice);
 
   if (expectedResult === "player1") {
-    expectedAliceScore += 1;
-    expectedBobScore = 0;
+    bobLives -= 1;
   } else if (expectedResult === "player2") {
-    expectedBobScore += 1;
-    expectedAliceScore = 0;
+    aliceLives -= 1;
   }
 
-  const expectedIsFinished = calculateIsFinished(expectedAliceScore, expectedBobScore);
+  let expectedRoundEnded = false;
+  if (aliceLives === 0 || bobLives === 0) {
+    expectedRoundEnded = true;
+    if (aliceLives > bobLives) {
+      expectedAliceRoundsWon += 1;
+    } else if (bobLives > aliceLives) {
+      expectedBobRoundsWon += 1;
+    }
+    aliceLives = 3;
+    bobLives = 3;
+  }
 
+  const expectedIsFinished = calculateIsFinished(roundNumber, expectedRoundEnded);
+  duelCount += 1;
   console.log("alice round_result", data, {
     roundNumber,
     aliceChoice,
     bobChoice,
     expectedResult,
-    expectedScores: { expectedAliceScore, expectedBobScore },
+    expectedRoundsWon: { expectedAliceRoundsWon, expectedBobRoundsWon },
+    expectedRoundEnded,
     expectedIsFinished,
   });
 
   if (
     data.result !== expectedResult ||
-    data.playerScore !== expectedAliceScore ||
-    data.opponentScore !== expectedBobScore ||
+    data.playerScore !== expectedAliceRoundsWon ||
+    data.opponentScore !== expectedBobRoundsWon ||
     data.playerChoice !== aliceChoice ||
     data.opponentChoice !== bobChoice ||
+    data.roundEnded !== expectedRoundEnded ||
     data.isFinished !== expectedIsFinished
   ) {
     console.error("round_result mismatch", {
       received: data,
       expectedResult,
-      expectedScores: { expectedAliceScore, expectedBobScore },
+      expectedRoundsWon: { expectedAliceRoundsWon, expectedBobRoundsWon },
       expectedChoices: { aliceChoice, bobChoice },
+      expectedRoundEnded,
       expectedIsFinished,
       roundNumber,
     });
     cleanupAndExit(1);
   }
 
-  // Si la partida terminó, no pedimos más acciones
   if (data.isFinished) {
     matchFinished = true;
   }
@@ -231,35 +240,28 @@ bob.on("round_result", (data) => {
 });
 
 alice.on("waiting_action", (data) => {
-  console.log("alice waiting_action", data);
-  // Si la partida ya terminó, no enviamos más acciones
-  if (matchFinished) {
-    console.log("Match already finished, skipping action");
-    return;
-  }
-  const action = "rematch"; // Con 3 rondas y nuestras elecciones, alice gana en 2 rondas
-  console.log("alice action:", action);
-  alice.emit("player_action", { roomId, action });
+  console.error("ERROR: No se esperaba waiting_action en nuevo flujo", data);
+  cleanupAndExit(1);
 });
 
 bob.on("waiting_action", (data) => {
-  console.log("bob waiting_action", data);
-  // Si la partida ya terminó, no enviamos más acciones
-  if (matchFinished) {
-    console.log("Match already finished, skipping action");
-    return;
-  }
-  bob.emit("player_action", { roomId, action: "rematch" });
+  console.error("ERROR: No se esperaba waiting_action en nuevo flujo", data);
+  cleanupAndExit(1);
 });
 
 alice.on("match_finished", (data) => {
   console.log("alice match_finished", data);
-  // Validar que el evento contiene información correcta
   if (!data.winner || !data.finalScore) {
     console.error("match_finished missing required fields", data);
     cleanupAndExit(1);
   }
-  // Esperar a que bob también reciba el evento antes de salir
+  if (data.finalScore.player1 !== expectedAliceRoundsWon || data.finalScore.player2 !== expectedBobRoundsWon) {
+    console.error("match_finished score mismatch", {
+      expected: { player1: expectedAliceRoundsWon, player2: expectedBobRoundsWon },
+      received: data.finalScore,
+    });
+    cleanupAndExit(1);
+  }
   setTimeout(() => {
     cleanupAndExit(0);
   }, 500);

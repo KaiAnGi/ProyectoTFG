@@ -11,7 +11,7 @@ export class GameRooms {
     const roomId = `room_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
     this.rooms.set(roomId, {
       roomId,
-      player1: { id: player1Id, name: player1Name, consecutiveWins: 0 },
+      player1: { id: player1Id, name: player1Name, roundsWon: 0, lives: 3 },
       player2: null,
       roundNumber: 1,
       maxRounds,
@@ -24,7 +24,7 @@ export class GameRooms {
   joinRoom(roomId: string, player2Id: string, player2Name: string): GameRoom | null {
     const room = this.rooms.get(roomId);
     if (room && !room.player2) {
-      room.player2 = { id: player2Id, name: player2Name, consecutiveWins: 0 };
+      room.player2 = { id: player2Id, name: player2Name, roundsWon: 0, lives: 3 };
       room.waitingForChoices.clear();
       room.waitingForActions.clear();
       return room;
@@ -54,29 +54,44 @@ export class GameRooms {
     const player2Choice = room.player2.choice;
     const result = this.calculateWinner(player1Choice, player2Choice);
 
-    // Update consecutive wins based on result
+    // El que pierde el duelo pierde una vida
     if (result === 'player1') {
-      room.player1.consecutiveWins += 1;
-      room.player2!.consecutiveWins = 0; // Reset player2 wins
+      room.player2!.lives = Math.max(0, room.player2!.lives - 1);
     } else if (result === 'player2') {
-      room.player2!.consecutiveWins += 1;
-      room.player1.consecutiveWins = 0; // Reset player1 wins
+      room.player1.lives = Math.max(0, room.player1.lives - 1);
     }
-    // On tie: keep consecutive wins as they are
+    // En empate no se modifica ninguna vida
+
+    const roundEnded = room.player1.lives === 0 || room.player2!.lives === 0;
+    if (roundEnded) {
+      if (room.player1.lives > room.player2!.lives) {
+        room.player1.roundsWon += 1;
+      } else if (room.player2!.lives > room.player1.lives) {
+        room.player2!.roundsWon += 1;
+      }
+
+      // Solo preparar siguiente ronda si el match no ha terminado.
+      if (room.roundNumber < room.maxRounds) {
+        room.roundNumber += 1;
+        room.player1.lives = 3;
+        room.player2!.lives = 3;
+      }
+    }
 
     room.player1.choice = null;
     room.player2!.choice = null;
     room.waitingForChoices.clear();
     room.waitingForActions.clear();
 
-    // Calculate wins needed to win the match
-    const winsNeeded = Math.floor(room.maxRounds / 2) + 1;
-    const isFinished = room.player1.consecutiveWins >= winsNeeded || room.player2!.consecutiveWins >= winsNeeded;
+    const isFinished = roundEnded && room.roundNumber >= room.maxRounds;
 
     return {
       result,
-      player1Score: room.player1.consecutiveWins,
-      player2Score: room.player2!.consecutiveWins,
+      player1Score: room.player1.roundsWon,
+      player2Score: room.player2!.roundsWon,
+      player1Lives: room.player1.lives,
+      player2Lives: room.player2!.lives,
+      roundEnded,
       roundNumber: room.roundNumber,
       isFinished,
       player1Choice,

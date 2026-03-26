@@ -47,21 +47,48 @@ export function setupGameHandlers(io: Server<ClientToServerEvents, ServerToClien
           const room = gameRooms.getRoom(roomId);
           
           if (room && room.player2) {
-            // Emitir resultado a ambos y esperar decisión de revancha/retiro
+            // Emitir resultado a ambos
             io.to(roomId).emit('round_result', {
               playerChoice: roundResult.player1Choice,
               opponentChoice: roundResult.player2Choice,
               result: roundResult.result,
               playerScore: roundResult.player1Score,
               opponentScore: roundResult.player2Score,
+              player1Lives: roundResult.player1Lives,
+              player2Lives: roundResult.player2Lives,
+              roundEnded: roundResult.roundEnded,
               roundNumber: roundResult.roundNumber,
               isFinished: roundResult.isFinished
             });
-            
-            // Si la partida terminó, esperar decisión de rematch/retire
-            if (!roundResult.isFinished) {
-              io.to(roomId).emit('waiting_action', {
-                message: 'Elige: rematch o retire'
+
+            // Si la partida terminó, esperar decisión de retiro o simplemente terminar
+            if (roundResult.isFinished) {
+              const player1Score = room.player1.roundsWon;
+              const player2Score = room.player2.roundsWon;
+              const winner = player1Score >= player2Score ? room.player1 : room.player2;
+              const loser = winner.id === room.player1.id ? room.player2 : room.player1;
+
+              io.to(roomId).emit('match_finished', {
+                winner: winner.name,
+                finalScore: { player1: player1Score, player2: player2Score }
+              });
+
+              rankingService.updatePlayerStats(winner.name, true).catch(err =>
+                console.error('Error al actualizar estadísticas:', err)
+              );
+              if (loser) {
+                rankingService.updatePlayerStats(loser.name, false).catch(err =>
+                  console.error('Error al actualizar estadísticas:', err)
+                );
+              }
+
+              console.log(`Partida terminada en ${roomId}. Ganador: ${winner.name}`);
+              gameRooms.cleanupRoom(roomId);
+            } else {
+              // La partida continúa: emitir siguiente ronda/duelo automáticamente
+              const nextRoundNumber = gameRooms.getRoom(roomId)?.roundNumber || roundResult.roundNumber;
+              io.to(roomId).emit('start_round', {
+                roundNumber: nextRoundNumber
               });
             }
           }
@@ -72,35 +99,16 @@ export function setupGameHandlers(io: Server<ClientToServerEvents, ServerToClien
     // Decisión de revancha o retiro
     socket.on('player_action', ({ roomId, action }) => {
       const room = gameRooms.getRoom(roomId);
-      const winsNeeded = room ? Math.floor(room.maxRounds / 2) + 1 : 2;
+      if (!room) return;
+      const isMatchFinished = room.roundNumber >= room.maxRounds && (room.player1.lives === 0 || (room.player2?.lives || 0) === 0);
       
-      // Check if match is already finished (one player has enough wins)
-      if (room && (room.player1.consecutiveWins >= winsNeeded || (room.player2?.consecutiveWins || 0) >= winsNeeded)) {
+      // Mantener retiro como salida temprana voluntaria.
+      if (isMatchFinished) {
+        return;
+      }
+
+      {
         // Match is over, handle final action
-        const winner = room.player1.consecutiveWins >= winsNeeded ? room.player1 : room.player2;
-        const loser = room.player1.consecutiveWins >= winsNeeded ? room.player2 : room.player1;
-        
-        io.to(roomId).emit('match_finished', {
-          winner: winner?.name || 'unknown',
-          finalScore: { player1: room.player1.consecutiveWins, player2: room.player2?.consecutiveWins || 0 }
-        });
-        
-        // Save match result to database
-        if (winner) {
-          rankingService.updatePlayerStats(winner.name, true).catch(err => 
-            console.error('Error al actualizar estadísticas:', err)
-          );
-        }
-        if (loser) {
-          rankingService.updatePlayerStats(loser.name, false).catch(err => 
-            console.error('Error al actualizar estadísticas:', err)
-          );
-        }
-        
-        console.log(`Partida terminada en ${roomId}. Ganador: ${winner?.name}`);
-        gameRooms.cleanupRoom(roomId);
-      } else {
-        // Match still ongoing, handle rematch/retire decision
         const actionResult = gameRooms.setPlayerAction(roomId, socket.id, action);
         
         if (actionResult.gameEnded) {
@@ -112,7 +120,7 @@ export function setupGameHandlers(io: Server<ClientToServerEvents, ServerToClien
             
             io.to(roomId).emit('match_finished', {
               winner: actionResult.winner || 'unknown',
-              finalScore: { player1: room.player1.consecutiveWins, player2: room.player2?.consecutiveWins || 0 }
+              finalScore: { player1: room.player1.roundsWon, player2: room.player2?.roundsWon || 0 }
             });
             
             // Save match result to database
@@ -132,9 +140,6 @@ export function setupGameHandlers(io: Server<ClientToServerEvents, ServerToClien
             console.log(`Partida terminada en ${roomId}. Ganador: ${actionResult.winner}`);
             gameRooms.cleanupRoom(roomId);
           }
-        } else if (actionResult.bothReady) {
-          // Both players choose rematch, start new round
-          io.to(roomId).emit('start_round', { roundNumber: gameRooms.getRoom(roomId)?.roundNumber || 1 });
         }
       }
     });
