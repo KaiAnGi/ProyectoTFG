@@ -102,14 +102,12 @@ export function setupGameHandlers(io: Server<ClientToServerEvents, ServerToClien
       if (!room) return;
       const isMatchFinished = room.roundNumber >= room.maxRounds && (room.player1.lives === 0 || (room.player2?.lives || 0) === 0);
       
-      // Mantener retiro como salida temprana voluntaria.
-      if (isMatchFinished) {
+      // Match is over, handle final action
+      if (!isMatchFinished) {
         return;
       }
 
-      {
-        // Match is over, handle final action
-        const actionResult = gameRooms.setPlayerAction(roomId, socket.id, action);
+      const actionResult = gameRooms.setPlayerAction(roomId, socket.id, action);
         
         if (actionResult.gameEnded) {
           const room = gameRooms.getRoom(roomId);
@@ -141,7 +139,6 @@ export function setupGameHandlers(io: Server<ClientToServerEvents, ServerToClien
             gameRooms.cleanupRoom(roomId);
           }
         }
-      }
     });
 
     socket.on('disconnect', () => {
