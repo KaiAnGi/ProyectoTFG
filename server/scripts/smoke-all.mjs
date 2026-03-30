@@ -48,8 +48,8 @@ function runNodeScript(scriptPath) {
 
 async function main() {
   console.log("Smoke test (REST + sockets) starting...");
-  await runNodeScript("scripts/rest-smoke.mjs");
-  await runNodeScript("scripts/socket-smoke.mjs");
+  await runNodeScript("server/scripts/rest-smoke.mjs");
+  await runNodeScript("server/scripts/socket-smoke.mjs");
   console.log("Smoke test (REST + sockets) passed.");
 }
 
