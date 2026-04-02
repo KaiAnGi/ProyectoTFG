@@ -1,0 +1,87 @@
+<div class="create-room-screen">
+    <!-- Logo de fondo con opacidad -->
+    <div class="logo-background"></div>
+
+    <div class="create-room-content">
+        <h1 class="page-title">CREATE A ROOM</h1>
+
+        <!-- Formulario -->
+        <form class="create-form" (ngSubmit)="onCreate()">
+
+            <div class="form-group">
+                <label class="form-label">PLAYING AS:</label>
+                <p class="username-display">{{ username }}</p>
+            </div>
+
+            <!-- Room Name -->
+            <div class="form-group">
+                <label for="roomName" class="form-label">ROOM NAME:</label>
+                <input
+                    type="text"
+                    id="roomName"
+                    class="form-input"
+                    [(ngModel)]="roomName"
+                    name="roomName"
+                    required
+                    maxlength="20">
+            </div>
+
+            <!-- Password (Optional) -->
+            <div class="form-group">
+                <label for="password" class="form-label">PASSWORD
+                    (OPTIONAL):</label>
+                <input
+                    type="password"
+                    id="password"
+                    class="form-input"
+                    [(ngModel)]="password"
+                    name="password"
+                    maxlength="20">
+            </div>
+
+            <!-- Rounds Selection -->
+            <div class="form-group rounds-group">
+                <label class="form-label">ROUNDS:</label>
+                <div class="rounds-buttons">
+                    <button
+                        type="button"
+                        class="round-button"
+                        [class.selected]="selectedRounds === 3"
+                        (click)="selectRounds(3)">
+                        3
+                    </button>
+                    <button
+                        type="button"
+                        class="round-button"
+                        [class.selected]="selectedRounds === 5"
+                        (click)="selectRounds(5)">
+                        5
+                    </button>
+                    <button
+                        type="button"
+                        class="round-button"
+                        [class.selected]="selectedRounds === 9"
+                        (click)="selectRounds(9)">
+                        9
+                    </button>
+                </div>
+            </div>
+
+            <!-- Botones de acción -->
+            <div class="action-buttons">
+                <button type="submit" class="submit-button">
+                    CREATE
+                </button>
+                <button type="button" class="cancel-button"
+                    (click)="onCancel()">
+                    CANCEL
+                </button>
+            </div>
+        </form>
+
+        <!-- Botón Back -->
+        <button class="back-button" (click)="onBack()">
+            BACK
+        </button>
+    </div>
+</div>

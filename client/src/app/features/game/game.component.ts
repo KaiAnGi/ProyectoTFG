@@ -1,79 +1,71 @@
-import { Component, inject, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
+import { Router } from '@angular/router';
 import { GameService } from '../../services/game.service';
-import { MediaPipeService, GestureType } from '../../services/mediapipe.service';
-import { GameState, Choice } from '../../models/game-state.model';
-import { StatusPanelComponent } from '../../components/status-panel/status-panel.component';
-import { GameArenaComponent } from '../../components/game-arena/game-arena.component';
-import { ActionButtonsComponent } from '../../components/action-buttons/action-buttons.component';
-import { GestureDetectorComponent } from '../../components/gesture-detector/gesture-detector.component';
-import { HistoryComponent } from '../../components/history/history.component';
+import { GestureDetectorComponent } from './game-components/gesture-detector/gesture-detector.component';
+import { CommonModule } from '@angular/common';
+import { Choice } from '../../models/game-state.model';
 
 @Component({
   selector: 'app-game',
   standalone: true,
-  imports: [
-    CommonModule,
-    RouterLink,
-    StatusPanelComponent,
-    GameArenaComponent,
-    ActionButtonsComponent,
-    GestureDetectorComponent,
-    HistoryComponent,
-  ],
+  imports: [CommonModule, GestureDetectorComponent],
   templateUrl: './game.component.html',
-  styleUrls: ['./game.component.css']
+  styleUrls: ['./game.component.css'],
 })
-export class GameComponent {
-  private gameService = inject(GameService);
-  private mediaPipeService = inject(MediaPipeService);
+export class GameComponent implements OnInit, OnDestroy {
   private router = inject(Router);
+  private gameService = inject(GameService);
 
-  gameState$ = this.gameService.gameState$;
-  currentGesture$ = this.mediaPipeService.currentGesture$;
-  isCameraReady$ = this.mediaPipeService.isCameraReady$;
+  roomCode = 'KDS865';
+  roomName = "Son's of MELOLA";
+  currentRound = 1;
+  totalRounds = 5;
 
-  ngOnInit(): void {
-    this.gameState$
-      .pipe(takeUntilDestroyed())
-      .subscribe(state => {
-        if (!state.roomId) {
-          this.router.navigate(['/']);
-        }
-      });
+  myGesture: Choice | null = null;
+  opponentGesture = 'Paper!';
 
-    // Auto-jugar con gestos
-    this.currentGesture$
-      .pipe(takeUntilDestroyed())
-      .subscribe(gesture => {
-        if (gesture && this.gameService.gameState$.value.isRoundActive) {
-          this.onGestureDetected(gesture);
-        }
-      });
+  myLives = [true, true, true];
+  opponentLives = [true, true, true];
+
+  ngOnInit() {
+    this.gameService.gameState$.subscribe((state) => {
+      this.myGesture = state.playerChoice;
+    });
   }
 
-  onPlayerChoice(choice: Choice): void {
-    this.gameService.makeChoice(choice);
+  loseMyLife() {
+    const index = this.myLives.lastIndexOf(true);
+    if (index !== -1) this.myLives[index] = false;
   }
 
-  onGestureDetected(gesture: GestureType): void {
-    if (gesture) {
-      this.gameService.makeChoice(gesture as Choice);
+  loseOpponentLife() {
+    const index = this.opponentLives.lastIndexOf(true);
+    if (index !== -1) this.opponentLives[index] = false;
+  }
+
+  onNextRound() {
+    if (this.currentRound < this.totalRounds) {
+      this.currentRound++;
+      this.myGesture = null;
     }
   }
 
-  async toggleCamera(): Promise<void> {
-    if (this.mediaPipeService.isCameraReady$.value) {
-      this.mediaPipeService.stopCamera();
-    } else {
-      await this.mediaPipeService.initCamera();
+  getGestureText(choice: Choice | null): string {
+    switch (choice) {
+      case 'rock':
+        return 'Rock!';
+      case 'paper':
+        return 'Paper!';
+      case 'scissors':
+        return 'Scissors!';
+      default:
+        return '';
     }
   }
 
-  leaveGame(): void {
-    this.gameService.resetGame();
-    this.router.navigate(['/']);
+  onExit() {
+    this.router.navigate(['/room-menu']);
   }
+
+  ngOnDestroy() {}
 }

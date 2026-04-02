@@ -1,0 +1,40 @@
+:host {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.gesture-detector {
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  min-height: unset;
+}
+
+/* CONTENEDOR AJUSTADO AL PARENT (camera-box del game) */
+.video-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+/* VIDEO */
+.camera-feed {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* CANVAS ENCIMA */
+.gesture-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
