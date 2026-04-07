@@ -4,6 +4,7 @@ import { GameService } from '../../services/game.service';
 import { GestureDetectorComponent } from './game-components/gesture-detector/gesture-detector.component';
 import { CommonModule } from '@angular/common';
 import { Choice } from '../../models/game-state.model';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-game',
@@ -17,19 +18,27 @@ export class GameComponent implements OnInit, OnDestroy {
   private gameService = inject(GameService);
 
   roomCode = 'KDS865';
-  roomName = "Son's of MELOLA";
+  roomName = '';
   currentRound = 1;
-  totalRounds = 5;
+  totalRounds = 3;
 
   myGesture: Choice | null = null;
-  opponentGesture = 'Paper!';
+  opponentGesture = '';
 
   myLives = [true, true, true];
   opponentLives = [true, true, true];
+  private stateSub?: Subscription;
 
   ngOnInit() {
-    this.gameService.gameState$.subscribe((state) => {
+    this.stateSub = this.gameService.gameState$.subscribe((state) => {
+      this.roomCode = state.roomId || '----';
+      this.roomName = state.opponentName ? `${state.playerName} vs ${state.opponentName}` : state.playerName;
+      this.currentRound = state.roundNumber;
+      this.totalRounds = state.maxRounds;
       this.myGesture = state.playerChoice;
+      this.opponentGesture = this.getGestureText(state.opponentChoice);
+      this.myLives = Array.from({ length: 3 }, (_, i) => i < state.playerLives);
+      this.opponentLives = Array.from({ length: 3 }, (_, i) => i < state.opponentLives);
     });
   }
 
@@ -44,10 +53,7 @@ export class GameComponent implements OnInit, OnDestroy {
   }
 
   onNextRound() {
-    if (this.currentRound < this.totalRounds) {
-      this.currentRound++;
-      this.myGesture = null;
-    }
+    this.myGesture = null;
   }
 
   getGestureText(choice: Choice | null): string {
@@ -64,8 +70,11 @@ export class GameComponent implements OnInit, OnDestroy {
   }
 
   onExit() {
+    this.gameService.resetGame();
     this.router.navigate(['/room-menu']);
   }
 
-  ngOnDestroy() {}
+  ngOnDestroy() {
+    this.stateSub?.unsubscribe();
+  }
 }

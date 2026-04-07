@@ -1,6 +1,8 @@
 import type { GameChoice } from './game-types.ts';
+import type { ILeaderboard } from '../models/Leaderboard.ts';
 
 export interface ServerToClientEvents {
+  'leaderboard:update': (data: ILeaderboard[]) => void;
   room_created: (data: { roomId: string; message: string; maxRounds: number }) => void;
   room_joined: (data: { roomId: string; players: string[]; maxRounds: number }) => void;
   start_round: (data: { roundNumber: number }) => void;

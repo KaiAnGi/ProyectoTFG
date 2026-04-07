@@ -7,6 +7,15 @@ const gameRooms = new GameRooms();
 const rankingService = new RankingService();
 
 export function setupGameHandlers(io: Server<ClientToServerEvents, ServerToClientEvents>) {
+  const emitLeaderboardUpdate = async () => {
+    try {
+      const top = await rankingService.getTopRanking(50);
+      io.emit('leaderboard:update', top);
+    } catch (error) {
+      console.error('Error emitiendo leaderboard:update:', error);
+    }
+  };
+
   io.on('connection', (socket: Socket<ClientToServerEvents, ServerToClientEvents>) => {
     console.log('Cliente conectado:', socket.id);
 
@@ -82,6 +91,8 @@ export function setupGameHandlers(io: Server<ClientToServerEvents, ServerToClien
                 );
               }
 
+              emitLeaderboardUpdate();
+
               console.log(`Partida terminada en ${roomId}. Ganador: ${winner.name}`);
               gameRooms.cleanupRoom(roomId);
             } else {
@@ -134,6 +145,8 @@ export function setupGameHandlers(io: Server<ClientToServerEvents, ServerToClien
                 console.error('Error al actualizar estadísticas:', err)
               );
             }
+
+            emitLeaderboardUpdate();
             
             console.log(`Partida terminada en ${roomId}. Ganador: ${actionResult.winner}`);
             gameRooms.cleanupRoom(roomId);

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth';
+import { GameService } from '../../services/game.service';
 
 @Component({
   selector: 'app-create-room',
@@ -17,7 +18,11 @@ export class CreateRoomComponent implements OnInit {
   username = '';
   selectedRounds = 3;
 
-  constructor(private router: Router, private auth: AuthService) {}
+  constructor(
+    private router: Router,
+    private auth: AuthService,
+    private gameService: GameService,
+  ) {}
 
 
   selectRounds(rounds: number) {
@@ -28,11 +33,14 @@ export class CreateRoomComponent implements OnInit {
     const user = this.auth.getCurrentUser();
     if (user) {
       this.username = user.username;
+      return;
     }
+
+    this.router.navigate(['/auth']);
   }
 
   onCreate() {
-    console.log('Creando sala como:', this.username);
+    this.gameService.createRoom(this.username, this.selectedRounds as 3 | 5 | 9);
     this.router.navigate(['/waiting-room']);
   }
 

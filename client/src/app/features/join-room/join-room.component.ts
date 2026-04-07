@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth';
+import { GameService } from '../../services/game.service';
 
 @Component({
   selector: 'app-join-room',
@@ -18,17 +19,27 @@ export class JoinRoomComponent implements OnInit {
   
   username = ''; // se rellena solo desde AuthService
 
-  constructor(private router: Router, private auth: AuthService) {}
+  constructor(
+    private router: Router,
+    private auth: AuthService,
+    private gameService: GameService,
+  ) {}
 
   ngOnInit() {
     const user = this.auth.getCurrentUser();
     if (user) {
       this.username = user.username; // coge nombre del usuario logueado, creo xd
+      return;
     }
+
+    this.router.navigate(['/auth']);
   }
 
   onJoin() {
-    console.log('Uniendo a sala como:', this.username);
+    const roomId = this.roomCode.trim();
+    if (!roomId) return;
+
+    this.gameService.joinRoom(roomId, this.username);
     this.router.navigate(['/waiting-room']);
   }
 

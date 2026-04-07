@@ -23,6 +23,7 @@ import { Choice } from '../../../../models/game-state.model';
 export class GestureDetectorComponent implements AfterViewInit, OnDestroy {
   private mediaPipeService = inject(MediaPipeService);
   private gameService = inject(GameService);
+  private lastSentChoice: Choice | null = null;
 
   @ViewChild('videoElement') videoElement!: ElementRef<HTMLVideoElement>;
   @ViewChild('canvasElement') canvasElement!: ElementRef<HTMLCanvasElement>;
@@ -41,12 +42,10 @@ export class GestureDetectorComponent implements AfterViewInit, OnDestroy {
     effect(() => {
       const gesture = this.currentGesture();
 
-      if (gesture) {
+      if (gesture && gesture !== this.lastSentChoice) {
         console.log('🎮 Gesto detectado:', gesture);
-
-        this.gameService['updateGameState']({
-          playerChoice: gesture as Choice,
-        });
+        this.lastSentChoice = gesture as Choice;
+        this.gameService.makeChoice(gesture as Choice);
       }
     });
   }
@@ -60,5 +59,6 @@ export class GestureDetectorComponent implements AfterViewInit, OnDestroy {
 
   ngOnDestroy() {
     this.mediaPipeService.stopCamera();
+    this.lastSentChoice = null;
   }
 }
