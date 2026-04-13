@@ -1,72 +1,52 @@
 <div class="join-room-screen">
-    <!-- Logo de fondo con opacidad -->
-    <div class="logo-background"></div>
+  <!-- Logo de fondo con opacidad -->
+  <div class="logo-background"></div>
 
-    <div class="join-room-content">
-        <h1 class="page-title">JOIN THE ROOM</h1>
+  <div class="join-room-content">
+    <h1 class="page-title">JOIN THE ROOM</h1>
 
-        <!-- Formulario -->
-        <form class="join-form" (ngSubmit)="onJoin()">
+    <!-- Formulario -->
+    <form class="join-form" (ngSubmit)="onJoin()">
 
-            <!-- Your Name -->
-            <div class="form-group">
-                <label class="form-label">PLAYING AS:</label>
-                <p class="username-display">{{ username }}</p>
-            </div>
+      <!-- Your Name -->
+      <div class="form-group">
+        <label class="form-label">PLAYING AS:</label>
+        <p class="username-display">{{ username }}</p>
+      </div>
 
-            <!-- Room Name -->
-            <div class="form-group">
-                <label for="roomName" class="form-label">ROOM NAME:</label>
-                <input
-                    type="text"
-                    id="roomName"
-                    class="form-input"
-                    [(ngModel)]="roomName"
-                    name="roomName"
-                    required
-                    maxlength="20">
-            </div>
+      <!-- Room Name -->
+      <div class="form-group">
+        <label for="roomName" class="form-label">ROOM NAME:</label>
+        <input type="text" id="roomName" class="form-input" [(ngModel)]="roomName" name="roomName" required
+          maxlength="20">
+      </div>
 
-            <!-- Room Code -->
-            <div class="form-group">
-                <label for="roomCode" class="form-label">ROOM CODE:</label>
-                <input
-                    type="text"
-                    id="roomCode"
-                    class="form-input"
-                    [(ngModel)]="roomCode"
-                    name="roomCode"
-                    required
-                    maxlength="10">
-            </div>
+      <!-- Room Code -->
+      <div class="form-group">
+        <label for="roomCode" class="form-label">ROOM CODE:</label>
+        <input type="text" id="roomCode" class="form-input" [(ngModel)]="roomCode" name="roomCode" required>
+      </div>
 
-            <!-- Password -->
-            <div class="form-group">
-                <label for="password" class="form-label">PASSWORD:</label>
-                <input
-                    type="password"
-                    id="password"
-                    class="form-input"
-                    [(ngModel)]="password"
-                    name="password"
-                    maxlength="20">
-            </div>
+      <!-- Password -->
+      <div class="form-group">
+        <label for="password" class="form-label">PASSWORD:</label>
+        <input type="password" id="password" class="form-input" [(ngModel)]="password" name="password" maxlength="20">
+      </div>
 
-            <!-- Botones de acción -->
-            <div class="action-buttons">
-                <button type="submit" class="submit-button">
-                    JOIN
-                </button>
-                <button type="button" class="cancel-button"
-                    (click)="onCancel()">
-                    CANCEL
-                </button>
-            </div>
-        </form>
-
-        <!-- Botón Back -->
-        <button class="back-button" (click)="onBack()">
-            BACK
+      <!-- Botones de acción -->
+      <div class="action-buttons">
+        <button type="submit" class="submit-button">
+          JOIN
         </button>
-    </div>
+        <button type="button" class="cancel-button" (click)="onCancel()">
+          CANCEL
+        </button>
+      </div>
+    </form>
+
+    <!-- Botón Back -->
+    <button class="back-button" (click)="onBack()">
+      BACK
+    </button>
+  </div>
 </div>
