@@ -1,9 +1,0 @@
-{
-  "name": "proyectotfg-root",
-  "private": true,
-  "scripts": {
-    "dev": "npx concurrently -k \"npm run dev --prefix server\" \"npm start --prefix client\"",
-    "dev:server": "npm run dev --prefix server",
-    "dev:client": "npm start --prefix client"
-  }
-}

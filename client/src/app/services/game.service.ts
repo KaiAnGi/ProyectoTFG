@@ -132,15 +132,19 @@ export class GameService {
 
   /** Elegir gesto */
   makeChoice(choice: Choice): void {
-    const roomId = this.gameStateSubject.value.roomId;
-    if (
-      !roomId
-      || !this.gameStateSubject.value.isRoundActive
-    )
-      return;
-
+    // SIEMPRE actualizar estado local para mostrar el gesto detectado
     this.updateGameState({ playerChoice: choice });
-    this.socketService.emit('player_choice', { roomId, choice }); // EMIT A DIEGUITO
+
+    // Solo emitir al servidor si hay habitación y ronda activa
+    const roomId = this.gameStateSubject.value.roomId;
+    if (roomId && this.gameStateSubject.value.isRoundActive) {
+      this.socketService.emit('player_choice', { roomId, choice }); // EMIT A DIEGUITO
+    }
+  }
+
+  /** Limpiar la elección del jugador */
+  clearPlayerChoice(): void {
+    this.updateGameState({ playerChoice: null });
   }
 
   /** Actualizar estado de forma inmutable */
