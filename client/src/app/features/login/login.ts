@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { AuthService } from '../../services/auth';
 
 @Component({
   selector: 'app-login',
@@ -14,18 +15,33 @@ export class LoginComponent {
   correo = '';
   password = '';
   loginError = false;
+  errorMessage = '';
+  isLoading = false;
 
-  constructor(private router: Router) {}
+  constructor(private router: Router, private auth: AuthService) {}
 
   onLogin() {
-    // Kai conectará al backend aquí
-    // Por ahora simula eñ login con localStorage
-    const saved = localStorage.getItem('rps_user');
-    if (saved) {
-      this.router.navigate(['/room-menu']);
-    } else {
-      this.loginError = true;
-    }
+    this.loginError = false;
+    this.errorMessage = '';
+    this.isLoading = true;
+
+    this.auth.login({ email: this.correo, password: this.password }).subscribe({
+      next: (response) => {
+        this.isLoading = false;
+        if (!response.success) {
+          this.loginError = true;
+          this.errorMessage = response.error || 'Correo o contraseña incorrectos';
+          return;
+        }
+        this.auth.handleAuthSuccess(response);
+        this.router.navigate(['/room-menu']);
+      },
+      error: (err) => {
+        this.isLoading = false;
+        this.loginError = true;
+        this.errorMessage = err?.error?.error || 'No se pudo conectar con el servidor';
+      },
+    });
   }
 
   goBack() {

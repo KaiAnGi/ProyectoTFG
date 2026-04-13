@@ -38,8 +38,14 @@
                 Las contraseñas no coinciden
             </p>
 
+            <p class="error-msg" *ngIf="registerError">
+                {{ registerError }}
+            </p>
+
             <div class="action-buttons">
-                <button type="submit" class="submit-button">CREATE</button>
+                <button type="submit" class="submit-button" [disabled]="isLoading">
+                    {{ isLoading ? 'CREATING...' : 'CREATE' }}
+                </button>
                 <button type="button" class="cancel-button"
                     (click)="goBack()">CANCEL</button>
             </div>

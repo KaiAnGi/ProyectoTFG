@@ -21,11 +21,13 @@
             </div>
 
             <p class="error-msg" *ngIf="loginError">
-                Correo o contraseña incorrectos
+                {{ errorMessage || 'Correo o contraseña incorrectos' }}
             </p>
 
             <div class="action-buttons">
-                <button type="submit" class="submit-button">LOGIN</button>
+                <button type="submit" class="submit-button" [disabled]="isLoading">
+                    {{ isLoading ? 'LOADING...' : 'LOGIN' }}
+                </button>
                 <button type="button" class="cancel-button"
                     (click)="goBack()">CANCEL</button>
             </div>

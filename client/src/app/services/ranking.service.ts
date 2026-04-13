@@ -23,7 +23,7 @@ export class RankingService {
   }
 
   private connectSocket() {
-    this.socket = io(this.baseUrl);
+    this.socket = io(environment.socketUrl);
     this.socket.on('leaderboard:update', (data: ILeaderboard[]) => {
       this.leaderboardSubject.next(data);
     });
@@ -34,8 +34,9 @@ export class RankingService {
   }
 
   loadInitial() {
-    this.getTopRanking(50).subscribe((top) => {
-      this.leaderboardSubject.next(top);
+    this.getTopRanking(50).subscribe({
+      next: (top) => this.leaderboardSubject.next(top),
+      error: (err) => console.error('Error cargando ranking inicial:', err),
     });
   }
 
