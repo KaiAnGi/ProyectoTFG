@@ -28,7 +28,7 @@
       </div>
 
       <p class="gesture-label">
-        {{ getGestureText(myGesture) }}
+        {{ selectedGestureText(myGesture) }}
       </p>
 
       <div class="lives">
@@ -49,7 +49,7 @@
         <video #remoteVideo autoplay playsinline class="camera-feed"></video>
       </div>
 
-      <p class="gesture-label">{{ opponentGesture }}</p>
+      <p class="gesture-label">{{ selectedGestureText(opponentGesture) }}</p>
 
       <div class="lives">
         <img *ngFor="let vida of opponentLives" [src]="vida ? '/images/CorazonRojo.png' : '/images/corazonBlanco.png'"
