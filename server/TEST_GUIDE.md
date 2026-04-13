@@ -1,5 +1,4 @@
 # Tests del Sistema de Puntuación Actualizado
-
 Este documento explica cómo ejecutar los tests para verificar que los cambios en las reglas del juego funcionan correctamente.
 
 ## Cambios Implementados
