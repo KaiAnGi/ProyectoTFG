@@ -30,12 +30,15 @@ export class GameComponent implements OnInit, OnDestroy {
   roomName = '';
   currentRound = 1;
   totalRounds = 3;
+  timerSec = 0;
+  myScore = 0;
+  opponentScore = 0;
+  roundResultText = '';
+  isMatchFinished = false;
+  matchWinnerName = '';
 
   myGesture: Choice | null = null;
   opponentGesture: Choice | null = null;
-
-  myLives = [true, true, true];
-  opponentLives = [true, true, true];
   private stateSub?: Subscription;
 
   ngOnInit() {
@@ -47,8 +50,13 @@ export class GameComponent implements OnInit, OnDestroy {
             prev.playerChoice === curr.playerChoice &&
             prev.opponentChoice === curr.opponentChoice &&
             prev.roundNumber === curr.roundNumber &&
-            prev.playerLives === curr.playerLives &&
-            prev.opponentLives === curr.opponentLives
+            prev.playerScore === curr.playerScore &&
+            prev.opponentScore === curr.opponentScore &&
+            prev.roundTimeLeftSec === curr.roundTimeLeftSec &&
+            prev.lastRoundResult === curr.lastRoundResult &&
+            prev.lastRoundWinnerName === curr.lastRoundWinnerName &&
+            prev.isMatchFinished === curr.isMatchFinished &&
+            prev.matchWinnerName === curr.matchWinnerName
           );
         }),
       )
@@ -59,26 +67,27 @@ export class GameComponent implements OnInit, OnDestroy {
           : state.playerName;
         this.currentRound = state.roundNumber;
         this.totalRounds = state.maxRounds;
+        this.timerSec = state.roundTimeLeftSec;
         this.myGesture = state.playerChoice;
         this.opponentGesture = state.opponentChoice;
-        this.myLives = Array.from({ length: 3 }, (_, i) => i < state.playerLives);
-        this.opponentLives = Array.from({ length: 3 }, (_, i) => i < state.opponentLives);
+        this.myScore = state.playerScore;
+        this.opponentScore = state.opponentScore;
+        this.isMatchFinished = state.isMatchFinished;
+        this.matchWinnerName = state.matchWinnerName || 'Empate';
+
+        if (state.lastRoundResult) {
+          if (state.lastRoundResult === 'tie') {
+            this.roundResultText = 'Ronda empatada';
+          } else {
+            const winnerName = state.lastRoundWinnerName || 'Jugador';
+            this.roundResultText = `Ganador de ronda: ${winnerName}`;
+          }
+        } else {
+          this.roundResultText = '';
+        }
+
         this.cdr.markForCheck();
       });
-  }
-
-  loseMyLife() {
-    const index = this.myLives.lastIndexOf(true);
-    if (index !== -1) this.myLives[index] = false;
-  }
-
-  loseOpponentLife() {
-    const index = this.opponentLives.lastIndexOf(true);
-    if (index !== -1) this.opponentLives[index] = false;
-  }
-
-  onNextRound() {
-    this.gameService.clearPlayerChoice();
   }
 
   getGestureText(choice: Choice | null): string {
@@ -104,6 +113,10 @@ export class GameComponent implements OnInit, OnDestroy {
   onExit() {
     this.gameService.resetGame();
     this.router.navigate(['/room-menu']);
+  }
+
+  onBackToMenu() {
+    this.onExit();
   }
 
   ngOnDestroy() {

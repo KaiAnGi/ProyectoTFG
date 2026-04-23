@@ -3,22 +3,21 @@ import type { ILeaderboard } from '../models/Leaderboard.ts';
 
 export interface ServerToClientEvents {
   'leaderboard:update': (data: ILeaderboard[]) => void;
-  room_created: (data: { roomId: string; message: string; maxRounds: number }) => void;
-  room_joined: (data: { roomId: string; players: string[]; maxRounds: number }) => void;
-  start_round: (data: { roundNumber: number }) => void;
+  room_created: (data: { roomId: string; message: string; maxRounds: number; playerRole: 'player1'; playerName: string; opponentName: null }) => void;
+  room_joined: (data: { roomId: string; maxRounds: number; playerRole: 'player1' | 'player2'; playerName: string; opponentName: string | null }) => void;
+  start_round: (data: { roundNumber: number; timeLimitSec: number }) => void;
+  round_timer: (data: { timeLeftSec: number }) => void;
   round_result: (data: {
-    playerChoice: GameChoice;
-    opponentChoice: GameChoice;
-    result: string;
+    playerChoice: GameChoice | null;
+    opponentChoice: GameChoice | null;
+    result: 'player1' | 'player2' | 'tie';
+    roundWinner: 'player1' | 'player2' | 'tie';
+    roundWinnerName: string | null;
     playerScore: number;
     opponentScore: number;
-    player1Lives: number;
-    player2Lives: number;
-    roundEnded: boolean;
     roundNumber: number;
     isFinished: boolean;
   }) => void;
-  waiting_action: (data: { message: string }) => void;
   match_finished: (data: {
     winner: string;
     finalScore: { player1: number; player2: number };

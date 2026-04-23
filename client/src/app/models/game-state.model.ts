@@ -3,9 +3,10 @@ export type RoundResult = 'win' | 'lose' | 'tie';
 
 export interface RoundHistory {
   round: number;
-  playerChoice: Choice;
-  opponentChoice: Choice;
+  playerChoice: Choice | null;
+  opponentChoice: Choice | null;
   result: RoundResult;
+  winnerName: string | null;
 }
 
 export interface GameState {
@@ -19,8 +20,11 @@ export interface GameState {
   opponentChoice: Choice | null;
   playerScore: number;
   opponentScore: number;
-  playerLives: number;
-  opponentLives: number;
+  roundTimeLeftSec: number;
+  lastRoundResult: RoundResult | null;
+  lastRoundWinnerName: string | null;
+  isMatchFinished: boolean;
+  matchWinnerName: string | null;
   isWaitingOpponent: boolean;
   isRoundActive: boolean;
   history: RoundHistory[];
@@ -37,8 +41,11 @@ export interface PartialGameState {
   opponentChoice?: Choice | null;
   playerScore?: number;
   opponentScore?: number;
-  playerLives?: number;
-  opponentLives?: number;
+  roundTimeLeftSec?: number;
+  lastRoundResult?: RoundResult | null;
+  lastRoundWinnerName?: string | null;
+  isMatchFinished?: boolean;
+  matchWinnerName?: string | null;
   isWaitingOpponent?: boolean;
   isRoundActive?: boolean;
   history?: RoundHistory[];
@@ -55,8 +62,11 @@ export const INITIAL_GAME_STATE: GameState = {
   opponentChoice: null,
   playerScore: 0,
   opponentScore: 0,
-  playerLives: 3,
-  opponentLives: 3,
+  roundTimeLeftSec: 0,
+  lastRoundResult: null,
+  lastRoundWinnerName: null,
+  isMatchFinished: false,
+  matchWinnerName: null,
   isWaitingOpponent: false,
   isRoundActive: false,
   history: []

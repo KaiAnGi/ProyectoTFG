@@ -31,22 +31,20 @@ export class GameService {
     this.socketService.on('room_created').subscribe((data: any) => {
       this.updateGameState({
         roomId: data.roomId,
-        playerRole: 'player1',
+        playerRole: data.playerRole || 'player1',
+        playerName: data.playerName || this.gameStateSubject.value.playerName,
+        opponentName: data.opponentName || null,
         maxRounds: data.maxRounds || 3,
         isWaitingOpponent: true,
       });
     });
 
     this.socketService.on('room_joined').subscribe((data: any) => {
-      const currentState = this.gameStateSubject.value;
-      const players = Array.isArray(data.players) ? data.players : [];
-      const currentPlayerName = currentState.playerName;
-      const isPlayerOne = players[0] === currentPlayerName;
-
       this.updateGameState({
         roomId: data.roomId,
-        playerRole: isPlayerOne ? 'player1' : 'player2',
-        opponentName: isPlayerOne ? players[1] : players[0],
+        playerRole: data.playerRole || null,
+        playerName: data.playerName || this.gameStateSubject.value.playerName,
+        opponentName: data.opponentName || null,
         maxRounds: data.maxRounds || 3,
         isWaitingOpponent: false,
       });
@@ -57,9 +55,16 @@ export class GameService {
         roundNumber: data.roundNumber,
         playerChoice: null,
         opponentChoice: null,
-        playerLives: 3,
-        opponentLives: 3,
+        roundTimeLeftSec: data.timeLimitSec ?? 5,
+        lastRoundResult: null,
+        lastRoundWinnerName: null,
         isRoundActive: true,
+      });
+    });
+
+    this.socketService.on('round_timer').subscribe((data: any) => {
+      this.updateGameState({
+        roundTimeLeftSec: data.timeLeftSec ?? 0,
       });
     });
 
@@ -71,8 +76,6 @@ export class GameService {
       const opponentChoice = (isPlayerTwo ? data.playerChoice : data.opponentChoice) as Choice;
       const playerScore = isPlayerTwo ? data.opponentScore : data.playerScore;
       const opponentScore = isPlayerTwo ? data.playerScore : data.opponentScore;
-      const playerLives = isPlayerTwo ? data.player2Lives : data.player1Lives;
-      const opponentLives = isPlayerTwo ? data.player1Lives : data.player2Lives;
 
       let result: RoundResult = 'tie';
       if (data.result === 'tie') {
@@ -88,17 +91,19 @@ export class GameService {
         opponentChoice,
         playerScore: playerScore || 0,
         opponentScore: opponentScore || 0,
-        playerLives: playerLives ?? 3,
-        opponentLives: opponentLives ?? 3,
+        lastRoundResult: result,
+        lastRoundWinnerName: data.roundWinnerName || null,
         roundNumber: data.roundNumber || 1,
-        isRoundActive: !data.isFinished,
+        roundTimeLeftSec: 0,
+        isRoundActive: false,
         history: [
           ...currentState.history,
           {
-            round: currentState.roundNumber,
+            round: data.roundNumber || currentState.roundNumber,
             playerChoice,
             opponentChoice,
             result,
+            winnerName: data.roundWinnerName || null,
           },
         ],
       });
@@ -107,6 +112,8 @@ export class GameService {
     this.socketService.on('match_finished').subscribe((data: any) => {
       console.log('PARTIDA FINALIZADA:', data);
       this.updateGameState({
+        isMatchFinished: true,
+        matchWinnerName: data.winner || null,
         isRoundActive: false,
       });
     });
@@ -119,14 +126,31 @@ export class GameService {
   /** Crear sala */
   createRoom(username: string, maxRounds: 3 | 5 | 9 = 3): void {
     this.socketService.connect();
-    this.updateGameState({ playerName: username, isWaitingOpponent: true, maxRounds });
+    this.updateGameState({
+      playerName: username,
+      isWaitingOpponent: true,
+      maxRounds,
+      isMatchFinished: false,
+      matchWinnerName: null,
+      history: [],
+      playerScore: 0,
+      opponentScore: 0,
+    });
     this.socketService.emit('create_room', { username, maxRounds });
   }
 
   /** Unirse a sala */
   joinRoom(roomId: string, username: string): void {
     this.socketService.connect();
-    this.updateGameState({ playerName: username, isWaitingOpponent: true });
+    this.updateGameState({
+      playerName: username,
+      isWaitingOpponent: true,
+      isMatchFinished: false,
+      matchWinnerName: null,
+      history: [],
+      playerScore: 0,
+      opponentScore: 0,
+    });
     this.socketService.emit('join_room', { roomId, username });
   }
 
