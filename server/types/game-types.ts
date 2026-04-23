@@ -1,14 +1,11 @@
 export type GameChoice = 'rock' | 'paper' | 'scissors';
 export type GameResult = 'player1' | 'player2' | 'tie';
-export type PlayerAction = 'rematch' | 'retire';
 
 export interface Player {
   id: string;
   name: string;
   roundsWon: number;
-  lives: number;
   choice?: GameChoice | null;
-  action?: PlayerAction | null;
 }
 
 export interface GameRoom {
@@ -17,20 +14,16 @@ export interface GameRoom {
   player2: Player | null;
   roundNumber: number;
   maxRounds: number;
-  waitingForChoices: Set<string>;
-  waitingForActions: Set<string>;
 }
 
 export interface RoundResult {
   result: GameResult;
   player1Score: number;
   player2Score: number;
-  player1Lives: number;
-  player2Lives: number;
-  roundEnded: boolean;
+  roundWinner: 'player1' | 'player2' | 'tie';
+  roundWinnerName: string | null;
+  player1Choice: GameChoice | null;
+  player2Choice: GameChoice | null;
   roundNumber: number;
   isFinished: boolean;
-  winner?: string;
-  player1Choice: GameChoice;
-  player2Choice: GameChoice;
 }

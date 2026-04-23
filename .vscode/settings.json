@@ -1,0 +1,8 @@
+{
+    "chat.tools.terminal.autoApprove": {
+        "/^cd \"c:\\\\Users\\\\diego\\\\Documents\\\\Desarrollo de Aplicaciones WEB 2\\\\TFG\\\\ProyectoTFG - Juntao\\\\client\"; npm run start:lan$/": {
+            "approve": true,
+            "matchCommandLine": true
+        }
+    }
+}

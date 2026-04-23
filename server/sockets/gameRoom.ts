@@ -11,12 +11,10 @@ export class GameRooms {
     const roomId = `room_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
     this.rooms.set(roomId, {
       roomId,
-      player1: { id: player1Id, name: player1Name, roundsWon: 0, lives: 3 },
+      player1: { id: player1Id, name: player1Name, roundsWon: 0, choice: null },
       player2: null,
       roundNumber: 1,
-      maxRounds,
-      waitingForChoices: new Set(),
-      waitingForActions: new Set()
+      maxRounds
     });
     return roomId;
   }
@@ -24,9 +22,7 @@ export class GameRooms {
   joinRoom(roomId: string, player2Id: string, player2Name: string): GameRoom | null {
     const room = this.rooms.get(roomId);
     if (room && !room.player2) {
-      room.player2 = { id: player2Id, name: player2Name, roundsWon: 0, lives: 3 };
-      room.waitingForChoices.clear();
-      room.waitingForActions.clear();
+      room.player2 = { id: player2Id, name: player2Name, roundsWon: 0, choice: null };
       return room;
     }
     return null;
@@ -42,56 +38,35 @@ export class GameRooms {
       room.player2.choice = choice;
     }
 
-    room.waitingForChoices.add(playerId);
-    return room.waitingForChoices.size === 2;
+    return true;
   }
 
   resolveRound(roomId: string): RoundResult | null {
     const room = this.rooms.get(roomId);
-    if (!room || !room.player1.choice || !room.player2?.choice) return null;
+    if (!room || !room.player2) return null;
 
-    const player1Choice = room.player1.choice;
-    const player2Choice = room.player2.choice;
+    const player1Choice = room.player1.choice ?? null;
+    const player2Choice = room.player2.choice ?? null;
     const result = this.calculateWinner(player1Choice, player2Choice);
 
-    // El que pierde el duelo pierde una vida
     if (result === 'player1') {
-      room.player2!.lives = Math.max(0, room.player2!.lives - 1);
+      room.player1.roundsWon += 1;
     } else if (result === 'player2') {
-      room.player1.lives = Math.max(0, room.player1.lives - 1);
-    }
-    // En empate no se modifica ninguna vida
-
-    const roundEnded = room.player1.lives === 0 || room.player2!.lives === 0;
-    if (roundEnded) {
-      if (room.player1.lives > room.player2!.lives) {
-        room.player1.roundsWon += 1;
-      } else if (room.player2!.lives > room.player1.lives) {
-        room.player2!.roundsWon += 1;
-      }
-
-      // Solo preparar siguiente ronda si el match no ha terminado.
-      if (room.roundNumber < room.maxRounds) {
-        room.roundNumber += 1;
-        room.player1.lives = 3;
-        room.player2!.lives = 3;
-      }
+      room.player2.roundsWon += 1;
     }
 
-    room.player1.choice = null;
-    room.player2!.choice = null;
-    room.waitingForChoices.clear();
-    room.waitingForActions.clear();
+    const isFinished = room.roundNumber >= room.maxRounds;
 
-    const isFinished = roundEnded && room.roundNumber >= room.maxRounds;
+    const roundWinnerName =
+      result === 'player1' ? room.player1.name : result === 'player2' ? room.player2.name : null;
+
 
     return {
       result,
       player1Score: room.player1.roundsWon,
-      player2Score: room.player2!.roundsWon,
-      player1Lives: room.player1.lives,
-      player2Lives: room.player2!.lives,
-      roundEnded,
+      player2Score: room.player2.roundsWon,
+      roundWinner: result,
+      roundWinnerName,
       roundNumber: room.roundNumber,
       isFinished,
       player1Choice,
@@ -99,7 +74,22 @@ export class GameRooms {
     };
   }
 
-  private calculateWinner(player1Choice: GameChoice, player2Choice: GameChoice): GameResult {
+  prepareNextRound(roomId: string): GameRoom | null {
+    const room = this.rooms.get(roomId);
+    if (!room || !room.player2) return null;
+
+    room.roundNumber += 1;
+    room.player1.choice = null;
+    room.player2.choice = null;
+    return room;
+  }
+
+  private calculateWinner(player1Choice: GameChoice | null, player2Choice: GameChoice | null): GameResult {
+    if (!player1Choice && !player2Choice) return 'tie';
+    if (!player1Choice && player2Choice) return 'player2';
+    if (player1Choice && !player2Choice) return 'player1';
+    if (!player1Choice || !player2Choice) return 'tie';
+
     if (player1Choice === player2Choice) return 'tie';
     
     if (
@@ -110,36 +100,6 @@ export class GameRooms {
       return 'player1';
     }
     return 'player2';
-  }
-
-  setPlayerAction(roomId: string, playerId: string, action: 'rematch' | 'retire'): { bothReady: boolean; gameEnded: boolean; winner?: string } {
-    const room = this.rooms.get(roomId);
-    if (!room) return { bothReady: false, gameEnded: false };
-
-    if (room.player1.id === playerId) {
-      room.player1.action = action;
-    } else if (room.player2 && room.player2.id === playerId) {
-      room.player2.action = action;
-    }
-
-    room.waitingForActions.add(playerId);
-
-    // If anyone retires, game ends
-    if (room.player1.action === 'retire' || room.player2?.action === 'retire') {
-      const winner = room.player1.action === 'retire' ? room.player2 : room.player1;
-      return { bothReady: true, gameEnded: true, winner: winner?.name };
-    }
-
-    // If both rematch, continue
-    if (room.waitingForActions.size === 2 && room.player1.action === 'rematch' && room.player2?.action === 'rematch') {
-      room.player1.action = null;
-      room.player2!.action = null;
-      room.waitingForActions.clear();
-      room.roundNumber++;
-      return { bothReady: true, gameEnded: false };
-    }
-
-    return { bothReady: false, gameEnded: false };
   }
 
   getRoom(roomId: string): GameRoom | undefined {

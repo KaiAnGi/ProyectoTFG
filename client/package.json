@@ -4,8 +4,8 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "start:lan": "ng serve --host 0.0.0.0 --port 4200",
-    "start:lan:ssl": "ng serve --host 0.0.0.0 --port 4200 --ssl true",
+    "start:lan": "ng serve --host 192.168.1.15 --port 4200",
+    "start:lan:ssl": "ng serve --host 192.168.1.15 --port 4200 --ssl true",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
