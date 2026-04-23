@@ -25,6 +25,17 @@ Variables minimas en server/.env:
 ### Frontend (client)
 1. cd client
 2. npm install
-3. ng serve --ssl true --open
+3. npm run start:lan
 
 Concede permisos de camara al navegador para que funcione la deteccion de gestos.
+
+### Jugar en la misma red local (LAN)
+1. Levanta backend y frontend en el equipo anfitrion:
+	- Backend: `cd server && npm run dev`
+	- Frontend: `cd client && npm run start:lan`
+2. Obtiene la IP local del anfitrion (por ejemplo, `192.168.1.50`).
+3. Desde el segundo dispositivo abre: `http://IP_DEL_ANFITRION:4200`
+
+Nota: el cliente detecta automaticamente el host de la URL y usa ese mismo host para REST y Socket.IO en el puerto 3000.
+
+Si pruebas en HTTPS (npm run start:lan:ssl), el backend tambien debe estar servido en HTTPS para evitar bloqueos del navegador por mixed content.

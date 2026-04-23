@@ -1,5 +1,15 @@
+const runtimeWindow = typeof window !== 'undefined' ? window : null;
+const runtimeHost = runtimeWindow?.location.hostname || 'localhost';
+const runtimeProtocol = runtimeWindow?.location.protocol === 'https:' ? 'https' : 'http';
+
+// Optional runtime overrides exposed through the browser console/global scope.
+const backendProtocol = (globalThis as any).__RPS_BACKEND_PROTOCOL__ || runtimeProtocol;
+const backendHost = (globalThis as any).__RPS_BACKEND_HOST__ || runtimeHost;
+const backendPort = Number((globalThis as any).__RPS_BACKEND_PORT__ || 3000);
+const backendBaseUrl = `${backendProtocol}://${backendHost}:${backendPort}`;
+
 export const environment = {
   production: false,
-  socketUrl: 'http://localhost:3000',
-  apiUrl: 'http://localhost:3000/api'
+  socketUrl: backendBaseUrl,
+  apiUrl: `${backendBaseUrl}/api`
 };

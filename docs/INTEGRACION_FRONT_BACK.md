@@ -129,11 +129,16 @@ Variables minimas esperadas en server/.env:
 ### 2. Frontend
 Desde la carpeta client:
 1. npm install
-2. ng serve --ssl true --open
+2. npm run start:lan
 
-El cliente ya apunta a:
-- API: http://localhost:3000/api
-- Socket: http://localhost:3000
+El cliente ahora apunta automaticamente al mismo host desde el que se abre la app (IP o dominio actual) y usa:
+- API: http://<host-actual>:3000/api
+- Socket: http://<host-actual>:3000
+
+Si necesitas HTTPS para pruebas de camara en ciertos dispositivos, puedes usar:
+- npm run start:lan:ssl
+
+Importante: si el frontend se sirve en HTTPS, el backend tambien debe exponerse en HTTPS para evitar mixed content.
 
 ## Validacion realizada
 - Se valido tipado y errores de archivos modificados con analisis del editor.
