@@ -10,7 +10,7 @@ import { GameService } from '../../services/game.service';
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './create-room.component.html',
-  styleUrls: ['./create-room.component.css']
+  styleUrls: ['./create-room.component.css'],
 })
 export class CreateRoomComponent implements OnInit {
   roomName = '';
@@ -23,7 +23,6 @@ export class CreateRoomComponent implements OnInit {
     private auth: AuthService,
     private gameService: GameService,
   ) {}
-
 
   selectRounds(rounds: number) {
     this.selectedRounds = rounds;
@@ -40,10 +39,14 @@ export class CreateRoomComponent implements OnInit {
   }
 
   onCreate() {
-    this.gameService.createRoom(this.username, this.selectedRounds as 3 | 5 | 9);
+    this.gameService.createRoom(this.username, this.roomName, this.selectedRounds as 3 | 5 | 9);
     this.router.navigate(['/waiting-room']);
   }
 
-  onCancel() { this.router.navigate(['/room-menu']); }
-  onBack() { this.router.navigate(['/room-menu']); }
+  onCancel() {
+    this.router.navigate(['/room-menu']);
+  }
+  onBack() {
+    this.router.navigate(['/room-menu']);
+  }
 }

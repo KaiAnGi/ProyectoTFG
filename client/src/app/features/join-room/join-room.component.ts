@@ -10,13 +10,13 @@ import { GameService } from '../../services/game.service';
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './join-room.component.html',
-  styleUrls: ['./join-room.component.css']
+  styleUrls: ['./join-room.component.css'],
 })
 export class JoinRoomComponent implements OnInit {
   roomName = '';
   roomCode = '';
   password = '';
-  
+
   username = ''; // se rellena solo desde AuthService
 
   constructor(
@@ -39,10 +39,14 @@ export class JoinRoomComponent implements OnInit {
     const roomId = this.roomCode.trim();
     if (!roomId) return;
 
-    this.gameService.joinRoom(roomId, this.username);
+    this.gameService.joinRoom(roomId, this.username, this.roomName);
     this.router.navigate(['/waiting-room']);
   }
 
-  onCancel() { this.router.navigate(['/room-menu']); }
-  onBack() { this.router.navigate(['/room-menu']); }
+  onCancel() {
+    this.router.navigate(['/room-menu']);
+  }
+  onBack() {
+    this.router.navigate(['/room-menu']);
+  }
 }

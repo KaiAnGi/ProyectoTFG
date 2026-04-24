@@ -11,6 +11,7 @@ export interface RoundHistory {
 
 export interface GameState {
   roomId: string | null;
+  roomName: string;
   playerName: string;
   playerRole: 'player1' | 'player2' | null;
   opponentName: string | null;
@@ -26,12 +27,16 @@ export interface GameState {
   isMatchFinished: boolean;
   matchWinnerName: string | null;
   isWaitingOpponent: boolean;
+  isWaitingForReady: boolean;
+  myCameraReady: boolean;
+  opponentCameraReady: boolean;
   isRoundActive: boolean;
   history: RoundHistory[];
 }
 
 export interface PartialGameState {
   roomId?: string | null;
+  roomName?: string;
   playerName?: string;
   playerRole?: 'player1' | 'player2' | null;
   opponentName?: string | null;
@@ -47,6 +52,9 @@ export interface PartialGameState {
   isMatchFinished?: boolean;
   matchWinnerName?: string | null;
   isWaitingOpponent?: boolean;
+  isWaitingForReady?: boolean;
+  myCameraReady?: boolean;
+  opponentCameraReady?: boolean;
   isRoundActive?: boolean;
   history?: RoundHistory[];
 }
@@ -68,6 +76,10 @@ export const INITIAL_GAME_STATE: GameState = {
   isMatchFinished: false,
   matchWinnerName: null,
   isWaitingOpponent: false,
+  isWaitingForReady: false,
+  myCameraReady: false,
+  opponentCameraReady: false,
+  roomName: '',
   isRoundActive: false,
-  history: []
+  history: [],
 };

@@ -99,6 +99,45 @@
   font-size: clamp(0.9rem, 1.8vw, 1.2rem);
 }
 
+.room-code-item {
+  position: relative;
+}
+
+.copy-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.4rem;
+  height: 2.4rem;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 0.75rem;
+  background: rgba(120, 120, 120, 0.3);
+  color: #e0e0e0;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease, color 0.2s ease;
+}
+
+.copy-button:hover {
+  background: rgba(180, 180, 180, 0.35);
+  transform: translateY(-1px);
+}
+
+.copy-button svg {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+.copy-feedback {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 0.45rem;
+  font-size: 0.78rem;
+  color: #c9d877;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
 .label {
   color: #a0a0a0;
 }
@@ -182,10 +221,12 @@
 }
 
 @keyframes pulse {
+
   0%,
   100% {
     opacity: 0.5;
   }
+
   50% {
     opacity: 0.8;
   }
@@ -213,10 +254,12 @@
 }
 
 @keyframes blink {
+
   0%,
   100% {
     opacity: 1;
   }
+
   50% {
     opacity: 0.6;
   }
@@ -450,10 +493,12 @@
 }
 
 @keyframes blink {
+
   0%,
   100% {
     opacity: 1;
   }
+
   50% {
     opacity: 0.6;
   }

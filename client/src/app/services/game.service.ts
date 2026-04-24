@@ -36,6 +36,7 @@ export class GameService {
         opponentName: data.opponentName || null,
         maxRounds: data.maxRounds || 3,
         isWaitingOpponent: true,
+        isWaitingForReady: true,
       });
     });
 
@@ -47,10 +48,35 @@ export class GameService {
         opponentName: data.opponentName || null,
         maxRounds: data.maxRounds || 3,
         isWaitingOpponent: false,
+        isWaitingForReady: true,
+      });
+    });
+
+    this.socketService.on('camera_ready_status').subscribe((data: any) => {
+      const currentState = this.gameStateSubject.value;
+      const isPlayerTwo = currentState.playerRole === 'player2';
+
+      const myCameraReady = isPlayerTwo ? data.player2CameraReady : data.player1CameraReady;
+      const opponentCameraReady = isPlayerTwo ? data.player1CameraReady : data.player2CameraReady;
+
+      this.updateGameState({
+        myCameraReady,
+        opponentCameraReady,
+        isWaitingForReady: !data.bothReady,
       });
     });
 
     this.socketService.on('start_round').subscribe((data: any) => {
+      this.updateGameState({
+        roundNumber: data.roundNumber,
+        playerChoice: null,
+        opponentChoice: null,
+        roundTimeLeftSec: data.timeLimitSec ?? 5,
+        lastRoundResult: null,
+        lastRoundWinnerName: null,
+        isRoundActive: true,
+        isWaitingForReady: false,
+      });
       this.updateGameState({
         roundNumber: data.roundNumber,
         playerChoice: null,
@@ -124,10 +150,11 @@ export class GameService {
   }
 
   /** Crear sala */
-  createRoom(username: string, maxRounds: 3 | 5 | 9 = 3): void {
+  createRoom(username: string, roomName: string, maxRounds: 3 | 5 | 9 = 3): void {
     this.socketService.connect();
     this.updateGameState({
       playerName: username,
+      roomName,
       isWaitingOpponent: true,
       maxRounds,
       isMatchFinished: false,
@@ -140,10 +167,11 @@ export class GameService {
   }
 
   /** Unirse a sala */
-  joinRoom(roomId: string, username: string): void {
+  joinRoom(roomId: string, username: string, roomName: string): void {
     this.socketService.connect();
     this.updateGameState({
       playerName: username,
+      roomName,
       isWaitingOpponent: true,
       isMatchFinished: false,
       matchWinnerName: null,
@@ -186,5 +214,21 @@ export class GameService {
   /** Getters públicos */
   get currentState(): GameState {
     return this.gameStateSubject.value;
+  }
+
+  getCurrentRoomId(): string | null {
+    return this.gameStateSubject.value.roomId;
+  }
+
+  sendCameraReady(roomId: string): void {
+    this.socketService.emit('camera_ready', { roomId });
+  }
+
+  sendCameraNotReady(roomId: string): void {
+    this.socketService.emit('camera_not_ready', { roomId });
+  }
+
+  requestStartGame(roomId: string): void {
+    this.socketService.emit('start_game', { roomId });
   }
 }

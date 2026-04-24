@@ -11,7 +11,7 @@ import { GameService } from '../../services/game.service';
 import { GestureDetectorComponent } from './game-components/gesture-detector/gesture-detector.component';
 import { CommonModule } from '@angular/common';
 import { Choice } from '../../models/game-state.model';
-import { Subscription, distinctUntilChanged, take, filter } from 'rxjs';
+import { Subscription, distinctUntilChanged } from 'rxjs';
 
 @Component({
   selector: 'app-game',
@@ -26,27 +26,39 @@ export class GameComponent implements OnInit, OnDestroy {
   private gameService = inject(GameService);
   private cdr = inject(ChangeDetectorRef);
 
-  roomCode = 'KDS865';
+  // Estado UI
+  roomCode = '';
   roomName = '';
   playerName = '';
+  opponentName = '';
+
   currentRound = 1;
   totalRounds = 3;
   timerSec = 0;
+
   myScore = 0;
   opponentScore = 0;
+
   roundResultText = '';
+
   isMatchFinished = false;
   matchWinnerName = '';
+  playerRole: 'player1' | 'player2' | null = null;
+
+  isRoundActive = false;
+  isWaitingForReady = false;
 
   myGesture: Choice | null = null;
   opponentGesture: Choice | null = null;
+
   private stateSub?: Subscription;
 
   ngOnInit() {
     this.stateSub = this.gameService.gameState$
       .pipe(
         distinctUntilChanged((prev, curr) => {
-          // Solo actualizar si cambian valores relevantes
+          if (!prev || !curr) return false;
+
           return (
             prev.playerChoice === curr.playerChoice &&
             prev.opponentChoice === curr.opponentChoice &&
@@ -57,42 +69,55 @@ export class GameComponent implements OnInit, OnDestroy {
             prev.lastRoundResult === curr.lastRoundResult &&
             prev.lastRoundWinnerName === curr.lastRoundWinnerName &&
             prev.isMatchFinished === curr.isMatchFinished &&
-            prev.matchWinnerName === curr.matchWinnerName
+            prev.matchWinnerName === curr.matchWinnerName &&
+            prev.isRoundActive === curr.isRoundActive &&
+            prev.isWaitingForReady === curr.isWaitingForReady
           );
         }),
       )
       .subscribe((state) => {
         this.roomCode = state.roomId || '----';
         this.playerName = state.playerName || '';
-        this.roomName = state.opponentName
-          ? `${this.playerName} vs ${state.opponentName}`
+        this.opponentName = state.opponentName || '';
+
+        this.roomName = this.opponentName
+          ? `${this.playerName} vs ${this.opponentName}`
           : this.playerName;
         this.currentRound = state.roundNumber;
         this.totalRounds = state.maxRounds;
         this.timerSec = state.roundTimeLeftSec;
+
         this.myGesture = state.playerChoice;
         this.opponentGesture = state.opponentChoice;
+
         this.myScore = state.playerScore;
         this.opponentScore = state.opponentScore;
+
         this.isMatchFinished = state.isMatchFinished;
         this.matchWinnerName = state.matchWinnerName || 'Empate';
+        this.playerRole = state.playerRole ?? null;
 
-        if (state.lastRoundResult) {
-          if (state.lastRoundResult === 'tie') {
-            this.roundResultText = 'Ronda empatada';
-          } else {
-            const winnerName = state.lastRoundWinnerName || 'Jugador';
-            this.roundResultText = `Ganador de ronda: ${winnerName}`;
-          }
-        } else {
-          this.roundResultText = '';
-        }
+        this.isRoundActive = state.isRoundActive;
+        this.isWaitingForReady = state.isWaitingForReady || false;
+
+        this.roundResultText = this.getRoundResultText(state);
 
         this.cdr.markForCheck();
       });
   }
 
-  getGestureText(choice: Choice | null): string {
+  private getRoundResultText(state: any): string {
+    if (!state.lastRoundResult) return '';
+
+    if (state.lastRoundResult === 'tie') {
+      return 'Ronda empatada';
+    }
+
+    const winnerName = state.lastRoundWinnerName || 'Jugador';
+    return `Ganador de ronda: ${winnerName}`;
+  }
+
+  selectedGestureText(choice: Choice | null): string {
     switch (choice) {
       case 'rock':
         return 'Rock';
@@ -101,15 +126,8 @@ export class GameComponent implements OnInit, OnDestroy {
       case 'scissors':
         return 'Scissors';
       default:
-        return '';
+        return 'Rock, Paper or Scissors';
     }
-  }
-
-  selectedGestureText(choice: Choice | null): string {
-    if (choice) {
-      return this.getGestureText(choice);
-    }
-    return 'Rock, Paper or Scissors';
   }
 
   onExit() {
@@ -119,6 +137,10 @@ export class GameComponent implements OnInit, OnDestroy {
 
   onBackToMenu() {
     this.onExit();
+  }
+
+  sendCameraReady() {
+    this.gameService.sendCameraReady(this.roomCode);
   }
 
   ngOnDestroy() {
