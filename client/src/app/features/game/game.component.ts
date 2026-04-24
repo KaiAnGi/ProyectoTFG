@@ -83,7 +83,6 @@ export class GameComponent implements OnInit, OnDestroy {
         this.roomName = this.opponentName
           ? `${this.playerName} vs ${this.opponentName}`
           : this.playerName;
-
         this.currentRound = state.roundNumber;
         this.totalRounds = state.maxRounds;
         this.timerSec = state.roundTimeLeftSec;
