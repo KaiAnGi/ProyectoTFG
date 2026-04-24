@@ -27,6 +27,7 @@ export interface GameState {
   isMatchFinished: boolean;
   matchWinnerName: string | null;
   isWaitingOpponent: boolean;
+  isWaitingForReady: boolean;
   isRoundActive: boolean;
   history: RoundHistory[];
 }
@@ -49,6 +50,7 @@ export interface PartialGameState {
   isMatchFinished?: boolean;
   matchWinnerName?: string | null;
   isWaitingOpponent?: boolean;
+  isWaitingForReady?: boolean;
   isRoundActive?: boolean;
   history?: RoundHistory[];
 }
@@ -70,6 +72,7 @@ export const INITIAL_GAME_STATE: GameState = {
   isMatchFinished: false,
   matchWinnerName: null,
   isWaitingOpponent: false,
+  isWaitingForReady: false,
   roomName: '',
   isRoundActive: false,
   history: [],

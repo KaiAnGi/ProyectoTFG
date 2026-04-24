@@ -23,7 +23,7 @@
       ROOM CODE: <span class="code-badge">{{ roomCode }}</span>
     </div>
     <div class="header-center">
-      <h1 class="game-title">¡LET'S PLAY!</h1>
+      <h1 class="game-title">"¡LET'S PLAY!"</h1>
       <p class="room-name">{{ roomName }}</p>
     </div>
     <div class="round-info">
@@ -52,15 +52,10 @@
     <!-- PLAYER 1 -->
     <div class="player-section">
       <h2 class="player-label">Player 1 (You)</h2>
-
       <div class="camera-box">
-        <!-- el detector (Kai) gestiona la camara -->
         <app-gesture-detector></app-gesture-detector>
       </div>
-
-      <p class="gesture-label">
-        {{ selectedGestureText(myGesture) }}
-      </p>
+      <p class="gesture-label">{{ selectedGestureText(myGesture) }}</p>
     </div>
 
     <!-- RAYO -->
@@ -74,7 +69,6 @@
       <div class="camera-box">
         <video #remoteVideo autoplay playsinline class="camera-video"></video>
       </div>
-
       <p class="gesture-label">{{ selectedGestureText(opponentGesture) }}</p>
     </div>
 
