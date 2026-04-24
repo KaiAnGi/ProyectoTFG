@@ -9,30 +9,35 @@ import { Subscription } from 'rxjs';
   standalone: true,
   imports: [CommonModule],
   templateUrl: './waiting-room.component.html',
-  styleUrls: ['./waiting-room.component.css']
+  styleUrls: ['./waiting-room.component.css'],
 })
 export class WaitingRoomComponent implements OnDestroy {
   private stateSub?: Subscription;
 
   roomCode = '';
   roomName = '';
-  
+  copyFeedback = false;
+  private copyTimeoutId: ReturnType<typeof setTimeout> | null = null;
+
   player1 = {
     name: 'You',
-    isReady: false,  // Cambiado a false por defecto
-    isYou: true
+    isReady: false, // Cambiado a false por defecto
+    isYou: true,
   };
-  
+
   player2 = {
     name: 'Opponent',
     isReady: false,
-    isYou: false
+    isYou: false,
   };
 
-  constructor(private router: Router, private gameService: GameService) {
+  constructor(
+    private router: Router,
+    private gameService: GameService,
+  ) {
     this.stateSub = this.gameService.gameState$.subscribe((state) => {
       this.roomCode = state.roomId || '';
-      this.roomName = state.roomId || '';
+      this.roomName = state.roomName || '';
       this.player1.name = state.playerName || 'You';
       this.player2.name = state.opponentName || 'Waiting...';
       this.player2.isReady = !!state.opponentName;
@@ -63,6 +68,28 @@ export class WaitingRoomComponent implements OnDestroy {
   leaveRoom(): void {
     this.gameService.resetGame();
     this.router.navigate(['/room-menu']);
+  }
+
+  copyRoomCode(): void {
+    if (!this.roomCode) {
+      return;
+    }
+
+    navigator.clipboard
+      .writeText(this.roomCode)
+      .then(() => {
+        this.copyFeedback = true;
+        if (this.copyTimeoutId) {
+          clearTimeout(this.copyTimeoutId);
+        }
+        this.copyTimeoutId = setTimeout(() => {
+          this.copyFeedback = false;
+          this.copyTimeoutId = null;
+        }, 1500);
+      })
+      .catch((err) => {
+        console.error('Error copiando room code:', err);
+      });
   }
 
   goBack(): void {

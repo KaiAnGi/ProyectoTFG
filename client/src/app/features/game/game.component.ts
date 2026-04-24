@@ -11,7 +11,7 @@ import { GameService } from '../../services/game.service';
 import { GestureDetectorComponent } from './game-components/gesture-detector/gesture-detector.component';
 import { CommonModule } from '@angular/common';
 import { Choice } from '../../models/game-state.model';
-import { Subscription, distinctUntilChanged } from 'rxjs';
+import { Subscription, distinctUntilChanged, take, filter } from 'rxjs';
 
 @Component({
   selector: 'app-game',
@@ -28,6 +28,8 @@ export class GameComponent implements OnInit, OnDestroy {
 
   roomCode = 'KDS865';
   roomName = '';
+  playerName = '';
+  opponentName = '';
   currentRound = 1;
   totalRounds = 3;
   timerSec = 0;
@@ -36,6 +38,8 @@ export class GameComponent implements OnInit, OnDestroy {
   roundResultText = '';
   isMatchFinished = false;
   matchWinnerName = '';
+
+  isRoundActive = false;
 
   myGesture: Choice | null = null;
   opponentGesture: Choice | null = null;
@@ -62,9 +66,11 @@ export class GameComponent implements OnInit, OnDestroy {
       )
       .subscribe((state) => {
         this.roomCode = state.roomId || '----';
+        this.playerName = state.playerName || '';
+        this.opponentName = state.opponentName || '';
         this.roomName = state.opponentName
-          ? `${state.playerName} vs ${state.opponentName}`
-          : state.playerName;
+          ? `${this.playerName} vs ${state.opponentName}`
+          : this.playerName;
         this.currentRound = state.roundNumber;
         this.totalRounds = state.maxRounds;
         this.timerSec = state.roundTimeLeftSec;
@@ -74,6 +80,7 @@ export class GameComponent implements OnInit, OnDestroy {
         this.opponentScore = state.opponentScore;
         this.isMatchFinished = state.isMatchFinished;
         this.matchWinnerName = state.matchWinnerName || 'Empate';
+        this.isRoundActive = state.isRoundActive;
 
         if (state.lastRoundResult) {
           if (state.lastRoundResult === 'tie') {
@@ -117,6 +124,10 @@ export class GameComponent implements OnInit, OnDestroy {
 
   onBackToMenu() {
     this.onExit();
+  }
+
+  sendCameraReady() {
+    this.gameService.sendCameraReady(this.roomCode);
   }
 
   ngOnDestroy() {

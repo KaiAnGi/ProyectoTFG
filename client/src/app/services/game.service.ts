@@ -124,10 +124,11 @@ export class GameService {
   }
 
   /** Crear sala */
-  createRoom(username: string, maxRounds: 3 | 5 | 9 = 3): void {
+  createRoom(username: string, roomName: string, maxRounds: 3 | 5 | 9 = 3): void {
     this.socketService.connect();
     this.updateGameState({
       playerName: username,
+      roomName,
       isWaitingOpponent: true,
       maxRounds,
       isMatchFinished: false,
@@ -140,10 +141,11 @@ export class GameService {
   }
 
   /** Unirse a sala */
-  joinRoom(roomId: string, username: string): void {
+  joinRoom(roomId: string, username: string, roomName: string): void {
     this.socketService.connect();
     this.updateGameState({
       playerName: username,
+      roomName,
       isWaitingOpponent: true,
       isMatchFinished: false,
       matchWinnerName: null,

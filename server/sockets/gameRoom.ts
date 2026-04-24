@@ -154,6 +154,17 @@ export class GameRooms {
 
   isBothCamerasReady(roomId: string): boolean {
     const room = this.rooms.get(roomId);
-    return room ? room.player1.cameraReady && room.player2?.cameraReady : false;
+    return room
+      ? room.player1.cameraReady &&
+          (room.player2 ? room.player2.cameraReady : false)
+      : false;
+  }
+
+  getRoom(roomId: string): GameRoom | undefined {
+    return this.rooms.get(roomId);
+  }
+
+  cleanupRoom(roomId: string): void {
+    this.rooms.delete(roomId);
   }
 }
