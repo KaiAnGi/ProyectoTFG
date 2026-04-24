@@ -36,6 +36,7 @@ export class GameService {
         opponentName: data.opponentName || null,
         maxRounds: data.maxRounds || 3,
         isWaitingOpponent: true,
+        isWaitingForReady: true,
       });
     });
 
@@ -47,10 +48,35 @@ export class GameService {
         opponentName: data.opponentName || null,
         maxRounds: data.maxRounds || 3,
         isWaitingOpponent: false,
+        isWaitingForReady: true,
+      });
+    });
+
+    this.socketService.on('camera_ready_status').subscribe((data: any) => {
+      const currentState = this.gameStateSubject.value;
+      const isPlayerTwo = currentState.playerRole === 'player2';
+
+      const myCameraReady = isPlayerTwo ? data.player2CameraReady : data.player1CameraReady;
+      const opponentCameraReady = isPlayerTwo ? data.player1CameraReady : data.player2CameraReady;
+
+      this.updateGameState({
+        myCameraReady,
+        opponentCameraReady,
+        isWaitingForReady: !data.bothReady,
       });
     });
 
     this.socketService.on('start_round').subscribe((data: any) => {
+      this.updateGameState({
+        roundNumber: data.roundNumber,
+        playerChoice: null,
+        opponentChoice: null,
+        roundTimeLeftSec: data.timeLimitSec ?? 5,
+        lastRoundResult: null,
+        lastRoundWinnerName: null,
+        isRoundActive: true,
+        isWaitingForReady: false,
+      });
       this.updateGameState({
         roundNumber: data.roundNumber,
         playerChoice: null,
@@ -196,5 +222,13 @@ export class GameService {
 
   sendCameraReady(roomId: string): void {
     this.socketService.emit('camera_ready', { roomId });
+  }
+
+  sendCameraNotReady(roomId: string): void {
+    this.socketService.emit('camera_not_ready', { roomId });
+  }
+
+  requestStartGame(roomId: string): void {
+    this.socketService.emit('start_game', { roomId });
   }
 }

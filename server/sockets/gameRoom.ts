@@ -152,12 +152,43 @@ export class GameRooms {
     return true;
   }
 
+  setCameraNotReady(roomId: string, playerId: string): boolean {
+    const room = this.rooms.get(roomId);
+    if (!room) return false;
+
+    if (room.player1.id === playerId) {
+      room.player1.cameraReady = false;
+    } else if (room.player2 && room.player2.id === playerId) {
+      room.player2.cameraReady = false;
+    }
+
+    return true;
+  }
+
   isBothCamerasReady(roomId: string): boolean {
     const room = this.rooms.get(roomId);
     return room
       ? room.player1.cameraReady &&
           (room.player2 ? room.player2.cameraReady : false)
       : false;
+  }
+
+  getCameraStatus(roomId: string) {
+    const room = this.rooms.get(roomId);
+    if (!room) {
+      return {
+        player1CameraReady: false,
+        player2CameraReady: false,
+        bothReady: false,
+      };
+    }
+
+    return {
+      player1CameraReady: room.player1.cameraReady,
+      player2CameraReady: room.player2?.cameraReady ?? false,
+      bothReady:
+        room.player1.cameraReady && (room.player2?.cameraReady ?? false),
+    };
   }
 
   getRoom(roomId: string): GameRoom | undefined {

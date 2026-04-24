@@ -73,7 +73,7 @@ export class GameComponent implements OnInit, OnDestroy {
             prev.isRoundActive === curr.isRoundActive &&
             prev.isWaitingForReady === curr.isWaitingForReady
           );
-        })
+        }),
       )
       .subscribe((state) => {
         this.roomCode = state.roomId || '----';

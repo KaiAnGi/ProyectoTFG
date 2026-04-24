@@ -35,6 +35,11 @@ export interface ServerToClientEvents {
     winner: string;
     finalScore: { player1: number; player2: number };
   }) => void;
+  camera_ready_status: (data: {
+    player1CameraReady: boolean;
+    player2CameraReady: boolean;
+    bothReady: boolean;
+  }) => void;
   error: (data: { message: string }) => void;
 }
 
@@ -43,6 +48,8 @@ export interface ClientToServerEvents {
   join_room: (data: { roomId: string; username: string }) => void;
   player_choice: (data: { roomId: string; choice: GameChoice }) => void;
   camera_ready: (data: { roomId: string }) => void;
+  camera_not_ready: (data: { roomId: string }) => void;
+  start_game: (data: { roomId: string }) => void;
   player_action: (data: {
     roomId: string;
     action: "rematch" | "retire";

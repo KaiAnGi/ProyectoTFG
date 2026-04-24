@@ -174,6 +174,11 @@ export function setupGameHandlers(
       });
 
       // Unirse a sala
+      const emitCameraReadyStatus = (roomId: string) => {
+        const status = gameRooms.getCameraStatus(roomId);
+        io.to(roomId).emit("camera_ready_status", status);
+      };
+
       socket.on("join_room", async ({ roomId, username }) => {
         const room = gameRooms.joinRoom(roomId, socket.id, username);
         if (room && room.player2) {
@@ -192,7 +197,7 @@ export function setupGameHandlers(
             playerName: room.player1.name,
             opponentName: username,
           });
-          // startTimedRound(roomId); // Removido para esperar a camera_ready
+          emitCameraReadyStatus(roomId);
           console.log(`${username} se unió a sala ${roomId}`);
         } else {
           socket.emit("error", { message: "Sala llena o no existe" });
@@ -218,9 +223,22 @@ export function setupGameHandlers(
       // Cámara lista
       socket.on("camera_ready", ({ roomId }) => {
         gameRooms.setCameraReady(roomId, socket.id);
-        if (gameRooms.isBothCamerasReady(roomId)) {
-          startTimedRound(roomId);
+        emitCameraReadyStatus(roomId);
+      });
+
+      socket.on("camera_not_ready", ({ roomId }) => {
+        gameRooms.setCameraNotReady(roomId, socket.id);
+        emitCameraReadyStatus(roomId);
+      });
+
+      socket.on("start_game", ({ roomId }) => {
+        if (!gameRooms.isBothCamerasReady(roomId)) {
+          socket.emit("error", {
+            message: "Ambos jugadores deben estar ready para iniciar",
+          });
+          return;
         }
+        startTimedRound(roomId);
       });
 
       socket.on("disconnect", () => {

@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { GameService } from '../../services/game.service';
 import { Subscription } from 'rxjs';
+import { GestureDetectorComponent } from '../game/game-components/gesture-detector/gesture-detector.component';
 
 @Component({
   selector: 'app-waiting-room',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, GestureDetectorComponent],
   templateUrl: './waiting-room.component.html',
   styleUrls: ['./waiting-room.component.css'],
 })
@@ -40,7 +41,8 @@ export class WaitingRoomComponent implements OnDestroy {
       this.roomName = state.roomName || '';
       this.player1.name = state.playerName || 'You';
       this.player2.name = state.opponentName || 'Waiting...';
-      this.player2.isReady = !!state.opponentName;
+      this.player1.isReady = state.myCameraReady ?? false;
+      this.player2.isReady = state.opponentCameraReady ?? false;
 
       if (state.isRoundActive && state.roomId) {
         this.router.navigate(['/game']);
@@ -52,16 +54,25 @@ export class WaitingRoomComponent implements OnDestroy {
   toggleReady(): void {
     this.player1.isReady = !this.player1.isReady;
     console.log('Player 1 ready status:', this.player1.isReady);
-    // TODO: Emitir evento por socket
+
+    if (!this.roomCode) {
+      return;
+    }
+
+    if (this.player1.isReady) {
+      this.gameService.sendCameraReady(this.roomCode);
+    } else {
+      this.gameService.sendCameraNotReady(this.roomCode);
+    }
   }
 
   canStartGame(): boolean {
-    return this.player2.isReady;
+    return this.player1.isReady && this.player2.isReady;
   }
 
   startGame(): void {
-    if (this.canStartGame()) {
-      this.router.navigate(['/game']);
+    if (this.canStartGame() && this.roomCode) {
+      this.gameService.requestStartGame(this.roomCode);
     }
   }
 

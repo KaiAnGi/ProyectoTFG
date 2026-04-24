@@ -22,7 +22,7 @@
               fill="currentColor" />
           </svg>
         </button>
-        <span class="copy-feedback" *ngIf="copyFeedback">Copiado</span>
+        <span class="copy-feedback" *ngIf="copyFeedback">Copy</span>
       </div>
       <div class="info-item">
         <span class="label">ROOM NAME:</span>
@@ -51,6 +51,10 @@
           (click)="toggleReady()">
           {{ player1.isReady ? 'READY' : 'NOT READY' }}
         </button>
+        <div class="camera-preview">
+          <app-gesture-detector></app-gesture-detector>
+
+        </div>
       </div>
 
       <!-- Player 2 (Opponent) -->
@@ -79,6 +83,10 @@
       <button class="action-btn leave-btn" (click)="leaveRoom()">
         LEAVE ROOM
       </button>
+    </div>
+    <div class="ready-note">
+      <p *ngIf="!player2.isReady || !player1.isReady">Esperando a que ambos jugadores confirmen la cámara.</p>
+      <p *ngIf="player1.isReady && player2.isReady">Ambos listos. Pulsa START GAME para comenzar.</p>
     </div>
   </div>
 
