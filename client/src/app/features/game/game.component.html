@@ -41,6 +41,10 @@
     <div class="score-chip">Marcador rival: {{ opponentScore }}</div>
   </div>
 
+<<<<<<< HEAD
+  <!-- Camera Ready Button -->
+  <div class="camera-ready-row" *ngIf="isRoundActive && timerSec === 5">
+    <button class="camera-ready-btn" (click)="sendCameraReady()">Camera Ready</button>
   <!-- Camera Ready Button -->
   <div class="camera-ready-row" *ngIf="isRoundActive && timerSec === 5">
     <button class="camera-ready-btn" (click)="sendCameraReady()">Camera Ready</button>
@@ -56,10 +60,6 @@
         <app-gesture-detector></app-gesture-detector>
       </div>
       <p class="gesture-label">{{ selectedGestureText(myGesture) }}</p>
-    </div>
-
-    <!-- RAYO -->
-    <div class="vs-divider">
       <img src="/images/rayo.png" alt="vs" class="lightning-img">
     </div>
 
@@ -69,6 +69,10 @@
       <div class="camera-box">
         <video #remoteVideo autoplay playsinline class="camera-video"></video>
       </div>
+<<<<<<< HEAD
+=======
+
+>>>>>>> ed02519 (Refactor game component HTML structure)
       <p class="gesture-label">{{ selectedGestureText(opponentGesture) }}</p>
     </div>
 
