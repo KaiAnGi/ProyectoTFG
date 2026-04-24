@@ -41,44 +41,40 @@
     <div class="score-chip">Marcador rival: {{ opponentScore }}</div>
   </div>
 
-<<<<<<< HEAD
-  <!-- Camera Ready Button -->
-  <div class="camera-ready-row" *ngIf="isRoundActive && timerSec === 5">
-    <button class="camera-ready-btn" (click)="sendCameraReady()">Camera Ready</button>
-  <!-- Camera Ready Button -->
-  <div class="camera-ready-row" *ngIf="isRoundActive && timerSec === 5">
-    <button class="camera-ready-btn" (click)="sendCameraReady()">Camera Ready</button>
-  </div>
-
-  <!-- JUGADORES -->
-  <div class="players-container">
-
-    <!-- PLAYER 1 -->
-    <div class="player-section">
-      <h2 class="player-label">Player 1 (You)</h2>
-      <div class="camera-box">
-        <app-gesture-detector></app-gesture-detector>
+  <<<<<<< HEAD <!-- Camera Ready Button -->
+    <div class="camera-ready-row" *ngIf="isRoundActive && timerSec === 5">
+      <button class="camera-ready-btn" (click)="sendCameraReady()">Camera Ready</button>
+      <!-- Camera Ready Button -->
+      <div class="camera-ready-row" *ngIf="isRoundActive && timerSec === 5">
+        <button class="camera-ready-btn" (click)="sendCameraReady()">Camera Ready</button>
       </div>
-      <p class="gesture-label">{{ selectedGestureText(myGesture) }}</p>
-      <img src="/images/rayo.png" alt="vs" class="lightning-img">
-    </div>
 
-    <!-- PLAYER 2 -->
-    <div class="player-section">
-      <h2 class="player-label">Player 2 (Opponent)</h2>
-      <div class="camera-box">
-        <video #remoteVideo autoplay playsinline class="camera-video"></video>
+      <!-- JUGADORES -->
+      <div class="players-container">
+
+        <!-- PLAYER 1 -->
+        <div class="player-section">
+          <h2 class="player-label">Player 1 (You)</h2>
+          <div class="camera-box">
+            <app-gesture-detector></app-gesture-detector>
+          </div>
+          <p class="gesture-label">{{ selectedGestureText(myGesture) }}</p>
+          <img src="/images/rayo.png" alt="vs" class="lightning-img">
+        </div>
+
+        <!-- PLAYER 2 -->
+        <div class="player-section">
+          <h2 class="player-label">Player 2 (Opponent)</h2>
+          <div class="camera-box">
+            <video #remoteVideo autoplay playsinline class="camera-video"></video>
+          </div>
+          <<<<<<< HEAD=======>>>>>>> ed02519 (Refactor game component HTML structure)
+            <p class="gesture-label">{{ selectedGestureText(opponentGesture) }}</p>
+        </div>
+
       </div>
-<<<<<<< HEAD
-=======
 
->>>>>>> ed02519 (Refactor game component HTML structure)
-      <p class="gesture-label">{{ selectedGestureText(opponentGesture) }}</p>
-    </div>
-
-  </div>
-
-  <!-- FOOTER -->
-  <div class="game-footer">
-    <button class="exit-btn" (click)="onExit()">EXIT</button>
-  </div>
+      <!-- FOOTER -->
+      <div class="game-footer">
+        <button class="exit-btn" (click)="onExit()">EXIT</button>
+      </div>
