@@ -187,4 +187,12 @@ export class GameService {
   get currentState(): GameState {
     return this.gameStateSubject.value;
   }
+
+  getCurrentRoomId(): string | null {
+    return this.gameStateSubject.value.roomId;
+  }
+
+  sendCameraReady(roomId: string): void {
+    this.socketService.emit('camera_ready', { roomId });
+  }
 }

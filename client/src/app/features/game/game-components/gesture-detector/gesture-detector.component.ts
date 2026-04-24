@@ -48,6 +48,16 @@ export class GestureDetectorComponent implements AfterViewInit, OnDestroy {
         this.gameService.makeChoice(gesture as Choice);
       }
     });
+
+    effect(() => {
+      const isReady = this.isCameraReady();
+      if (isReady) {
+        const roomId = this.gameService.getCurrentRoomId();
+        if (roomId) {
+          this.gameService.sendCameraReady(roomId);
+        }
+      }
+    });
   }
 
   async ngAfterViewInit() {
