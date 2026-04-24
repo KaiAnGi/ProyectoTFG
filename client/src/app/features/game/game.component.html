@@ -3,7 +3,10 @@
 
   <div class="victory-overlay" *ngIf="isMatchFinished">
     <div class="victory-card">
-      <h2 class="victory-title">VICTORIA</h2>
+      <h2 class="victory-title"
+        [ngClass]="matchWinnerName === 'Empate' ? 'title-tie' : (matchWinnerName === playerName ? 'title-win' : 'title-lose')">
+        {{ matchWinnerName === 'Empate' ? 'EMPATE' : (matchWinnerName === playerName ? 'VICTORIA' : 'DERROTA') }}
+      </h2>
       <p class="victory-winner">{{ matchWinnerName }}</p>
       <p class="victory-score">Marcador final: {{ myScore }} - {{ opponentScore }}</p>
       <button class="exit-btn" (click)="onBackToMenu()">Volver al menú</button>
@@ -60,7 +63,7 @@
     <div class="player-section">
       <h2 class="player-label">Player 2 (Opponent)</h2>
       <div class="camera-box">
-        <video #remoteVideo autoplay playsinline class="camera-feed"></video>
+        <video #remoteVideo autoplay playsinline class="camera-video"></video>
       </div>
 
       <p class="gesture-label">{{ selectedGestureText(opponentGesture) }}</p>
@@ -72,5 +75,3 @@
   <div class="game-footer">
     <button class="exit-btn" (click)="onExit()">EXIT</button>
   </div>
-
-</div>

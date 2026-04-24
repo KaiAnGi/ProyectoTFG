@@ -11,7 +11,7 @@ import { GameService } from '../../services/game.service';
 import { GestureDetectorComponent } from './game-components/gesture-detector/gesture-detector.component';
 import { CommonModule } from '@angular/common';
 import { Choice } from '../../models/game-state.model';
-import { Subscription, distinctUntilChanged } from 'rxjs';
+import { Subscription, distinctUntilChanged, take, filter } from 'rxjs';
 
 @Component({
   selector: 'app-game',
@@ -28,6 +28,7 @@ export class GameComponent implements OnInit, OnDestroy {
 
   roomCode = 'KDS865';
   roomName = '';
+  playerName = '';
   currentRound = 1;
   totalRounds = 3;
   timerSec = 0;
@@ -62,9 +63,10 @@ export class GameComponent implements OnInit, OnDestroy {
       )
       .subscribe((state) => {
         this.roomCode = state.roomId || '----';
+        this.playerName = state.playerName || '';
         this.roomName = state.opponentName
-          ? `${state.playerName} vs ${state.opponentName}`
-          : state.playerName;
+          ? `${this.playerName} vs ${state.opponentName}`
+          : this.playerName;
         this.currentRound = state.roundNumber;
         this.totalRounds = state.maxRounds;
         this.timerSec = state.roundTimeLeftSec;
