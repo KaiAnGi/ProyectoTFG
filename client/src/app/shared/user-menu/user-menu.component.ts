@@ -46,12 +46,6 @@ export class UserMenuComponent implements OnInit, OnDestroy {
             if (user) {
                 this.username = user.username;
                 this.isLoggedIn = true;
-
-                const savedFriends = localStorage.getItem('rps_friends');
-                if (savedFriends) this.friends = JSON.parse(savedFriends);
-
-                const savedRequests = localStorage.getItem(`rps_requests_${this.username}`);
-                if (savedRequests) this.pendingRequests = JSON.parse(savedRequests);
             } else {
                 this.isLoggedIn = false;
                 this.username = '';
@@ -107,15 +101,6 @@ export class UserMenuComponent implements OnInit, OnDestroy {
         this.unreadCounts[friend] = 0;
     }
 
-    receiveMessage(sender: string, text: string) {
-        this.chatMessages.push({ sender, to: this.username, text });
-        const isViewingChat = this.chatOpen && this.chatTab === 'chat' && this.selectedFriend === sender;
-        if (!isViewingChat) {
-            this.unreadCounts[sender] = (this.unreadCounts[sender] || 0) + 1;
-            this.audio.play('mensaje', 0.5);
-        }
-    }
-
     sendMessage() {
         const text = this.chatInput.trim();
         if (!text || !this.selectedFriend) return;
@@ -135,28 +120,7 @@ export class UserMenuComponent implements OnInit, OnDestroy {
     }
 
     confirmAddFriend() {
-        const name = this.newFriendName.trim();
-        if (!name) {
-            this.modalMessage = 'Escribe un nombre de usuario.';
-            return;
-        }
-        if (this.friends.includes(name)) {
-            this.modalMessage = 'Ya es tu amigo.';
-            return;
-        }
-        if (name === this.username) {
-            this.modalMessage = 'No puedes añadirte a ti mismo.';
-            return;
-        }
-
-        const theirRequests: string[] = JSON.parse(
-            localStorage.getItem(`rps_requests_${name}`) || '[]'
-        );
-        theirRequests.push(this.username);
-        localStorage.setItem(`rps_requests_${name}`, JSON.stringify(theirRequests));
-
-        this.modalMessage = `Solicitud enviada a ${name} ✔`;
-        setTimeout(() => this.closeModal(), 1400);
+        // TODO: conectar con backend/socket
     }
 
     closeModal() {
@@ -166,15 +130,11 @@ export class UserMenuComponent implements OnInit, OnDestroy {
     }
 
     acceptRequest(name: string) {
-        this.friends.push(name);
-        this.pendingRequests = this.pendingRequests.filter(r => r !== name);
-        localStorage.setItem('rps_friends', JSON.stringify(this.friends));
-        localStorage.setItem(`rps_requests_${this.username}`, JSON.stringify(this.pendingRequests));
+        // TODO: conectar con backend/socket
     }
 
     rejectRequest(name: string) {
-        this.pendingRequests = this.pendingRequests.filter(r => r !== name);
-        localStorage.setItem(`rps_requests_${this.username}`, JSON.stringify(this.pendingRequests));
+        // TODO: conectar con backend/socket
     }
 
     onRemoveFriend(name: string) {
@@ -184,10 +144,7 @@ export class UserMenuComponent implements OnInit, OnDestroy {
     }
 
     confirmRemoveFriend() {
-        this.friends = this.friends.filter(f => f !== this.friendToRemove);
-        localStorage.setItem('rps_friends', JSON.stringify(this.friends));
-        this.friendToRemove = '';
-        this.showRemoveConfirm = false;
+        // TODO: conectar con backend/socket
     }
 
     cancelRemove() {
