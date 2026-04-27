@@ -8,7 +8,7 @@ import { RankingService } from "../services/ranking-service.ts";
 
 const gameRooms = new GameRooms();
 const rankingService = new RankingService();
-const ROUND_DURATION_SEC = 5;
+const INITIAL_ROUND_DURATION_SEC = 15;
 
 type RoomTimer = {
   intervalId?: NodeJS.Timeout;
@@ -115,6 +115,19 @@ export function setupGameHandlers(
     setTimeout(() => startTimedRound(roomId), 2000);
   };
 
+  const getRoundDuration = (maxRounds: number, roundNumber: number): number => {
+    if (maxRounds === 3) {
+      return Math.max(INITIAL_ROUND_DURATION_SEC - (roundNumber - 1) * 5, 5);
+    }
+    if (maxRounds === 5) {
+      return Math.max(INITIAL_ROUND_DURATION_SEC - (roundNumber - 1) * 4, 4);
+    }
+    if (maxRounds === 9) {
+      return Math.max(INITIAL_ROUND_DURATION_SEC - (roundNumber - 1) * 3, 3);
+    }
+    return INITIAL_ROUND_DURATION_SEC;
+  };
+
   const startTimedRound = (roomId: string) => {
     const room = gameRooms.getRoom(roomId);
     if (!room || !room.player2) {
@@ -123,11 +136,12 @@ export function setupGameHandlers(
 
     clearRoundTimer(roomId);
 
-    let timeLeftSec = ROUND_DURATION_SEC;
+    const roundDuration = getRoundDuration(room.maxRounds, room.roundNumber);
+    let timeLeftSec = roundDuration;
 
     io.to(roomId).emit("start_round", {
       roundNumber: room.roundNumber,
-      timeLimitSec: ROUND_DURATION_SEC,
+      timeLimitSec: roundDuration,
     });
     io.to(roomId).emit("round_timer", { timeLeftSec });
 
@@ -140,7 +154,7 @@ export function setupGameHandlers(
 
     const timeoutId = setTimeout(() => {
       finishTimedRound(roomId);
-    }, ROUND_DURATION_SEC * 1000);
+    }, roundDuration * 1000);
 
     roomTimers.set(roomId, { intervalId, timeoutId });
   };
