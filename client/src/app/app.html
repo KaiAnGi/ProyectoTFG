@@ -1,1 +1,8 @@
+<div class="top-bar">
+  <button class="mute-btn" (click)="toggleMute()" [attr.aria-label]="muted ? 'Activar sonido' : 'Silenciar'">
+    <img [src]="muted ? '/images/novolumen.png' : '/images/volumen.png'" alt="" class="mute-icon" />
+  </button>
+  <app-user-menu />
+</div>
+
 <router-outlet />

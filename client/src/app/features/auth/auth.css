@@ -72,25 +72,13 @@
 
 /* Animaciones entrada */
 @keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(50px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(50px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
-.hand-item:nth-child(1) {
-  animation: fadeInUp 1s ease-out 0.3s both;
-}
-.hand-item:nth-child(2) {
-  animation: fadeInUp 1s ease-out 0.5s both;
-}
-.hand-item:nth-child(3) {
-  animation: fadeInUp 1s ease-out 0.7s both;
-}
+.hand-item:nth-child(1) { animation: fadeInUp 1s ease-out 0.3s both; }
+.hand-item:nth-child(2) { animation: fadeInUp 1s ease-out 0.5s both; }
+.hand-item:nth-child(3) { animation: fadeInUp 1s ease-out 0.7s both; }
 
 .hand-item {
   display: flex;
@@ -101,7 +89,7 @@
 .hand-icon {
   width: clamp(150px, 18vw, 260px);
   height: auto;
-  filter: 
+  filter:
     brightness(0.75)
     contrast(1.2)
     saturate(0.9)
@@ -109,12 +97,8 @@
 }
 
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
 .game-subtitle {
@@ -127,7 +111,7 @@
   animation: fadeIn 1.2s ease-out 0.9s both;
 }
 
-/* BOTONES LOGIN / REGISTER - IGUAL QUE MOCKUP */
+/* BOTONES LOGIN / REGISTER */
 .auth-buttons {
   display: flex;
   gap: 2.5rem;
@@ -168,9 +152,9 @@
   transform: translateY(-2px);
 }
 
-/* Botón BACK */
+/* Botón BACK — ✅ corregido font-family */
 .back-btn {
-  position: fixed; 
+  position: fixed;
   bottom: 20px;
   top: 20px;
   padding: 0.6rem 2rem;
@@ -178,11 +162,12 @@
   color: #ccc;
   border: none;
   border-radius: 12px;
-  font-family: 'Outfit', sans-serif;
+  font-family: 'Metal Mania', system-ui, cursive; /* ← era 'Outfit' */
   font-weight: 500;
   cursor: pointer;
   transition: all 0.3s;
   font-size: 1rem;
+  letter-spacing: 0.15em;
 }
 
 .back-btn:hover {
@@ -198,12 +183,10 @@
     gap: 1.5rem;
     align-items: center;
   }
-
   .auth-btn {
     padding: 1rem 3.5rem;
     font-size: 1.8rem;
   }
-
   .back-btn {
     padding: 0.6rem 1.5rem;
     font-size: 0.9rem;
@@ -211,18 +194,8 @@
 }
 
 @media (max-width: 480px) {
-  .game-title {
-    font-size: 2.5rem;
-    margin-bottom: 1.5rem;
-  }
-  .hands-container {
-    gap: 1rem;
-  }
-  .hand-icon {
-    width: 140px;
-  }
-  .game-subtitle {
-    font-size: 1.1rem;
-    margin: 1rem 0 2rem 0;
-  }
+  .game-title { font-size: 2.5rem; margin-bottom: 1.5rem; }
+  .hands-container { gap: 1rem; }
+  .hand-icon { width: 140px; }
+  .game-subtitle { font-size: 1.1rem; margin: 1rem 0 2rem 0; }
 }
