@@ -1,0 +1,155 @@
+<ng-container *ngIf="shouldShow">
+
+  <!-- MENÚ USUARIO -->
+  <div class="user-menu">
+    <button class="user-toggle" (click)="toggleMenu()" aria-label="Menú de usuario">
+      {{ username }} <span class="arrow">{{ menuOpen ? '▲' : '▼' }}</span>
+    </button>
+
+    <div class="dropdown" *ngIf="menuOpen">
+
+      <div class="dropdown-section">
+        <div class="dropdown-label">≡ AMIGOS</div>
+        <ul class="friends-list">
+          <li *ngFor="let friend of friends" class="friend-item">
+            <span class="friend-dot"></span>
+            <span class="friend-name">{{ friend }}</span>
+            <button class="friend-remove" (click)="onRemoveFriend(friend)" title="Eliminar amigo">✖</button>
+          </li>
+          <li *ngIf="friends.length === 0" class="no-friends">Sin amigos aún</li>
+        </ul>
+      </div>
+
+      <div class="dropdown-section">
+        <div class="dropdown-label">
+          ● SOLICITUDES
+          <span class="badge" *ngIf="pendingRequests.length > 0">{{ pendingRequests.length }}</span>
+        </div>
+        <ul class="friends-list">
+          <li *ngFor="let req of pendingRequests" class="request-item">
+            <span class="req-name">{{ req }}</span>
+            <div class="req-actions">
+              <button class="req-btn accept" (click)="acceptRequest(req)" title="Aceptar">✔</button>
+              <button class="req-btn reject" (click)="rejectRequest(req)" title="Rechazar">✖</button>
+            </div>
+          </li>
+          <li *ngIf="pendingRequests.length === 0" class="no-friends">Sin solicitudes</li>
+        </ul>
+      </div>
+
+      <button class="dropdown-action" (click)="onAddFriend()">
+        ✦ Añadir amigos
+      </button>
+
+    </div>
+  </div>
+
+  <!-- MODAL AÑADIR AMIGO -->
+  <div class="modal-overlay" *ngIf="showAddFriendModal" (click)="closeModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <h2 class="modal-title">AÑADIR AMIGO</h2>
+      <input
+        class="modal-input"
+        type="text"
+        placeholder="Nombre de usuario..."
+        [(ngModel)]="newFriendName"
+        (keydown.enter)="confirmAddFriend()"
+      />
+      <div class="modal-actions">
+        <button class="modal-btn confirm" (click)="confirmAddFriend()">ENVIAR SOLICITUD</button>
+        <button class="modal-btn cancel" (click)="closeModal()">CANCELAR</button>
+      </div>
+      <p class="modal-msg" *ngIf="modalMessage">{{ modalMessage }}</p>
+    </div>
+  </div>
+
+  <!-- MODAL CONFIRMAR ELIMINAR -->
+  <div class="modal-overlay" *ngIf="showRemoveConfirm" (click)="cancelRemove()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <h2 class="modal-title">ELIMINAR AMIGO</h2>
+      <p class="confirm-text">
+        ¿Seguro que quieres eliminar a <strong>{{ friendToRemove }}</strong>?
+      </p>
+      <div class="modal-actions">
+        <button class="modal-btn confirm" (click)="confirmRemoveFriend()">ELIMINAR</button>
+        <button class="modal-btn cancel" (click)="cancelRemove()">CANCELAR</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOTÓN OUIJA -->
+  <button class="chat-toggle" (click)="toggleChat()" [class.active]="chatOpen" aria-label="Abrir chat">
+    <img src="/images/ouija.png" alt="Chat" class="ouija-icon" />
+    <span class="chat-badge" *ngIf="totalUnread > 0">{{ totalUnread > 9 ? '9+' : totalUnread }}</span>
+  </button>
+
+  <!-- PANEL CHAT -->
+  <div class="chat-panel" [class.open]="chatOpen">
+
+    <div class="chat-tabs">
+      <button class="chat-tab" [class.active]="chatTab === 'friends'" (click)="chatTab = 'friends'; selectedFriend = null">Amigos</button>
+      <button class="chat-tab" [class.active]="chatTab === 'chat'" (click)="chatTab = 'chat'">Chat</button>
+    </div>
+
+    <!-- Tab amigos -->
+    <div class="chat-content" *ngIf="chatTab === 'friends'">
+      <ul class="chat-friends-list">
+        <li *ngFor="let friend of friends" class="chat-friend-item" (click)="openChatWith(friend)">
+          <span class="chat-friend-dot"></span>
+          {{ friend }}
+          <span class="chat-unread-badge" *ngIf="unreadCounts[friend] > 0">
+            {{ unreadCounts[friend] > 9 ? '9+' : unreadCounts[friend] }}
+          </span>
+          <span class="chat-friend-arrow" *ngIf="!unreadCounts[friend]">›</span>
+        </li>
+        <li *ngIf="friends.length === 0" class="chat-no-content">Sin amigos aún</li>
+      </ul>
+    </div>
+
+    <!-- Tab chat -->
+    <div class="chat-messages-wrap" *ngIf="chatTab === 'chat'">
+
+      <div class="chat-with" *ngIf="selectedFriend; else noFriend">
+        <button class="chat-back-btn" (click)="chatTab = 'friends'; selectedFriend = null">‹</button>
+        <span class="chat-friend-dot"></span>
+        {{ selectedFriend }}
+      </div>
+      <ng-template #noFriend>
+        <div class="chat-with muted">Elige un amigo para chatear</div>
+      </ng-template>
+
+      <div class="chat-messages" #messagesContainer>
+        <ng-container *ngIf="selectedFriend; else pickFriend">
+          <div
+            *ngFor="let msg of activeMessages"
+            class="chat-message"
+            [class.mine]="msg.sender === username"
+          >
+            <span class="chat-msg-sender">{{ msg.sender === username ? 'TU' : msg.sender }}:</span>
+            <span class="chat-msg-text">{{ msg.text }}</span>
+          </div>
+          <div *ngIf="activeMessages.length === 0" class="chat-no-content">Sin mensajes aún</div>
+        </ng-container>
+        <ng-template #pickFriend>
+          <div class="chat-no-content">Selecciona un amigo desde Amigos</div>
+        </ng-template>
+      </div>
+
+      <div class="chat-input-row">
+        <input
+          class="chat-input"
+          type="text"
+          [placeholder]="selectedFriend ? 'Escribe a ' + selectedFriend + '...' : 'Elige un amigo primero'"
+          [(ngModel)]="chatInput"
+          (keydown.enter)="sendMessage()"
+          [disabled]="!selectedFriend"
+          maxlength="200"
+        />
+        <button class="chat-send" (click)="sendMessage()" [disabled]="!selectedFriend">➤</button>
+      </div>
+
+    </div>
+
+  </div>
+
+</ng-container>

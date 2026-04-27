@@ -27,6 +27,11 @@ export class MediaPipeService {
   private camera!: Camera;
   private videoRef!: HTMLVideoElement;
   private isInitialized = false;
+  private stream: MediaStream | null = null;
+
+  public getVideoStream(): MediaStream | null {
+  return this.stream;
+}
 
   async initCamera(video: HTMLVideoElement, canvas: HTMLCanvasElement): Promise<void> {
     if (this.isInitialized) return;

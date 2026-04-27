@@ -1,34 +1,100 @@
+<!-- Menú de usuario -->
+<div class="user-menu">
+    <button class="user-toggle" (click)="toggleMenu()" aria-label="Menú de usuario">
+        {{ username }} <span class="arrow">{{ menuOpen ? '▲' : '▼' }}</span>
+    </button>
+
+    <div class="dropdown" *ngIf="menuOpen">
+
+        <!-- AMIGOS -->
+        <div class="dropdown-section">
+            <div class="dropdown-label">≡ AMIGOS</div>
+            <ul class="friends-list">
+                <li *ngFor="let friend of friends" class="friend-item">
+                    <span class="friend-dot"></span>
+                    <span class="friend-name">{{ friend }}</span>
+                    <button class="friend-remove" (click)="onRemoveFriend(friend)" title="Eliminar amigo">✖</button>
+                </li>
+                <li *ngIf="friends.length === 0" class="no-friends">Sin amigos aún</li>
+            </ul>
+        </div>
+
+        <!-- Modal Confirmar Eliminar Amigo -->
+        <div class="modal-overlay" *ngIf="showRemoveConfirm" (click)="cancelRemove()">
+            <div class="modal" (click)="$event.stopPropagation()">
+                <h2 class="modal-title">ELIMINAR AMIGO</h2>
+                <p class="confirm-text">
+                    ¿Seguro que quieres eliminar a <strong>{{ friendToRemove }}</strong>?
+                </p>
+                <div class="modal-actions">
+                    <button class="modal-btn confirm" (click)="confirmRemoveFriend()">ELIMINAR</button>
+                    <button class="modal-btn cancel" (click)="cancelRemove()">CANCELAR</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- SOLICITUDES -->
+        <div class="dropdown-section">
+            <div class="dropdown-label">
+                ● SOLICITUDES
+                <span class="badge" *ngIf="pendingRequests.length > 0">
+                    {{ pendingRequests.length }}
+                </span>
+            </div>
+            <ul class="friends-list">
+                <li *ngFor="let req of pendingRequests" class="request-item">
+                    <span class="req-name">{{ req }}</span>
+                    <div class="req-actions">
+                        <button class="req-btn accept" (click)="acceptRequest(req)" title="Aceptar">✔</button>
+                        <button class="req-btn reject" (click)="rejectRequest(req)" title="Rechazar">✖</button>
+                    </div>
+                </li>
+                <li *ngIf="pendingRequests.length === 0" class="no-friends">Sin solicitudes</li>
+            </ul>
+        </div>
+
+        <!-- AÑADIR -->
+        <button class="dropdown-action" (click)="onAddFriend()">
+            ✦ Añadir amigos
+        </button>
+
+    </div>
+</div>
+
+<!-- Pantalla principal -->
 <div class="room-menu-screen">
     <h1 class="game-title">ROCK, PAPER OR SCISSORS</h1>
 
     <div class="hands-container">
-        <!-- Mano izquierda - ROCK -->
         <div class="hand-item">
             <img src="/images/rockHand.png" alt="Rock" class="hand-icon">
         </div>
-
-        <!-- Mano centro - PAPER -->
         <div class="hand-item">
             <img src="/images/PaperHand.png" alt="Paper" class="hand-icon">
         </div>
-
-        <!-- Mano derecha - SCISSORS -->
         <div class="hand-item">
             <img src="/images/scissorsHand.png" alt="Scissors" class="hand-icon">
         </div>
     </div>
 
     <div class="menu-buttons">
-        <button class="menu-button" (click)="onCreateRoom()">
-            CREATE A ROOM
-        </button>
-
-        <button class="menu-button" (click)="onJoinRoom()">
-            JOIN THE ROOM
-        </button>
+        <button class="menu-button" (click)="onCreateRoom()">CREATE A ROOM</button>
+        <button class="menu-button" (click)="onJoinRoom()">JOIN THE ROOM</button>
     </div>
 
-    <button class="back-button" (click)="onBack()">
-        BACK
-    </button>
+    <button class="back-button" (click)="onBack()">BACK</button>
+</div>
+
+<!-- Modal Añadir Amigo -->
+<div class="modal-overlay" *ngIf="showAddFriendModal" (click)="closeModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+        <h2 class="modal-title">AÑADIR AMIGO</h2>
+        <input class="modal-input" type="text" placeholder="Nombre de usuario..." [(ngModel)]="newFriendName"
+            (keydown.enter)="confirmAddFriend()" />
+        <div class="modal-actions">
+            <button class="modal-btn confirm" (click)="confirmAddFriend()">ENVIAR SOLICITUD</button>
+            <button class="modal-btn cancel" (click)="closeModal()">CANCELAR</button>
+        </div>
+        <p class="modal-msg" *ngIf="modalMessage">{{ modalMessage }}</p>
+    </div>
 </div>

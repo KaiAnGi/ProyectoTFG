@@ -1,0 +1,672 @@
+/* ================================================
+   MENÚ DE USUARIO
+================================================ */
+.user-menu {
+  position: fixed;
+  top: 1rem;
+  right: 1.5rem;
+  z-index: 1000;
+  font-family: 'Metal Mania', system-ui, cursive;
+}
+
+.user-toggle {
+  background: rgba(25, 18, 18, 0.9);
+  border: 1px solid rgba(110, 35, 35, 0.6);
+  border-radius: 6px;
+  color: #a08080;
+  font-family: inherit;
+  font-size: clamp(0.85rem, 1.5vw, 1.05rem);
+  letter-spacing: 0.1em;
+  padding: 0.45rem 1.1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.7);
+}
+
+.user-toggle:hover {
+  background: rgba(55, 18, 18, 0.92);
+  color: #c89090;
+  border-color: rgba(150, 45, 45, 0.7);
+}
+
+.arrow {
+  font-size: 0.65em;
+  opacity: 0.55;
+}
+
+.dropdown {
+  position: absolute;
+  top: calc(100% + 0.4rem);
+  right: 0;
+  min-width: 210px;
+  background: rgba(13, 8, 8, 0.97);
+  border: 1px solid rgba(100, 28, 28, 0.55);
+  border-radius: 8px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.88);
+  overflow: hidden;
+  animation: dropIn 0.18s ease;
+}
+
+@keyframes dropIn {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.dropdown-section {
+  padding: 0.7rem 1rem 0.5rem;
+  border-bottom: 1px solid rgba(100, 28, 28, 0.22);
+}
+
+.dropdown-label {
+  color: #6e3030;
+  font-size: 0.8rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.friends-list {
+  list-style: none;
+  max-height: 120px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(110, 35, 35, 0.4) transparent;
+}
+
+.friend-item {
+  color: #887070;
+  font-size: 0.86rem;
+  padding: 0.22rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.friend-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #4a7040;
+  flex-shrink: 0;
+}
+
+.friend-name {
+  flex: 1;
+}
+
+.friend-remove {
+  background: transparent;
+  border: none;
+  color: #4a2020;
+  font-size: 0.7rem;
+  cursor: pointer;
+  padding: 0.1rem 0.3rem;
+  border-radius: 3px;
+  opacity: 0;
+  transition: opacity 0.15s, color 0.15s, background 0.15s;
+}
+
+.friend-item:hover .friend-remove {
+  opacity: 1;
+}
+
+.friend-remove:hover {
+  color: #c05050;
+  background: rgba(80, 18, 18, 0.3);
+}
+
+.no-friends {
+  color: #3e2828;
+  font-size: 0.78rem;
+  font-style: italic;
+  padding: 0.2rem 0;
+}
+
+.badge {
+  background: #5e1a1a;
+  color: #d07070;
+  font-size: 0.68rem;
+  border-radius: 999px;
+  padding: 0.05rem 0.45rem;
+  margin-left: 0.4rem;
+  font-weight: bold;
+  letter-spacing: 0;
+}
+
+.request-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.28rem 0;
+  gap: 0.5rem;
+}
+
+.req-name {
+  color: #887070;
+  font-size: 0.86rem;
+  flex: 1;
+}
+
+.req-actions {
+  display: flex;
+  gap: 0.3rem;
+}
+
+.req-btn {
+  border: none;
+  border-radius: 4px;
+  padding: 0.15rem 0.45rem;
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.req-btn.accept {
+  background: rgba(35, 58, 30, 0.85);
+  color: #70a860;
+  border: 1px solid rgba(50, 88, 40, 0.45);
+}
+
+.req-btn.accept:hover {
+  background: rgba(45, 75, 38, 0.95);
+  color: #90c880;
+}
+
+.req-btn.reject {
+  background: rgba(65, 18, 18, 0.85);
+  color: #b06060;
+  border: 1px solid rgba(110, 35, 35, 0.45);
+}
+
+.req-btn.reject:hover {
+  background: rgba(90, 22, 22, 0.95);
+  color: #d08080;
+}
+
+.dropdown-action {
+  width: 100%;
+  padding: 0.65rem 1rem;
+  background: transparent;
+  border: none;
+  color: #6e3535;
+  font-family: 'Metal Mania', system-ui, cursive;
+  font-size: 0.86rem;
+  letter-spacing: 0.12em;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: background 0.15s, color 0.15s;
+  text-transform: uppercase;
+}
+
+.dropdown-action:hover {
+  background: rgba(80, 18, 18, 0.3);
+  color: #b05858;
+}
+
+/* ================================================
+   MODALES
+================================================ */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.78);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.15s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.modal {
+  background: rgba(10, 6, 6, 0.98);
+  border: 1px solid rgba(110, 32, 32, 0.55);
+  border-radius: 12px;
+  padding: 2rem 2.5rem;
+  min-width: 300px;
+  max-width: 90vw;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.92);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  font-family: 'Metal Mania', system-ui, cursive;
+}
+
+.modal-title {
+  color: #7a3535;
+  font-size: 1.4rem;
+  letter-spacing: 0.2em;
+  text-align: center;
+  text-shadow: 0 0 14px rgba(130, 30, 30, 0.35);
+}
+
+.modal-input {
+  background: rgba(28, 14, 14, 0.85);
+  border: 1px solid rgba(110, 35, 35, 0.5);
+  border-radius: 6px;
+  color: #b08888;
+  font-family: inherit;
+  font-size: 1rem;
+  padding: 0.6rem 1rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.modal-input:focus {
+  border-color: rgba(150, 45, 45, 0.8);
+}
+
+.modal-input::placeholder {
+  color: #3e2222;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.modal-btn {
+  font-family: inherit;
+  font-size: 0.9rem;
+  letter-spacing: 0.15em;
+  padding: 0.55rem 1.6rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-transform: uppercase;
+}
+
+.modal-btn.confirm {
+  background: rgba(75, 18, 18, 0.88);
+  color: #b87878;
+  border: 1px solid rgba(120, 38, 38, 0.55);
+}
+
+.modal-btn.confirm:hover {
+  background: rgba(100, 22, 22, 0.96);
+  color: #d89898;
+}
+
+.modal-btn.cancel {
+  background: rgba(32, 28, 28, 0.85);
+  color: #585050;
+  border: 1px solid rgba(70, 55, 55, 0.35);
+}
+
+.modal-btn.cancel:hover {
+  background: rgba(48, 40, 40, 0.9);
+  color: #807070;
+}
+
+.modal-msg {
+  text-align: center;
+  font-size: 0.82rem;
+  color: #6a4040;
+  letter-spacing: 0.1em;
+}
+
+.confirm-text {
+  color: #887070;
+  font-size: 0.92rem;
+  text-align: center;
+  line-height: 1.5;
+  font-family: system-ui, sans-serif;
+  letter-spacing: 0.03em;
+}
+
+.confirm-text strong {
+  color: #a05050;
+  font-family: 'Metal Mania', system-ui, cursive;
+}
+
+/* ================================================
+   BOTÓN OUIJA
+================================================ */
+.chat-toggle {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 300;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.2s ease;
+}
+
+.ouija-icon {
+  width: 38px;
+  height: 38px;
+  object-fit: contain;
+  filter: grayscale(0.6) brightness(0.55) saturate(0.4) opacity(0.7);
+  transition: filter 0.2s ease;
+}
+
+.chat-toggle:hover .ouija-icon {
+  filter: grayscale(0.3) brightness(0.75) saturate(0.6) opacity(0.9);
+}
+
+.chat-toggle.active .ouija-icon {
+  filter: grayscale(0.1) brightness(0.65) saturate(0.5) opacity(1);
+}
+
+.chat-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: #8b1a1a;
+  color: #e8a0a0;
+  font-size: 0.65rem;
+  font-family: system-ui, sans-serif;
+  font-weight: bold;
+  border-radius: 999px;
+  min-width: 17px;
+  height: 17px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  border: 1px solid rgba(180, 60, 60, 0.4);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+  letter-spacing: 0;
+  pointer-events: none;
+}
+
+/* ================================================
+   PANEL CHAT
+================================================ */
+.chat-panel {
+  position: fixed;
+  bottom: 5rem;
+  right: 1.5rem;
+  z-index: 299;
+  width: 320px;
+  max-height: 420px;
+  background: rgba(13, 8, 8, 0.96);
+  border: 1px solid rgba(100, 28, 28, 0.45);
+  border-radius: 12px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.85);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  font-family: 'Metal Mania', system-ui, cursive;
+  opacity: 0;
+  transform: translateY(16px) scale(0.97);
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.chat-panel.open {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: all;
+}
+
+.chat-tabs {
+  display: flex;
+  border-bottom: 1px solid rgba(100, 28, 28, 0.3);
+  flex-shrink: 0;
+}
+
+.chat-tab {
+  flex: 1;
+  padding: 0.6rem;
+  background: transparent;
+  border: none;
+  color: #5a3535;
+  font-family: inherit;
+  font-size: 0.85rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s;
+}
+
+.chat-tab.active {
+  color: #a06060;
+  background: rgba(80, 18, 18, 0.2);
+  border-bottom: 2px solid rgba(120, 35, 35, 0.6);
+}
+
+.chat-tab:hover:not(.active) {
+  color: #7a4545;
+  background: rgba(60, 15, 15, 0.15);
+}
+
+.chat-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.6rem 0.8rem;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(110, 35, 35, 0.3) transparent;
+}
+
+.chat-friends-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.chat-friend-item {
+  color: #887070;
+  font-size: 0.86rem;
+  padding: 0.3rem 0.4rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 4px;
+  transition: background 0.12s;
+  cursor: pointer;
+}
+
+.chat-friend-item:hover {
+  background: rgba(80, 18, 18, 0.15);
+  color: #a08080;
+}
+
+.chat-friend-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #4a7040;
+  flex-shrink: 0;
+}
+
+.chat-friend-arrow {
+  margin-left: auto;
+  color: #4a2525;
+  font-size: 0.9rem;
+  transition: color 0.15s;
+}
+
+.chat-friend-item:hover .chat-friend-arrow {
+  color: #904040;
+}
+
+.chat-unread-badge {
+  margin-left: auto;
+  background: #6e1a1a;
+  color: #d08080;
+  font-size: 0.65rem;
+  font-family: system-ui, sans-serif;
+  font-weight: bold;
+  border-radius: 999px;
+  min-width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  letter-spacing: 0;
+}
+
+.chat-with {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.8rem;
+  border-bottom: 1px solid rgba(100, 28, 28, 0.2);
+  font-size: 0.85rem;
+  color: #a06060;
+  letter-spacing: 0.1em;
+  flex-shrink: 0;
+}
+
+.chat-with.muted {
+  color: #3e2828;
+  font-size: 0.78rem;
+  font-style: italic;
+  justify-content: center;
+}
+
+.chat-back-btn {
+  background: transparent;
+  border: none;
+  color: #6e3535;
+  font-size: 1.1rem;
+  cursor: pointer;
+  padding: 0 0.3rem;
+  transition: color 0.15s;
+  line-height: 1;
+}
+
+.chat-back-btn:hover {
+  color: #b05858;
+}
+
+.chat-messages-wrap {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  flex: 1;
+}
+
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.6rem 0.8rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(110, 35, 35, 0.3) transparent;
+  max-height: 260px;
+}
+
+.chat-message {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  align-items: flex-start;
+}
+
+.chat-message.mine {
+  align-items: flex-end;
+}
+
+.chat-msg-sender {
+  font-size: 0.7rem;
+  color: #5a3535;
+  letter-spacing: 0.1em;
+}
+
+.chat-message.mine .chat-msg-sender {
+  color: #4a3535;
+}
+
+.chat-msg-text {
+  font-size: 0.84rem;
+  color: #907070;
+  background: rgba(40, 18, 18, 0.6);
+  padding: 0.3rem 0.7rem;
+  border-radius: 8px;
+  max-width: 85%;
+  line-height: 1.4;
+  font-family: system-ui, sans-serif;
+  letter-spacing: 0.02em;
+}
+
+.chat-message.mine .chat-msg-text {
+  background: rgba(70, 18, 18, 0.55);
+  color: #b08080;
+}
+
+.chat-input-row {
+  display: flex;
+  gap: 0.4rem;
+  padding: 0.5rem 0.7rem;
+  border-top: 1px solid rgba(100, 28, 28, 0.2);
+  flex-shrink: 0;
+}
+
+.chat-input {
+  flex: 1;
+  background: rgba(28, 14, 14, 0.8);
+  border: 1px solid rgba(100, 35, 35, 0.4);
+  border-radius: 6px;
+  color: #b08080;
+  font-family: system-ui, sans-serif;
+  font-size: 0.84rem;
+  padding: 0.4rem 0.7rem;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.chat-input:focus {
+  border-color: rgba(140, 40, 40, 0.65);
+}
+
+.chat-input::placeholder {
+  color: #3e2222;
+}
+
+.chat-send {
+  background: rgba(70, 18, 18, 0.7);
+  border: 1px solid rgba(110, 35, 35, 0.4);
+  border-radius: 6px;
+  color: #a06060;
+  font-size: 0.9rem;
+  padding: 0.4rem 0.7rem;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.chat-send:hover {
+  background: rgba(100, 22, 22, 0.85);
+  color: #d08080;
+}
+
+.chat-send:disabled,
+.chat-input:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.chat-no-content {
+  color: #3e2828;
+  font-size: 0.78rem;
+  font-style: italic;
+  text-align: center;
+  padding: 1rem 0;
+}
+
+@media (max-width: 480px) {
+  .chat-panel { width: calc(100vw - 3rem); right: 1rem; }
+  .chat-toggle { right: 1rem; }
+}
