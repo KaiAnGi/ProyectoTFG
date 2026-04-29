@@ -6,6 +6,7 @@ export interface IUser extends Document {
   email: string;
   password: string;
   profilePicture?: string;
+  friends?: string[]; // Array de usernames de amigos
   createdAt?: Date;
   updatedAt?: Date;
   comparePassword(candidatePassword: string): Promise<boolean>;
@@ -36,6 +37,11 @@ const userSchema: Schema<IUser> = new Schema(
       type: String,
       required: false,
       default: null,
+    },
+    friends: {
+      type: [String], // Array de usernames
+      required: false,
+      default: [],
     },
   },
   {
