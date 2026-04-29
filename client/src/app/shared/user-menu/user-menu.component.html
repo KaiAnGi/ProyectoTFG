@@ -27,10 +27,10 @@
         </div>
         <ul class="friends-list">
           <li *ngFor="let req of pendingRequests" class="request-item">
-            <span class="req-name">{{ req }}</span>
+            <span class="req-name">{{ req.from }}</span>
             <div class="req-actions">
-              <button class="req-btn accept" (click)="acceptRequest(req)" title="Aceptar">✔</button>
-              <button class="req-btn reject" (click)="rejectRequest(req)" title="Rechazar">✖</button>
+              <button class="req-btn accept" (click)="acceptRequest(req._id)" title="Aceptar">✔</button>
+              <button class="req-btn reject" (click)="rejectRequest(req._id)" title="Rechazar">✖</button>
             </div>
           </li>
           <li *ngIf="pendingRequests.length === 0" class="no-friends">Sin solicitudes</li>
@@ -48,13 +48,8 @@
   <div class="modal-overlay" *ngIf="showAddFriendModal" (click)="closeModal()">
     <div class="modal" (click)="$event.stopPropagation()">
       <h2 class="modal-title">AÑADIR AMIGO</h2>
-      <input
-        class="modal-input"
-        type="text"
-        placeholder="Nombre de usuario..."
-        [(ngModel)]="newFriendName"
-        (keydown.enter)="confirmAddFriend()"
-      />
+      <input class="modal-input" type="text" placeholder="Nombre de usuario..." [(ngModel)]="newFriendName"
+        (keydown.enter)="confirmAddFriend()" />
       <div class="modal-actions">
         <button class="modal-btn confirm" (click)="confirmAddFriend()">ENVIAR SOLICITUD</button>
         <button class="modal-btn cancel" (click)="closeModal()">CANCELAR</button>
@@ -87,7 +82,8 @@
   <div class="chat-panel" [class.open]="chatOpen">
 
     <div class="chat-tabs">
-      <button class="chat-tab" [class.active]="chatTab === 'friends'" (click)="chatTab = 'friends'; selectedFriend = null">Amigos</button>
+      <button class="chat-tab" [class.active]="chatTab === 'friends'"
+        (click)="chatTab = 'friends'; selectedFriend = null">Amigos</button>
       <button class="chat-tab" [class.active]="chatTab === 'chat'" (click)="chatTab = 'chat'">Chat</button>
     </div>
 
@@ -120,13 +116,9 @@
 
       <div class="chat-messages" #messagesContainer>
         <ng-container *ngIf="selectedFriend; else pickFriend">
-          <div
-            *ngFor="let msg of activeMessages"
-            class="chat-message"
-            [class.mine]="msg.sender === username"
-          >
-            <span class="chat-msg-sender">{{ msg.sender === username ? 'TU' : msg.sender }}:</span>
-            <span class="chat-msg-text">{{ msg.text }}</span>
+          <div *ngFor="let msg of activeMessages" class="chat-message" [class.mine]="msg.from === username">
+            <span class="chat-msg-sender">{{ msg.from === username ? 'TU' : msg.from }}:</span>
+            <span class="chat-msg-text">{{ msg.message }}</span>
           </div>
           <div *ngIf="activeMessages.length === 0" class="chat-no-content">Sin mensajes aún</div>
         </ng-container>
@@ -136,15 +128,9 @@
       </div>
 
       <div class="chat-input-row">
-        <input
-          class="chat-input"
-          type="text"
+        <input class="chat-input" type="text"
           [placeholder]="selectedFriend ? 'Escribe a ' + selectedFriend + '...' : 'Elige un amigo primero'"
-          [(ngModel)]="chatInput"
-          (keydown.enter)="sendMessage()"
-          [disabled]="!selectedFriend"
-          maxlength="200"
-        />
+          [(ngModel)]="chatInput" (keydown.enter)="sendMessage()" [disabled]="!selectedFriend" maxlength="200" />
         <button class="chat-send" (click)="sendMessage()" [disabled]="!selectedFriend">➤</button>
       </div>
 
