@@ -34,7 +34,6 @@ export class UserMenuComponent implements OnInit, OnDestroy {
   chatTab: 'friends' | 'chat' = 'friends';
   chatInput = '';
   selectedFriend: string | null = null;
-  chatMessages: ChatMessage[] = [];
   unreadCounts: { [friend: string]: number } = {};
 
   @ViewChild('messagesContainer') messagesContainer!: ElementRef;
@@ -90,18 +89,13 @@ export class UserMenuComponent implements OnInit, OnDestroy {
 
     this.chatMessagesSub = this.friendsService.chatMessages$.subscribe((messages) => {
       if (this.selectedFriend) {
-        this.chatMessages = messages[this.selectedFriend] || [];
+        // No guardamos localmente, el getter activeMessages usa el estado del servicio.
       }
     });
 
     this.unreadCountsSub = this.friendsService.unreadCounts$.subscribe((counts) => {
       this.unreadCounts = counts ?? {};
     });
-  }
-
-  toggleMenu() {
-    this.menuOpen = !this.menuOpen;
-  }
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent) {
@@ -122,7 +116,8 @@ export class UserMenuComponent implements OnInit, OnDestroy {
     this.selectedFriend = friend;
     this.chatTab = 'chat';
 
-    if (!this.chatMessages.length) {
+    const cachedMessages = this.friendsService.getChatMessagesForFriend(friend);
+    if (!cachedMessages?.length) {
       this.friendsService.loadChatMessages(friend);
     }
 
@@ -132,6 +127,24 @@ export class UserMenuComponent implements OnInit, OnDestroy {
   sendMessage() {
     const text = this.chatInput.trim();
     if (!text || !this.selectedFriend) return;
+
+    // Añadir mensaje optimísticamente al chat local
+    const optimisticMessage: ChatMessage = {
+      _id: 'temp-' + Date.now(),
+      from: this.username,
+      to: this.selectedFriend,
+      message: text,
+      read: true,
+      createdAt: new Date(),
+    };
+
+    // Añadir al estado local
+    const currentMessages = this.friendsService.chatMessagesSubject.value;
+    if (!currentMessages[this.selectedFriend]) {
+      currentMessages[this.selectedFriend] = [];
+    }
+    currentMessages[this.selectedFriend].push(optimisticMessage);
+    this.friendsService.chatMessagesSubject.next({ ...currentMessages });
 
     this.friendsService.sendChatMessage(this.selectedFriend, text);
     this.chatInput = '';
@@ -163,7 +176,8 @@ export class UserMenuComponent implements OnInit, OnDestroy {
       this.modalMessage = 'Ya es tu amigo.';
       return;
     }
-    if (this.pendingRequests.some((req) => req.from === name)) {
+    // Verificar si ya enviaste una solicitud a este usuario
+    if (this.pendingRequests.some((req) => req.to === name)) {
       this.modalMessage = 'Ya le enviaste una solicitud.';
       return;
     }
@@ -208,7 +222,6 @@ export class UserMenuComponent implements OnInit, OnDestroy {
     this.authSub?.unsubscribe();
     this.friendsSub?.unsubscribe();
     this.pendingRequestsSub?.unsubscribe();
-    this.chatMessagesSub?.unsubscribe();
     this.unreadCountsSub?.unsubscribe();
   }
 

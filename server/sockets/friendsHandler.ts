@@ -1,7 +1,7 @@
 import { Socket } from "socket.io";
 import { FriendsService } from "../services/friends-service.js";
 import User from "../models/User.js";
-import { IFriendRequest } from "../models/FriendRequest.js";
+import { FriendRequest } from "../models/FriendRequest.js";
 
 export class FriendsHandler {
   private connectedUsers: Map<string, string> = new Map(); // username -> socketId
@@ -89,11 +89,6 @@ export class FriendsHandler {
       );
 
       if (result.success) {
-        // Obtener la solicitud para saber quién la envió
-        const FriendRequest = (await import("../models/FriendRequest.js"))
-          .FriendRequest;
-        const request = await FriendRequest.findById(data.requestId);
-
         if (request) {
           // Notificar al que aceptó
           socket.emit("friend_request_accepted", {
@@ -132,11 +127,6 @@ export class FriendsHandler {
       );
 
       if (result.success) {
-        // Obtener la solicitud para saber quién la envió
-        const FriendRequest = (await import("../models/FriendRequest.js"))
-          .FriendRequest;
-        const request = await FriendRequest.findById(data.requestId);
-
         if (request) {
           // Notificar al que rechazó (opcional)
           socket.emit("friend_request_rejected", {

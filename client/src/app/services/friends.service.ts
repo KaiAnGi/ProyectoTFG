@@ -31,7 +31,7 @@ export class FriendsService {
   // Subjects para estado reactivo
   private friendsSubject = new BehaviorSubject<string[]>([]);
   private pendingRequestsSubject = new BehaviorSubject<FriendRequest[]>([]);
-  private chatMessagesSubject = new BehaviorSubject<{ [friend: string]: ChatMessage[] }>({});
+  public chatMessagesSubject = new BehaviorSubject<{ [friend: string]: ChatMessage[] }>({});
   private unreadCountsSubject = new BehaviorSubject<{ [friend: string]: number }>({});
 
   // Observables públicos
@@ -47,6 +47,13 @@ export class FriendsService {
   ) {
     this.initializeSocketListeners();
     this.loadInitialData();
+
+    // Conectar socket cuando hay usuario autenticado
+    this.authService.user$.subscribe((user) => {
+      if (user) {
+        this.socketService.connect();
+      }
+    });
   }
 
   private getHeaders(): HttpHeaders {
@@ -220,19 +227,22 @@ export class FriendsService {
 
   // Métodos de manejo de mensajes
   private handleIncomingMessage(data: any) {
-    const currentMessages = this.chatMessagesSubject.value;
-    const friendUsername =
-      data.from === this.authService.getCurrentUser()?.username ? data.to : data.from;
+    const currentUser = this.authService.getCurrentUser();
+    if (!currentUser) return;
 
-    if (!currentMessages[friendUsername]) {
-      currentMessages[friendUsername] = [];
+    const currentUsername = currentUser.username;
+    const isFromCurrentUser = data.from === currentUsername;
+    const friendUsername = isFromCurrentUser ? data.to : data.from;
+
+    if (!this.chatMessagesSubject.value[friendUsername]) {
+      this.chatMessagesSubject.value[friendUsername] = [];
     }
 
-    currentMessages[friendUsername].push(data);
-    this.chatMessagesSubject.next({ ...currentMessages });
+    this.chatMessagesSubject.value[friendUsername].push(data);
+    this.chatMessagesSubject.next({ ...this.chatMessagesSubject.value });
 
-    // Actualizar contador de no leídos si el mensaje es para el usuario actual
-    if (data.to === this.authService.getCurrentUser()?.username) {
+    // Actualizar contador de no leídos si el mensaje NO es del usuario actual
+    if (!isFromCurrentUser) {
       const currentUnread = this.unreadCountsSubject.value;
       currentUnread[friendUsername] = (currentUnread[friendUsername] || 0) + 1;
       this.unreadCountsSubject.next({ ...currentUnread });
