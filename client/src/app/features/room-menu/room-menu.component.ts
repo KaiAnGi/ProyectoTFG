@@ -27,22 +27,17 @@ export class RoomMenuComponent implements OnInit, OnDestroy {
   showRemoveConfirm = false;
   friendToRemove = '';
 
-    private friendsSub?: Subscription;
-    private pendingRequestsSub?: Subscription;
+  private friendsSub?: Subscription;
+  private pendingRequestsSub?: Subscription;
 
-    constructor(
-      private router: Router,
-      private authService: AuthService,
-      private friendsService: FriendsService,
-    ) {}
-    if (user) this.username = user.username;
+  constructor(
+    private router: Router,
+    private authService: AuthService,
+    private friendsService: FriendsService,
+  ) {}
 
-    // Suscribirse a cambios en amigos
-    this.friendsSub = this.friendsService.friends$.subscribe((friends) => {
-      this.friends = friends;
-    });
-
-    // Suscribirse a cambios en solicitudes pendientes (recibidas)
+  ngOnInit() {
+    const user = this.authService.getCurrentUser();
     this.pendingRequestsSub = this.friendsService.pendingRequests$.subscribe((requests) => {
       this.pendingRequests = requests;
     });
@@ -118,13 +113,15 @@ export class RoomMenuComponent implements OnInit, OnDestroy {
     this.showRemoveConfirm = false;
   }
 
-onCreateRoom() {
-      this.router.navigate(['/create-room']);
-    }
-    onJoinRoom() {
-      this.router.navigate(['/join-room']);
-    }
-    onBack() {
-      this.router.navigate(['/']);
-    }
+  onCreateRoom() {
+    this.router.navigate(['/create-room']);
   }
+
+  onJoinRoom() {
+    this.router.navigate(['/join-room']);
+  }
+
+  onBack() {
+    this.router.navigate(['/']);
+  }
+}

@@ -97,6 +97,7 @@ export class UserMenuComponent implements OnInit, OnDestroy {
     this.unreadCountsSub = this.friendsService.unreadCounts$.subscribe((counts) => {
       this.unreadCounts = counts ?? {};
     });
+  }
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent) {
@@ -111,6 +112,10 @@ export class UserMenuComponent implements OnInit, OnDestroy {
     if (this.chatOpen && this.selectedFriend) {
       this.friendsService.markMessagesAsRead(this.selectedFriend);
     }
+  }
+
+  toggleMenu() {
+    this.menuOpen = !this.menuOpen;
   }
 
   openChatWith(friend: string) {
