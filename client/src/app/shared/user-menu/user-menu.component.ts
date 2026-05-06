@@ -134,24 +134,6 @@ export class UserMenuComponent implements OnInit, OnDestroy {
     const text = this.chatInput.trim();
     if (!text || !this.selectedFriend) return;
 
-    // Añadir mensaje optimísticamente al chat local
-    const optimisticMessage: ChatMessage = {
-      _id: 'temp-' + Date.now(),
-      from: this.username,
-      to: this.selectedFriend,
-      message: text,
-      read: true,
-      createdAt: new Date(),
-    };
-
-    // Añadir al estado local
-    const currentMessages = this.friendsService.chatMessagesSubject.value;
-    if (!currentMessages[this.selectedFriend]) {
-      currentMessages[this.selectedFriend] = [];
-    }
-    currentMessages[this.selectedFriend].push(optimisticMessage);
-    this.friendsService.chatMessagesSubject.next({ ...currentMessages });
-
     this.friendsService.sendChatMessage(this.selectedFriend, text);
     this.chatInput = '';
 

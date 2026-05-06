@@ -34,17 +34,47 @@ export class FriendsService {
         return { success: false, message: "Ya son amigos" };
       }
 
-      // Verificar que no haya una solicitud pendiente
+      // Verificar que no haya una solicitud ya existente entre estos usuarios
       const existingRequest = await FriendRequest.findOne({
         from: fromUsername,
         to: toUsername,
-        status: "pending",
       });
 
       if (existingRequest) {
+        if (existingRequest.status === "pending") {
+          return {
+            success: false,
+            message: "Ya tienes una solicitud pendiente con este usuario",
+          };
+        }
+
+        if (existingRequest.status === "accepted") {
+          return {
+            success: false,
+            message: "Ya son amigos",
+          };
+        }
+
+        if (existingRequest.status === "rejected") {
+          existingRequest.status = "pending";
+          await existingRequest.save();
+          return {
+            success: true,
+            message: "Solicitud reenviada correctamente",
+          };
+        }
+      }
+
+      const reverseRequest = await FriendRequest.findOne({
+        from: toUsername,
+        to: fromUsername,
+        status: "pending",
+      });
+
+      if (reverseRequest) {
         return {
           success: false,
-          message: "Ya tienes una solicitud pendiente con este usuario",
+          message: "Este usuario ya te ha enviado una solicitud pendiente",
         };
       }
 
@@ -58,7 +88,13 @@ export class FriendsService {
       await friendRequest.save();
 
       return { success: true, message: "Solicitud enviada correctamente" };
-    } catch (error) {
+    } catch (error: any) {
+      if (error?.code === 11000) {
+        return {
+          success: false,
+          message: "Ya existe una solicitud entre estos usuarios",
+        };
+      }
       console.error("Error sending friend request:", error);
       return { success: false, message: "Error interno del servidor" };
     }
