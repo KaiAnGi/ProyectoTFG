@@ -6,6 +6,8 @@ import { fileURLToPath } from "url";
 import connectDB from "./config/db.ts";
 import { setupRoutes } from "./routes/index.ts";
 import { initializeSocketIO } from "./sockets/index.ts";
+import paypalRoutes from "./routes/paypal.routes.ts";
+import { authMiddleware } from "./middleware/auth-middleware.ts";
 
 // Configuración para obtener __dirname en ES modules
 const __filename = fileURLToPath(import.meta.url);
@@ -26,6 +28,7 @@ app.use(
 );
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use("/api/paypal", authMiddleware, paypalRoutes);
 
 // Conectar MongoDB
 await connectDB();

@@ -25,7 +25,7 @@ export class RoomMenuComponent implements OnInit {
   showRemoveConfirm = false;
   friendToRemove = '';
 
-  constructor(private router: Router, private authService: AuthService) {}
+  constructor(private router: Router, private authService: AuthService) { }
 
   ngOnInit() {
     const user = this.authService.getCurrentUser();
@@ -127,7 +127,16 @@ export class RoomMenuComponent implements OnInit {
     this.showRemoveConfirm = false;
   }
 
-  onCreateRoom() { this.router.navigate(['/create-room']); }
-  onJoinRoom()   { this.router.navigate(['/join-room']); }
-  onBack()       { this.router.navigate(['/']); }
+  onCreateRoom() { 
+    this.router.navigate(['/create-room']); 
+  }
+  
+  onJoinRoom() { 
+    this.router.navigate(['/join-room']); 
+  }
+
+  onBack() {
+    this.authService.logout();
+    this.router.navigate(['/']);
+  }
 }

@@ -156,6 +156,7 @@ export class AuthService {
           username: user.username,
           email: user.email,
           profilePicture: user.profilePicture,
+          bones: user.bones ?? 25,
         },
       };
     } catch (error) {

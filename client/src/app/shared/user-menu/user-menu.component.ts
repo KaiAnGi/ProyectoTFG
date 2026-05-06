@@ -18,6 +18,7 @@ export class UserMenuComponent implements OnInit, OnDestroy {
   username = '';
   menuOpen = false;
   isLoggedIn = false;
+  bones = 0;
 
   friends: string[] = [];
   pendingRequests: FriendRequest[] = [];
@@ -45,7 +46,7 @@ export class UserMenuComponent implements OnInit, OnDestroy {
   private unreadCountsSub?: Subscription;
 
   get shouldShow(): boolean {
-    return this.isLoggedIn;
+    return this.isLoggedIn && !this.authService.getCurrentUser()?.guest;
   }
 
   get activeMessages(): ChatMessage[] {
@@ -54,7 +55,11 @@ export class UserMenuComponent implements OnInit, OnDestroy {
   }
 
   get totalUnread(): number {
-    return this.friendsService.getTotalUnreadCount();
+    try {
+      return this.friendsService.getTotalUnreadCount() ?? 0;
+    } catch {
+      return 0;
+    }
   }
 
   constructor(
@@ -66,7 +71,7 @@ export class UserMenuComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.authSub = this.authService.user$.subscribe((user) => {
-      if (user) {
+      if (user && !user.guest) {
         this.username = user.username;
         this.isLoggedIn = true;
       } else {
@@ -75,26 +80,22 @@ export class UserMenuComponent implements OnInit, OnDestroy {
       }
     });
 
-    // Suscribirse a cambios en amigos
     this.friendsSub = this.friendsService.friends$.subscribe((friends) => {
       this.friends = friends;
     });
 
-    // Suscribirse a cambios en solicitudes pendientes
     this.pendingRequestsSub = this.friendsService.pendingRequests$.subscribe((requests) => {
       this.pendingRequests = requests;
     });
 
-    // Suscribirse a cambios en mensajes de chat
     this.chatMessagesSub = this.friendsService.chatMessages$.subscribe((messages) => {
       if (this.selectedFriend) {
         this.chatMessages = messages[this.selectedFriend] || [];
       }
     });
 
-    // Suscribirse a cambios en contadores de no leídos
     this.unreadCountsSub = this.friendsService.unreadCounts$.subscribe((counts) => {
-      this.unreadCounts = counts;
+      this.unreadCounts = counts ?? {};
     });
   }
 
@@ -121,12 +122,10 @@ export class UserMenuComponent implements OnInit, OnDestroy {
     this.selectedFriend = friend;
     this.chatTab = 'chat';
 
-    // Cargar mensajes si no están cargados
     if (!this.chatMessages.length) {
       this.friendsService.loadChatMessages(friend);
     }
 
-    // Marcar como leídos
     this.friendsService.markMessagesAsRead(friend);
   }
 
@@ -141,6 +140,10 @@ export class UserMenuComponent implements OnInit, OnDestroy {
       const el = this.messagesContainer?.nativeElement;
       if (el) el.scrollTop = el.scrollHeight;
     }, 50);
+  }
+
+  openShop() {
+    this.router.navigate(['/shop']);
   }
 
   onAddFriend() {
@@ -166,7 +169,7 @@ export class UserMenuComponent implements OnInit, OnDestroy {
     }
 
     this.friendsService.sendFriendRequestSocket(name);
-    this.modalMessage = `Solicitud enviada a ${name} ✔`;
+    this.modalMessage = 'Solicitud enviada a ' + name;
     setTimeout(() => this.closeModal(), 1400);
   }
 
@@ -211,6 +214,7 @@ export class UserMenuComponent implements OnInit, OnDestroy {
 
   private clearData() {
     this.username = '';
+    this.bones = 0;
     this.friends = [];
     this.pendingRequests = [];
     this.menuOpen = false;

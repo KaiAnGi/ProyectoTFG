@@ -6,7 +6,8 @@ export interface IUser extends Document {
   email: string;
   password: string;
   profilePicture?: string;
-  friends?: string[]; // Array de usernames de amigos
+  friends?: string[];
+  bones?: number;
   createdAt?: Date;
   updatedAt?: Date;
   comparePassword(candidatePassword: string): Promise<boolean>;
@@ -39,9 +40,15 @@ const userSchema: Schema<IUser> = new Schema(
       default: null,
     },
     friends: {
-      type: [String], // Array de usernames
+      type: [String],
       required: false,
       default: [],
+    },
+    // Campo nuevo para los shines/bones comprados
+    bones: {
+      type: Number,
+      required: false,
+      default: 25,
     },
   },
   {
@@ -49,7 +56,6 @@ const userSchema: Schema<IUser> = new Schema(
   },
 );
 
-// Hash password antes de guardar
 userSchema.pre("save", async function () {
   if (!this.isModified("password")) return;
 
@@ -57,7 +63,6 @@ userSchema.pre("save", async function () {
   this.password = await bcrypt.hash(this.password, salt);
 });
 
-// Método para comparar contraseñas
 userSchema.methods.comparePassword = async function (
   candidatePassword: string,
 ): Promise<boolean> {
@@ -67,7 +72,6 @@ userSchema.methods.comparePassword = async function (
 const User: Model<IUser> =
   mongoose.models.User || mongoose.model<IUser>("User", userSchema);
 
-// Sincronizar índices cuando se carga el modelo
 User.syncIndexes().catch((err) => {
   console.error("Error syncing User indexes:", err);
 });
