@@ -1,0 +1,260 @@
+.hud {
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.mute-btn {
+  background: rgba(25, 18, 18, 0.85);
+  border: 1px solid rgba(110, 35, 35, 0.5);
+  border-radius: 50%;
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
+}
+
+.mute-btn:hover {
+  background: rgba(55, 18, 18, 0.95);
+  border-color: rgba(150, 45, 45, 0.7);
+}
+
+.mute-icon {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  object-position: center;
+  filter: brightness(0.6) saturate(0.4);
+  transition: filter 0.2s;
+  transform: scale(1.4);
+}
+
+.mute-btn:hover .mute-icon {
+  filter: brightness(0.85) saturate(0.6);
+}
+
+.bones-display {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.bones-count {
+  color: #a08080;
+  font-family: 'Metal Mania', system-ui, cursive;
+  font-size: 1rem;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.8);
+}
+
+.hud-icon {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.7));
+}
+
+.cart-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  transition: filter 0.2s;
+}
+
+.cart-btn:hover {
+  filter: brightness(1.35);
+}
+
+/* SHOP PANEL */
+.shop-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.90);
+  z-index: 1998;
+}
+
+.shop-panel {
+  position: fixed;
+  inset: 0;
+  z-index: 1999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.shop-frame {
+  pointer-events: all;
+  background-image: url('/images/marcogrande.png');
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  background-position: center;
+  width: 92vw;
+  height: 88vh;
+  max-width: 1200px;
+  max-height: 720px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  padding: 3.5rem 4rem 2.5rem 4rem;
+  box-sizing: border-box;
+  position: relative;
+}
+
+.shop-title {
+  font-family: 'Metal Mania', cursive;
+  color: #d4c09a;
+  font-size: 5rem;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.95);
+  margin: 0;
+}
+
+.shop-items {
+  display: flex;
+  gap: 2rem;
+  justify-content: center;
+  width: 100%;
+}
+
+.shop-item {
+  background-image: url('/images/marcomedio.png');
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  background-position: center;
+  width: 260px;
+  height: 290px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.7rem;
+  cursor: pointer;
+  transition: filter 0.2s, transform 0.2s, box-shadow 0.2s;
+}
+
+.shop-item:hover {
+  filter: brightness(1.4);
+  transform: scale(1.05);
+}
+
+.shop-item.selected {
+  filter: brightness(1.55);
+  transform: scale(1.06);
+  box-shadow: 0 0 22px rgba(212, 192, 154, 0.45);
+}
+
+.item-img {
+  width: 130px;
+  height: 130px;
+  object-fit: contain;
+}
+
+.item-label {
+  font-family: 'Metal Mania', cursive;
+  color: #d4c09a;
+  font-size: 1.4rem;
+  text-align: center;
+}
+
+.item-price {
+  background: rgba(30, 20, 20, 0.8);
+  border-radius: 16px;
+  padding: 0.25rem 1rem;
+  color: #d8d0d0;
+  font-size: 1.2rem;
+}
+
+.shop-actions {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 0.5rem;
+  position: relative;
+  transform: translateX(-1.8rem) translateY(-1.5rem);
+}
+
+.back-btn {
+  position: absolute;
+  bottom: -0.3rem;
+  left: -10rem;
+  background: rgba(80, 80, 80, 0.5);
+  border: none;
+  color: #b0b0b0;
+  padding: 0.6rem 1.5rem;
+  font-size: clamp(0.85rem, 1.8vw, 1rem);
+  font-family: 'Metal Mania', cursive;
+  cursor: pointer;
+  border-radius: 10px;
+  transition: all 0.3s ease;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  background-blend-mode: overlay;
+  z-index: 10;
+  letter-spacing: 0.05em;
+}
+
+.back-btn:hover {
+  filter: brightness(1.15);
+  transform: scale(1.05);
+}
+
+.pay-btn {
+  background-image: url('/images/panelPiedra.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-color: transparent;
+  border: none;
+  width: 360px;
+  height: 140px;
+  font-family: 'Metal Mania', cursive;
+  color: #d4c09a;
+  font-size: 3.8rem;
+  cursor: pointer;
+  transition: filter 0.2s, transform 0.2s;
+  padding: 0 0 10px 0;
+  display: block;
+  margin: 0 auto;
+}
+
+.pay-btn:hover {
+  filter: brightness(1.2);
+  transform: scale(1.03);
+}
+
+.pay-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  filter: none;
+  transform: none;
+}
+
+.pay-success {
+  color: #4caf50;
+  font-family: 'Metal Mania', cursive;
+  font-size: 1.2rem;
+  text-align: center;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.8);
+  margin: 0;
+}
+
+.pay-error {
+  color: #f44336;
+  font-family: 'Metal Mania', cursive;
+  font-size: 1.2rem;
+  text-align: center;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.8);
+  margin: 0;
+}

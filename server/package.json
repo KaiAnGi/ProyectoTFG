@@ -18,6 +18,7 @@
     "test:game": "npm run smoke:sockets && npm run test:default && npm run test:maxrounds && npm run test:ranking"
   },
   "dependencies": {
+    "@paypal/paypal-server-sdk": "^2.3.0",
     "bcrypt": "^5.1.1",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",

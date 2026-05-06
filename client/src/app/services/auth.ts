@@ -8,6 +8,7 @@ export interface User {
   username: string;
   email?: string;
   guest?: boolean;
+  bones?: number;
 }
 
 interface AuthApiResponse {
@@ -17,6 +18,7 @@ interface AuthApiResponse {
     _id?: string;
     username?: string;
     email?: string;
+    bones?: number;
   };
   error?: string;
 }
@@ -28,22 +30,36 @@ export class AuthService {
 
   private currentUser = signal<User | null>(null);
   isAuthenticated = computed(() => !!this.currentUser());
-  
+
   user$ = new BehaviorSubject<User | null>(null);
 
   constructor() {
-    const saved = localStorage.getItem('rps_user');
-    if (saved) {
-      const parsed = JSON.parse(saved) as User & { nombre?: string };
-      const normalized: User = {
-        id: parsed.id || `local_${Date.now()}`,
-        username: parsed.username || parsed.nombre || 'Jugador',
-        email: parsed.email,
-        guest: parsed.guest,
-      };
-      this.setUser(normalized);
-    }
+  const saved = localStorage.getItem('rps_user');
+  const token = localStorage.getItem('rps_token');
+
+  if (saved && token) {
+    this.http.get<AuthApiResponse>(`${this.authUrl}/verify`, {
+      headers: { Authorization: `Bearer ${token}` }
+    }).subscribe({
+      next: (res) => {
+        if (res.success) {
+          const parsed = JSON.parse(saved) as User & { nombre?: string };
+          const normalized: User = {
+            id: parsed.id || `local_${Date.now()}`,
+            username: parsed.username || parsed.nombre || 'Jugador',
+            email: parsed.email,
+            guest: parsed.guest,
+            bones: parsed.bones ?? 25,
+          };
+          this.setUser(normalized);
+        } else {
+          this.logout();
+        }
+      },
+      error: () => this.logout()
+    });
   }
+}
 
   register(data: {
     username: string;
@@ -64,6 +80,7 @@ export class AuthService {
       username: response.user?.username || 'Jugador',
       email: response.user?.email,
       guest: false,
+      bones: response.user?.bones ?? 25,
     };
 
     if (response.token) {
@@ -78,7 +95,8 @@ export class AuthService {
     const guest: User = {
       id: 'guest_' + Date.now(),
       username: 'Invitado_' + Math.floor(Math.random() * 999),
-      guest: true
+      guest: true,
+      bones: 0,
     };
     this.setUser(guest);
     return guest;

@@ -5,9 +5,9 @@ export class AudioService {
   private music: HTMLAudioElement | null = null;
   private sounds: Map<string, HTMLAudioElement> = new Map();
   private muted = false;
-  private musicSrc = '';
   private musicVolume = 0.2;
-  private musicReady = false;
+
+  private startHandler: (() => void) | null = null;
 
   preload(key: string, src: string) {
     const audio = new Audio(src);
@@ -16,28 +16,64 @@ export class AudioService {
   }
 
   playMusic(src: string, volume: number) {
-    this.musicSrc = src;
+    // Si ya suena la misma cancion, no hacemos nada
+    if (this.music && !this.music.paused && this.music.src.endsWith(src)) return;
+
+    // Paramos lo que habia antes
+    this.stopMusic();
+
     this.musicVolume = volume;
 
-    // NO llamar play() aquí — esperar interacción
-    const start = () => {
-      if (this.musicReady) return;
-      this.musicReady = true;
+    // Si el audio ya fue desbloqueado antes (hay interaccion previa), arrancamos directo
+    if (this.music !== null || document.hasFocus()) {
+      this.music = new Audio(src);
+      this.music.loop = true;
+      this.music.volume = this.musicVolume;
+      this.music.muted = this.muted;
+      this.music.play().catch(() => {
+        // El navegador bloqueo el autoplay, esperamos interaccion
+        this.waitForInteraction(src);
+      });
+      return;
+    }
 
-      this.music = new Audio(this.musicSrc);
+    this.waitForInteraction(src);
+  }
+
+  private waitForInteraction(src: string) {
+    // Limpiamos listener anterior si lo habia
+    this.removeStartHandler();
+
+    this.startHandler = () => {
+      this.removeStartHandler();
+      this.music = new Audio(src);
       this.music.loop = true;
       this.music.volume = this.musicVolume;
       this.music.muted = this.muted;
       this.music.play().catch(err => console.warn('Audio bloqueado:', err));
-
-      document.removeEventListener('click', start);
-      document.removeEventListener('keydown', start);
-      document.removeEventListener('touchstart', start);
     };
 
-    document.addEventListener('click', start);
-    document.addEventListener('keydown', start);
-    document.addEventListener('touchstart', start);
+    document.addEventListener('click', this.startHandler);
+    document.addEventListener('keydown', this.startHandler);
+    document.addEventListener('touchstart', this.startHandler);
+  }
+
+  private removeStartHandler() {
+    if (this.startHandler) {
+      document.removeEventListener('click', this.startHandler);
+      document.removeEventListener('keydown', this.startHandler);
+      document.removeEventListener('touchstart', this.startHandler);
+      this.startHandler = null;
+    }
+  }
+
+  stopMusic() {
+    this.removeStartHandler();
+    if (this.music) {
+      this.music.pause();
+      this.music.currentTime = 0;
+      this.music = null;
+    }
   }
 
   play(key: string, volume?: number) {
@@ -45,7 +81,7 @@ export class AudioService {
     if (sound && !this.muted) {
       sound.currentTime = 0;
       if (volume !== undefined) sound.volume = volume;
-      sound.play().catch(() => { });
+      sound.play().catch(() => {});
     }
   }
 
