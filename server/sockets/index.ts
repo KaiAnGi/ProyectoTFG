@@ -20,26 +20,25 @@ export function initializeSocketIO(app: Express) {
 
   // Middleware de autenticación para sockets
   io.use(async (socket, next) => {
-    const token = socket.handshake.auth.token;
-    if (token) {
-      try {
-        // Aquí deberías verificar el token JWT
-        // Por ahora, asumimos que el username viene en auth.username
-        const username = socket.handshake.auth.username;
-        if (username) {
-          (socket as any).username = username;
-          friendsHandler.registerUser(socket, username);
-        }
-      } catch (error) {
-        console.error("Error authenticating socket:", error);
+    try {
+      const username = socket.handshake.auth.username;
+      const token = socket.handshake.auth.token;
+
+      if (username) {
+        (socket as any).username = username;
+        friendsHandler.registerUser(socket, username);
+        console.log(`Usuario autenticado: ${username}`);
       }
+    } catch (error) {
+      console.error("Error authenticating socket:", error);
     }
     next();
   });
 
   // Configurar eventos de amigos
   io.on("connection", (socket) => {
-    console.log("Usuario conectado:", socket.id);
+    const username = (socket as any).username || "desconocido";
+    console.log(`Usuario conectado: ${username} (${socket.id})`);
 
     // Eventos de amigos
     socket.on("send_friend_request", (data) =>

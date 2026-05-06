@@ -1,7 +1,7 @@
 import { Socket } from "socket.io";
 import { FriendsService } from "../services/friends-service.js";
 import User from "../models/User.js";
-import { IFriendRequest } from "../models/FriendRequest.js";
+import { FriendRequest, IFriendRequest } from "../models/FriendRequest.js";
 
 export class FriendsHandler {
   private connectedUsers: Map<string, string> = new Map(); // username -> socketId
@@ -83,17 +83,19 @@ export class FriendsHandler {
         return;
       }
 
+      // Obtener la solicitud antes de procesarla
+      const request = await FriendRequest.findById(data.requestId);
+      if (!request) {
+        socket.emit("error", { message: "Solicitud no encontrada" });
+        return;
+      }
+
       const result = await FriendsService.acceptFriendRequest(
         data.requestId,
         username,
       );
 
       if (result.success) {
-        // Obtener la solicitud para saber quién la envió
-        const FriendRequest = (await import("../models/FriendRequest.js"))
-          .FriendRequest;
-        const request = await FriendRequest.findById(data.requestId);
-
         if (request) {
           // Notificar al que aceptó
           socket.emit("friend_request_accepted", {
@@ -126,17 +128,19 @@ export class FriendsHandler {
         return;
       }
 
+      // Obtener la solicitud antes de procesarla
+      const request = await FriendRequest.findById(data.requestId);
+      if (!request) {
+        socket.emit("error", { message: "Solicitud no encontrada" });
+        return;
+      }
+
       const result = await FriendsService.rejectFriendRequest(
         data.requestId,
         username,
       );
 
       if (result.success) {
-        // Obtener la solicitud para saber quién la envió
-        const FriendRequest = (await import("../models/FriendRequest.js"))
-          .FriendRequest;
-        const request = await FriendRequest.findById(data.requestId);
-
         if (request) {
           // Notificar al que rechazó (opcional)
           socket.emit("friend_request_rejected", {
