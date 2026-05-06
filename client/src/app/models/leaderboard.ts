@@ -2,7 +2,7 @@
 export interface ILeaderboard {
   _id?: string;
   playerName: string;
-  consecutiveWins: number;
+  matchVictories: number;
   createdAt?: string;
   updatedAt?: string;
 }

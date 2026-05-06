@@ -1,22 +1,23 @@
 <!-- components/leaderboard/leaderboard.component.html -->
-<div class="leaderboard-container">
-  <h2>Ranking - Victorias Consecutivas</h2>
-  <table class="leaderboard-table">
-    <thead>
-      <tr>
-        <th>Posición</th>
-        <th>Jugador</th>
-        <th>Racha Actual</th>
-      </tr>
-    </thead>
-    <tbody>
-      @for (player of leaderboard$ | async; track player._id || player.playerName; let i = $index) {
-      <tr>
-        <td>{{ i + 1 }}</td>
-        <td>{{ player.playerName }}</td>
-        <td>{{ player.consecutiveWins }}</td>
-      </tr>
-      }
-    </tbody>
-  </table>
+<div class="leaderboard-screen">
+  <button class="back-button" (click)="onBack()">VOLVER</button>
+  <div class="leaderboard-container">
+    <h2>Ranking - Jugadores Top</h2>
+    <table class="leaderboard-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Jugador</th>
+          <th>Victorias</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let player of leaderboard$ | async; let i = index">
+          <td>{{ i + 1 }}</td>
+          <td>{{ player.playerName }}</td>
+          <td>{{ player.matchVictories }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </div>

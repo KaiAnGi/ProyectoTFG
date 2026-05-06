@@ -1,40 +1,120 @@
 /* components/leaderboard/leaderboard.component.css */
+.leaderboard-screen {
+  min-height: 100vh;
+  padding: 3rem 1.5rem 2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #000;
+  background-image: url('/images/fondoInicio.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  position: relative;
+}
+
+.leaderboard-screen::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 1;
+}
+
+.back-button {
+  position: fixed !important;
+  left: 1.5rem;
+  bottom: 1.5rem;
+  z-index: 9999;
+  padding: 0.75rem 1.6rem;
+  background: linear-gradient(135deg, #9b1212, #d32f2f);
+  border: 2px solid rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
+  color: #fff;
+  font-family: 'Metal Mania', system-ui, cursive;
+  font-size: 0.95rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  cursor: pointer;
+  box-shadow: 0 14px 30px rgba(190, 30, 30, 0.32);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.back-button:hover {
+  transform: translateY(-2px);
+  background: linear-gradient(135deg, #c71c1c, #e74c4c);
+}
+
+.back-button:active {
+  transform: translateY(0);
+  box-shadow: 0 10px 22px rgba(180, 20, 20, 0.25);
+}
+
 .leaderboard-container {
-  max-width: 600px;
-  margin: 0 auto;
+  max-width: 720px;
+  width: 100%;
+  padding: 2rem;
+  background: rgba(15, 6, 6, 0.95);
+  border: 1px solid rgba(200, 20, 20, 0.35);
+  border-radius: 24px;
+  color: #f3eaea;
+  position: relative;
+  z-index: 2;
+  box-shadow: 0 18px 36px rgba(0, 0, 0, 0.45);
+}
+
+.leaderboard-container h2 {
+  margin-bottom: 1.4rem;
+  font-size: clamp(2.2rem, 3vw, 2.8rem);
+  color: #ffb4b4;
+  text-align: center;
+  letter-spacing: 0.18em;
+  text-shadow: 0 0 16px rgba(190, 50, 50, 0.45);
 }
 
 .leaderboard-table {
   width: 100%;
   border-collapse: collapse;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 18px;
+  overflow: hidden;
+}
 
-  th,
-  td {
-    padding: 12px;
-    text-align: left;
-    border-bottom: 1px solid #eee;
-  }
+.leaderboard-table th,
+.leaderboard-table td {
+  padding: 1rem 1.2rem;
+  text-align: left;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
 
-  th {
-    background: #f8f9fa;
-    font-weight: 600;
-  }
+.leaderboard-table th {
+  background: rgba(155, 18, 18, 0.9);
+  color: #fff;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
 
-  tr:hover {
-    background: #f8f9fa;
-  }
+.leaderboard-table tr:nth-child(odd) {
+  background: rgba(255, 255, 255, 0.02);
+}
 
-  tr:first-child td:first-child {
-    font-weight: bold;
-    color: gold;
-  }
+.leaderboard-table tr:hover {
+  background: rgba(255, 75, 75, 0.08);
+}
 
-  tr:nth-child(2) td:first-child {
-    color: #c0c0c0;
-  }
+.leaderboard-table td {
+  color: #e7d6d6;
+}
 
-  tr:nth-child(3) td:first-child {
-    color: #cd7f32;
-  }
+.leaderboard-table tr:first-child td {
+  color: #ffd974;
+  font-weight: 700;
+}
+
+.leaderboard-table tr:nth-child(2) td {
+  color: #d6d6d6;
+}
+
+.leaderboard-table tr:nth-child(3) td {
+  color: #d9b78b;
 }
