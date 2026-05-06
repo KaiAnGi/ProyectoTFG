@@ -169,10 +169,13 @@ export class FriendsService {
     this.getPendingRequests().subscribe({
       next: (response) => {
         if (response.success) {
-          this.pendingRequestsSubject.next(response.requests);
+          this.pendingRequestsSubject.next(response.requests || []);
         }
       },
-      error: (error) => console.error('Error loading pending requests:', error),
+      error: (error) => {
+        console.error('Error loading pending requests:', error);
+        this.pendingRequestsSubject.next([]);
+      },
     });
   }
 
@@ -203,6 +206,7 @@ export class FriendsService {
   // Socket methods
   sendFriendRequestSocket(toUsername: string) {
     this.socketService.emit('send_friend_request', { toUsername });
+    this.loadPendingRequests();
   }
 
   acceptFriendRequestSocket(requestId: string) {

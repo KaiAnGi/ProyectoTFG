@@ -28,8 +28,8 @@
           <li *ngFor="let req of pendingRequests" class="request-item">
             <span class="req-name">{{ req.from }}</span>
             <div class="req-actions">
-              <button class="req-btn accept" (click)="acceptRequest(req._id)" title="Aceptar">✔</button>
-              <button class="req-btn reject" (click)="rejectRequest(req._id)" title="Rechazar">✖</button>
+              <button class="req-btn accept" (click)="acceptRequest(req)" title="Aceptar">✔</button>
+              <button class="req-btn reject" (click)="rejectRequest(req)" title="Rechazar">✖</button>
             </div>
           </li>
           <li *ngIf="pendingRequests.length === 0" class="no-friends">Sin solicitudes</li>

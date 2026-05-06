@@ -42,7 +42,7 @@ export class RoomMenuComponent implements OnInit, OnDestroy {
       this.friends = friends;
     });
 
-    // Suscribirse a cambios en solicitudes pendientes
+    // Suscribirse a cambios en solicitudes pendientes (recibidas)
     this.pendingRequestsSub = this.friendsService.pendingRequests$.subscribe((requests) => {
       this.pendingRequests = requests;
     });
@@ -75,8 +75,8 @@ export class RoomMenuComponent implements OnInit, OnDestroy {
       this.modalMessage = 'Ya es tu amigo.';
       return;
     }
-    if (this.pendingRequests.some((req) => req.to === name)) {
-      this.modalMessage = 'Ya le enviaste una solicitud.';
+    if (this.pendingRequests.some((req) => req.from === name)) {
+      this.modalMessage = 'Este usuario ya te envió una solicitud. ¡Acéptala!';
       return;
     }
 

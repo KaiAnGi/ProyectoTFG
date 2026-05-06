@@ -186,7 +186,7 @@ export class FriendsService {
     }
   }
 
-  // Obtener solicitudes pendientes de un usuario
+  // Obtener solicitudes pendientes de un usuario (recibidas)
   static async getPendingRequests(username: string): Promise<IFriendRequest[]> {
     try {
       return await FriendRequest.find({

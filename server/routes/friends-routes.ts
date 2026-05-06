@@ -7,34 +7,27 @@ const router = Router();
 // Todas las rutas requieren autenticación
 router.use(authMiddleware);
 
-// Enviar solicitud de amistad
+// Rutas más específicas PRIMERO
+// POST routes
 router.post("/request", FriendsController.sendFriendRequest);
-
-// Aceptar solicitud de amistad
 router.post(
   "/request/:requestId/accept",
   FriendsController.acceptFriendRequest,
 );
-
-// Rechazar solicitud de amistad
 router.post(
   "/request/:requestId/reject",
   FriendsController.rejectFriendRequest,
 );
 
-// Eliminar amigo
-router.delete("/:friendUsername", FriendsController.removeFriend);
-
-// Obtener amigos
-router.get("/", FriendsController.getFriends);
-
-// Obtener solicitudes pendientes
+// GET routes - específicas primero
 router.get("/requests/pending", FriendsController.getPendingRequests);
-
-// Obtener mensajes de chat con un amigo
+router.get("/chat/unread", FriendsController.getUnreadMessageCount);
 router.get("/chat/:friendUsername", FriendsController.getChatMessages);
 
-// Obtener conteo de mensajes no leídos
-router.get("/chat/unread", FriendsController.getUnreadMessageCount);
+// DELETE routes
+router.delete("/:friendUsername", FriendsController.removeFriend);
+
+// Obtener amigos - genérica al final
+router.get("/", FriendsController.getFriends);
 
 export default router;

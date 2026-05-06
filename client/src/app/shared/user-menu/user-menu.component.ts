@@ -83,6 +83,7 @@ export class UserMenuComponent implements OnInit, OnDestroy {
       this.friends = friends;
     });
 
+    // Suscribirse a cambios en solicitudes pendientes (recibidas)
     this.pendingRequestsSub = this.friendsService.pendingRequests$.subscribe((requests) => {
       this.pendingRequests = requests;
     });
@@ -176,9 +177,8 @@ export class UserMenuComponent implements OnInit, OnDestroy {
       this.modalMessage = 'Ya es tu amigo.';
       return;
     }
-    // Verificar si ya enviaste una solicitud a este usuario
-    if (this.pendingRequests.some((req) => req.to === name)) {
-      this.modalMessage = 'Ya le enviaste una solicitud.';
+    if (this.pendingRequests.some((req) => req.from === name)) {
+      this.modalMessage = 'Este usuario ya te envió una solicitud. ¡Acéptala!';
       return;
     }
 
@@ -193,12 +193,12 @@ export class UserMenuComponent implements OnInit, OnDestroy {
     this.modalMessage = '';
   }
 
-  acceptRequest(requestId: string) {
-    this.friendsService.acceptFriendRequestSocket(requestId);
+  acceptRequest(request: FriendRequest) {
+    this.friendsService.acceptFriendRequestSocket(request._id);
   }
 
-  rejectRequest(requestId: string) {
-    this.friendsService.rejectFriendRequestSocket(requestId);
+  rejectRequest(request: FriendRequest) {
+    this.friendsService.rejectFriendRequestSocket(request._id);
   }
 
   onRemoveFriend(name: string) {
@@ -222,6 +222,7 @@ export class UserMenuComponent implements OnInit, OnDestroy {
     this.authSub?.unsubscribe();
     this.friendsSub?.unsubscribe();
     this.pendingRequestsSub?.unsubscribe();
+    this.chatMessagesSub?.unsubscribe();
     this.unreadCountsSub?.unsubscribe();
   }
 

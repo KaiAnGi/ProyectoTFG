@@ -42,7 +42,7 @@ export class FriendsController {
   // Aceptar solicitud de amistad
   static async acceptFriendRequest(req: Request, res: Response) {
     try {
-      const { requestId } = req.params;
+      const { requestId } = req.params as { requestId: string };
       const usernameRaw = (req as AuthenticatedRequest).user?.username;
 
       if (!usernameRaw || Array.isArray(usernameRaw)) {
@@ -73,7 +73,7 @@ export class FriendsController {
   // Rechazar solicitud de amistad
   static async rejectFriendRequest(req: Request, res: Response) {
     try {
-      const { requestId } = req.params;
+      const { requestId } = req.params as { requestId: string };
       const usernameRaw = (req as AuthenticatedRequest).user?.username;
 
       if (!usernameRaw || Array.isArray(usernameRaw)) {
@@ -104,7 +104,7 @@ export class FriendsController {
   // Eliminar amigo
   static async removeFriend(req: Request, res: Response) {
     try {
-      const { friendUsername } = req.params;
+      const { friendUsername } = req.params as { friendUsername: string };
       const usernameRaw = (req as AuthenticatedRequest).user?.username;
 
       if (!usernameRaw || Array.isArray(usernameRaw)) {
@@ -179,7 +179,7 @@ export class FriendsController {
   // Obtener mensajes de chat
   static async getChatMessages(req: Request, res: Response) {
     try {
-      const { friendUsername } = req.params;
+      const { friendUsername } = req.params as { friendUsername: string };
       const usernameRaw = (req as AuthenticatedRequest).user?.username;
 
       if (!usernameRaw || Array.isArray(usernameRaw)) {

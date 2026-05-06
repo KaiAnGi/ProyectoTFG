@@ -1,7 +1,7 @@
 import { Socket } from "socket.io";
 import { FriendsService } from "../services/friends-service.js";
 import User from "../models/User.js";
-import { FriendRequest } from "../models/FriendRequest.js";
+import { FriendRequest, IFriendRequest } from "../models/FriendRequest.js";
 
 export class FriendsHandler {
   private connectedUsers: Map<string, string> = new Map(); // username -> socketId
@@ -83,6 +83,13 @@ export class FriendsHandler {
         return;
       }
 
+      // Obtener la solicitud antes de procesarla
+      const request = await FriendRequest.findById(data.requestId);
+      if (!request) {
+        socket.emit("error", { message: "Solicitud no encontrada" });
+        return;
+      }
+
       const result = await FriendsService.acceptFriendRequest(
         data.requestId,
         username,
@@ -118,6 +125,13 @@ export class FriendsHandler {
       const username = (socket as any).username;
       if (!username) {
         socket.emit("error", { message: "Usuario no autenticado" });
+        return;
+      }
+
+      // Obtener la solicitud antes de procesarla
+      const request = await FriendRequest.findById(data.requestId);
+      if (!request) {
+        socket.emit("error", { message: "Solicitud no encontrada" });
         return;
       }
 

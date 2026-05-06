@@ -43,7 +43,7 @@
             </div>
             <ul class="friends-list">
                 <li *ngFor="let req of pendingRequests" class="request-item">
-                    <span class="req-name">{{ req }}</span>
+                    <span class="req-name">{{ req.from }}</span>
                     <div class="req-actions">
                         <button class="req-btn accept" (click)="acceptRequest(req)" title="Aceptar">✔</button>
                         <button class="req-btn reject" (click)="rejectRequest(req)" title="Rechazar">✖</button>
