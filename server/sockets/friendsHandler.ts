@@ -220,10 +220,12 @@ export class FriendsHandler {
 
       if (result.success && typeof result.message !== "string") {
         const messageData = {
+          _id: result.message._id,
           from,
           to: data.to,
           message: data.message,
-          timestamp: result.message.createdAt || new Date(),
+          read: result.message.read,
+          createdAt: result.message.createdAt,
         };
 
         // Enviar mensaje al destinatario si está conectado
@@ -232,7 +234,7 @@ export class FriendsHandler {
           this.io.to(toSocketId).emit("chat_message", messageData);
         }
 
-        // Confirmar envío al remitente
+        // Confirmar envío al remitente también
         socket.emit("chat_message", messageData);
       } else {
         const errorMessage =

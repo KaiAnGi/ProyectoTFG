@@ -12,60 +12,106 @@ interface SocketEvent {
   providedIn: 'root',
 })
 export class SocketService {
-  private socket!: Socket;
+  private socket?: Socket;
   private eventSubjects: { [key: string]: Subject<any> } = {};
   private authService = inject(AuthService);
 
-  connect(): void {
-    if (this.socket?.connected) {
-      return;
-    }
+  private attachedEvents = new Set<string>();
 
+  connect(): void {
     const user = this.authService.getCurrentUser();
     const token = localStorage.getItem('rps_token');
 
-    this.socket = io(environment.socketUrl, {
-      autoConnect: true,
-      auth: {
-        username: user?.username || '',
-        token: token || '',
-      },
-    });
+    if (!user?.username) {
+      return;
+    }
 
-    // Reconectar en caso de desconexión
-    this.socket.on('connect', () => {
-      console.log('Socket conectado:', this.socket.id);
-    });
+    const currentAuth = (this.socket as any)?.auth;
+    const authChanged =
+      !this.socket ||
+      currentAuth?.username !== user.username ||
+      currentAuth?.token !== (token || '');
 
-    this.socket.on('disconnect', () => {
-      console.log('Socket desconectado');
-    });
+    if (this.socket && authChanged) {
+      this.socket.disconnect();
+      this.socket = undefined;
+      this.attachedEvents.clear();
+    }
+
+    if (!this.socket) {
+      this.socket = io(environment.socketUrl, {
+        autoConnect: true,
+        auth: {
+          username: user.username,
+          token: token || '',
+        },
+      });
+
+      this.socket.on('connect', () => {
+        console.log('Socket conectado:', this.socket?.id);
+        this.attachEventListeners();
+      });
+
+      this.socket.on('disconnect', () => {
+        console.log('Socket desconectado');
+      });
+    } else if (!this.socket.connected) {
+      this.socket.connect();
+    }
   }
 
   disconnect(): void {
-    if (this.socket?.connected) {
+    if (this.socket) {
       this.socket.disconnect();
+      this.socket = undefined;
+      this.attachedEvents.clear();
     }
   }
 
   emit(event: string, data: any): void {
-    if (!this.socket) {
+    if (!this.socket || !this.socket.connected) {
       this.connect();
     }
     this.socket?.emit(event, data);
   }
 
   on(event: string): Observable<any> {
+    if (!this.eventSubjects[event]) {
+      this.eventSubjects[event] = new Subject<any>();
+    }
+
     if (!this.socket) {
       this.connect();
     }
-    if (!this.eventSubjects[event]) {
-      this.eventSubjects[event] = new Subject<any>();
-      this.socket?.on(event, (data: any) => {
-        this.eventSubjects[event].next(data);
-      });
+
+    if (this.socket?.connected && !this.attachedEvents.has(event)) {
+      this.attachEventListener(event);
     }
+
     return this.eventSubjects[event].asObservable();
+  }
+
+  private attachEventListener(event: string): void {
+    const socket = this.socket;
+    if (!socket || this.attachedEvents.has(event)) {
+      return;
+    }
+
+    socket.on(event, (data: any) => {
+      this.eventSubjects[event].next(data);
+    });
+    this.attachedEvents.add(event);
+  }
+
+  private attachEventListeners(): void {
+    const socket = this.socket;
+    if (!socket) {
+      return;
+    }
+
+    Object.keys(this.eventSubjects).forEach((event) => {
+      this.attachEventListener(event);
+    });
   }
 
   isConnected(): boolean {

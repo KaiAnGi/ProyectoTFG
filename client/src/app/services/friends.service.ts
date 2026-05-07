@@ -52,6 +52,8 @@ export class FriendsService {
     this.authService.user$.subscribe((user) => {
       if (user) {
         this.socketService.connect();
+      } else {
+        this.socketService.disconnect();
       }
     });
   }
