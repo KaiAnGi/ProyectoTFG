@@ -2,6 +2,7 @@ import type { Express } from "express";
 import rankingRoutes from "./ranking-routes.ts";
 import authRoutes from "./auth-routes.ts";
 import friendsRoutes from "./friends-routes.ts";
+import bonesRoutes from "./bones-routes.ts";
 
 export function setupRoutes(app: Express) {
   // Ruta de salud
@@ -13,6 +14,7 @@ export function setupRoutes(app: Express) {
   app.use("/api/ranking", rankingRoutes);
   app.use("/api/auth", authRoutes);
   app.use("/api/friends", friendsRoutes);
+  app.use("/api/bones", bonesRoutes);
 
   console.log("Rutas configuradas");
 }

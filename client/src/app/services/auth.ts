@@ -34,32 +34,32 @@ export class AuthService {
   user$ = new BehaviorSubject<User | null>(null);
 
   constructor() {
-  const saved = localStorage.getItem('rps_user');
-  const token = localStorage.getItem('rps_token');
+    const saved = sessionStorage.getItem('rps_user');
+    const token = sessionStorage.getItem('rps_token');
 
-  if (saved && token) {
-    this.http.get<AuthApiResponse>(`${this.authUrl}/verify`, {
-      headers: { Authorization: `Bearer ${token}` }
-    }).subscribe({
-      next: (res) => {
-        if (res.success) {
-          const parsed = JSON.parse(saved) as User & { nombre?: string };
-          const normalized: User = {
-            id: parsed.id || `local_${Date.now()}`,
-            username: parsed.username || parsed.nombre || 'Jugador',
-            email: parsed.email,
-            guest: parsed.guest,
-            bones: parsed.bones ?? 25,
-          };
-          this.setUser(normalized);
-        } else {
-          this.logout();
-        }
-      },
-      error: () => this.logout()
-    });
+    if (saved && token) {
+      this.http.get<AuthApiResponse>(`${this.authUrl}/verify`, {
+        headers: { Authorization: `Bearer ${token}` }
+      }).subscribe({
+        next: (res) => {
+          if (res.success) {
+            const parsed = JSON.parse(saved) as User & { nombre?: string };
+            const normalized: User = {
+              id: parsed.id || `local_${Date.now()}`,
+              username: parsed.username || parsed.nombre || 'Jugador',
+              email: parsed.email,
+              guest: parsed.guest,
+              bones: parsed.bones ?? 25,
+            };
+            this.setUser(normalized);
+          } else {
+            this.logout();
+          }
+        },
+        error: () => this.logout()
+      });
+    }
   }
-}
 
   register(data: {
     username: string;
@@ -84,7 +84,7 @@ export class AuthService {
     };
 
     if (response.token) {
-      localStorage.setItem('rps_token', response.token);
+      sessionStorage.setItem('rps_token', response.token);
     }
 
     this.setUser(user);
@@ -104,17 +104,22 @@ export class AuthService {
 
   private setUser(user: User) {
     this.currentUser.set(user);
-    localStorage.setItem('rps_user', JSON.stringify(user));
+    sessionStorage.setItem('rps_user', JSON.stringify(user));
     this.user$.next(user);
   }
 
   logout() {
     this.currentUser.set(null);
-    localStorage.removeItem('rps_user');
-    localStorage.removeItem('rps_token');
+    sessionStorage.removeItem('rps_user');
+    sessionStorage.removeItem('rps_token');
     this.user$.next(null);
   }
 
-  getToken() { return localStorage.getItem('rps_token'); }
-  getCurrentUser() { return this.currentUser(); }
+  getToken() {
+    return sessionStorage.getItem('rps_token');
+  }
+
+  getCurrentUser() {
+    return this.currentUser();
+  }
 }

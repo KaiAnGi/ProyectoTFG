@@ -1,10 +1,16 @@
 <div class="gesture-detector">
   <div class="video-container">
-    <!-- 🔴 IMPORTANTE: este video NO debe estar oculto -->
-    <video #videoElement autoplay playsinline class="camera-feed"></video>
+    <video
+      #videoElement
+      autoplay
+      playsinline
+      muted
+      class="camera-feed">
+    </video>
 
-    <!-- Canvas encima -->
-    <canvas #canvasElement width="640" height="480" class="gesture-canvas">
+    <canvas
+      #canvasElement
+      class="gesture-canvas">
     </canvas>
   </div>
 </div>

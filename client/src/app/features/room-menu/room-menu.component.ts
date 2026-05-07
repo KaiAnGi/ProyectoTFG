@@ -34,7 +34,7 @@ export class RoomMenuComponent implements OnInit, OnDestroy {
     private router: Router,
     private authService: AuthService,
     private friendsService: FriendsService,
-  ) {}
+  ) { }
 
   ngOnInit() {
     const user = this.authService.getCurrentUser();
@@ -122,6 +122,7 @@ export class RoomMenuComponent implements OnInit, OnDestroy {
   }
 
   onBack() {
+    this.authService.logout();
     this.router.navigate(['/']);
   }
 }
