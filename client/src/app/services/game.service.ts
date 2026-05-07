@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { SocketService } from './socket.service';
 import {
   GameState,
@@ -17,6 +17,19 @@ export class GameService {
 
   private gameStateSubject = new BehaviorSubject<GameState>({ ...INITIAL_GAME_STATE });
   private listenersInitialized = false;
+
+  private betUpdatedSubject = new BehaviorSubject<{
+    betAmount: number;
+    player1Confirmed: boolean;
+    player2Confirmed: boolean;
+  } | null>(null);
+
+  private betErrorSubject = new BehaviorSubject<{ message: string } | null>(null);
+
+  private betResolvedSubject = new BehaviorSubject<{
+    winner: string;
+    amount: number;
+  } | null>(null);
 
   public gameState$ = this.gameStateSubject.asObservable();
 
@@ -77,15 +90,6 @@ export class GameService {
         isRoundActive: true,
         isWaitingForReady: false,
       });
-      this.updateGameState({
-        roundNumber: data.roundNumber,
-        playerChoice: null,
-        opponentChoice: null,
-        roundTimeLeftSec: data.timeLimitSec ?? 5,
-        lastRoundResult: null,
-        lastRoundWinnerName: null,
-        isRoundActive: true,
-      });
     });
 
     this.socketService.on('round_timer').subscribe((data: any) => {
@@ -136,7 +140,6 @@ export class GameService {
     });
 
     this.socketService.on('match_finished').subscribe((data: any) => {
-      console.log('PARTIDA FINALIZADA:', data);
       this.updateGameState({
         isMatchFinished: true,
         matchWinnerName: data.winner || null,
@@ -144,12 +147,32 @@ export class GameService {
       });
     });
 
+    this.socketService.on('bet_updated').subscribe((data: any) => {
+      this.betUpdatedSubject.next({
+        betAmount: Number(data?.betAmount ?? 0),
+        player1Confirmed: !!data?.player1Confirmed,
+        player2Confirmed: !!data?.player2Confirmed,
+      });
+    });
+
+    this.socketService.on('bet_error').subscribe((data: any) => {
+      this.betErrorSubject.next({
+        message: data?.message || 'Error al procesar la apuesta',
+      });
+    });
+
+    this.socketService.on('bet_resolved').subscribe((data: any) => {
+      this.betResolvedSubject.next({
+        winner: data?.winner || '',
+        amount: Number(data?.amount ?? 0),
+      });
+    });
+
     this.socketService.on('error').subscribe((data: any) => {
-      console.error('Error de socket:', data?.message || data);
+      console.error('Socket error:', data?.message || data);
     });
   }
 
-  /** Crear sala */
   createRoom(username: string, roomName: string, maxRounds: 3 | 5 | 9 = 3): void {
     this.socketService.connect();
     this.updateGameState({
@@ -166,7 +189,6 @@ export class GameService {
     this.socketService.emit('create_room', { username, maxRounds });
   }
 
-  /** Unirse a sala */
   joinRoom(roomId: string, username: string, roomName: string): void {
     this.socketService.connect();
     this.updateGameState({
@@ -182,36 +204,31 @@ export class GameService {
     this.socketService.emit('join_room', { roomId, username });
   }
 
-  /** Elegir gesto */
   makeChoice(choice: Choice): void {
-    // SIEMPRE actualizar estado local para mostrar el gesto detectado
     this.updateGameState({ playerChoice: choice });
-
-    // Solo emitir al servidor si hay habitación y ronda activa
     const roomId = this.gameStateSubject.value.roomId;
     if (roomId && this.gameStateSubject.value.isRoundActive) {
-      this.socketService.emit('player_choice', { roomId, choice }); // EMIT A DIEGUITO
+      this.socketService.emit('player_choice', { roomId, choice });
     }
   }
 
-  /** Limpiar la elección del jugador */
   clearPlayerChoice(): void {
     this.updateGameState({ playerChoice: null });
   }
 
-  /** Actualizar estado de forma inmutable */
   private updateGameState(partial: PartialGameState): void {
     const currentState = this.gameStateSubject.value;
     this.gameStateSubject.next({ ...currentState, ...partial });
   }
 
-  /** Resetear juego */
   resetGame(): void {
     this.gameStateSubject.next({ ...INITIAL_GAME_STATE });
+    this.betUpdatedSubject.next(null);
+    this.betErrorSubject.next(null);
+    this.betResolvedSubject.next(null);
     this.socketService.disconnect();
   }
 
-  /** Getters públicos */
   get currentState(): GameState {
     return this.gameStateSubject.value;
   }
@@ -230,5 +247,32 @@ export class GameService {
 
   requestStartGame(roomId: string): void {
     this.socketService.emit('start_game', { roomId });
+  }
+
+  setBet(roomId: string, amount: number): void {
+    const safeAmount = Math.floor(Number(amount));
+
+    if (!roomId || !Number.isFinite(safeAmount) || safeAmount < 1) {
+      this.betErrorSubject.next({ message: 'Monto inválido' });
+      return;
+    }
+
+    this.socketService.emit('set_bet', { roomId, amount: safeAmount });
+  }
+
+  onBetUpdated(): Observable<{
+    betAmount: number;
+    player1Confirmed: boolean;
+    player2Confirmed: boolean;
+  } | null> {
+    return this.betUpdatedSubject.asObservable();
+  }
+
+  onBetError(): Observable<{ message: string } | null> {
+    return this.betErrorSubject.asObservable();
+  }
+
+  onBetResolved(): Observable<{ winner: string; amount: number } | null> {
+    return this.betResolvedSubject.asObservable();
   }
 }

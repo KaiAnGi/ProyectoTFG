@@ -1,4 +1,3 @@
-// media-pipe.service.ts
 import { Injectable, inject } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { Hands, Results, NormalizedLandmarkList } from '@mediapipe/hands';
@@ -30,16 +29,21 @@ export class MediaPipeService {
   private stream: MediaStream | null = null;
 
   public getVideoStream(): MediaStream | null {
-  return this.stream;
-}
+    return this.stream;
+  }
 
   async initCamera(video: HTMLVideoElement, canvas: HTMLCanvasElement): Promise<void> {
     if (this.isInitialized) return;
 
     this.videoRef = video;
+    this.errorSubject.next(null);
+    this.isCameraReadySubject.next(false);
 
     try {
-      await this.waitForVideoReady(video);
+      video.autoplay = true;
+      video.playsInline = true;
+      video.muted = true;
+
       this.hands = new Hands({
         locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4/${file}`,
       });
@@ -53,38 +57,55 @@ export class MediaPipeService {
 
       this.hands.onResults((results: Results) => this.onResults(results, canvas, video));
 
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-
       this.camera = new Camera(video, {
-        onFrame: () => this.hands.send({ image: video }),
+        onFrame: async () => {
+          if (!video.videoWidth || !video.videoHeight) return;
+          await this.hands.send({ image: video });
+        },
         width: 640,
         height: 480,
       });
 
       await this.camera.start();
+      await this.waitForVideoReady(video);
+
+      try {
+        await video.play();
+      } catch {}
+
+      if (video.srcObject instanceof MediaStream) {
+        this.stream = video.srcObject;
+      }
+
+      canvas.width = video.videoWidth || 640;
+      canvas.height = video.videoHeight || 480;
 
       this.isInitialized = true;
       this.isCameraReadySubject.next(true);
       this.errorSubject.next(null);
     } catch (error: any) {
-      this.errorSubject.next(error.message || 'Error cámara');
+      this.errorSubject.next(error?.message || 'Error cámara');
       this.isCameraReadySubject.next(false);
+      this.isInitialized = false;
     }
   }
 
   private onResults(results: Results, canvas: HTMLCanvasElement, video: HTMLVideoElement): void {
-    const ctx = canvas.getContext('2d')!;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
 
-    // RESET TOTAL del estado del canvas
+    const width = video.videoWidth || canvas.width || 640;
+    const height = video.videoHeight || canvas.height || 480;
+
+    if (canvas.width !== width) canvas.width = width;
+    if (canvas.height !== height) canvas.height = height;
+
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.globalAlpha = 1;
     ctx.globalCompositeOperation = 'source-over';
     ctx.shadowBlur = 0;
     ctx.shadowColor = 'transparent';
-
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
     if (results.multiHandLandmarks?.[0]) {
       const landmarks = results.multiHandLandmarks[0] as NormalizedLandmarkList;
@@ -92,7 +113,6 @@ export class MediaPipeService {
       this.handRenderer.drawSkeleton(ctx, landmarks, canvas.width, canvas.height);
 
       const detection = this.gestureDetector.detect(landmarks);
-
       this.gestureSubject.next(detection.gesture);
       this.confidenceSubject.next(detection.confidence);
     } else {
@@ -104,6 +124,14 @@ export class MediaPipeService {
   stopCamera(): void {
     this.camera?.stop();
     this.hands?.close();
+
+    if (this.videoRef) {
+      const mediaStream = this.videoRef.srcObject as MediaStream | null;
+      mediaStream?.getTracks().forEach((track) => track.stop());
+      this.videoRef.srcObject = null;
+    }
+
+    this.stream = null;
     this.isInitialized = false;
     this.isCameraReadySubject.next(false);
     this.gestureSubject.next(null);
@@ -111,34 +139,41 @@ export class MediaPipeService {
   }
 
   private async waitForVideoReady(video: HTMLVideoElement): Promise<void> {
-    console.log('Esperando video... readyState:', video.readyState);
-
-    return new Promise((resolve) => {
-      if (video.readyState >= 2) {
-        console.log('Video YA listo');
-        return resolve();
+    return new Promise((resolve, reject) => {
+      if (video.readyState >= 2 && video.videoWidth > 0) {
+        resolve();
+        return;
       }
 
-      const checkReady = () => {
-        console.log('Chequeando... readyState:', video.readyState);
-        if (video.readyState >= 2) {
-          video.removeEventListener('loadeddata', checkReady);
-          video.removeEventListener('canplay', checkReady);
-          console.log('Video listo!');
-          resolve();
-        }
+      const onReady = () => {
+        cleanup();
+        resolve();
       };
 
-      video.addEventListener('loadeddata', checkReady);
-      video.addEventListener('canplay', checkReady);
+      const onError = () => {
+        cleanup();
+        reject(new Error('El video no pudo inicializarse'));
+      };
 
-      // Timeout seguridad
-      setTimeout(() => {
-        video.removeEventListener('loadeddata', checkReady);
-        video.removeEventListener('canplay', checkReady);
-        console.log('Timeout - asumiendo listo');
-        resolve();
-      }, 5000);
+      const timeout = setTimeout(() => {
+        cleanup();
+        reject(new Error('Timeout esperando el stream de cámara'));
+      }, 8000);
+
+      const cleanup = () => {
+        clearTimeout(timeout);
+        video.removeEventListener('loadedmetadata', onReady);
+        video.removeEventListener('loadeddata', onReady);
+        video.removeEventListener('canplay', onReady);
+        video.removeEventListener('playing', onReady);
+        video.removeEventListener('error', onError);
+      };
+
+      video.addEventListener('loadedmetadata', onReady);
+      video.addEventListener('loadeddata', onReady);
+      video.addEventListener('canplay', onReady);
+      video.addEventListener('playing', onReady);
+      video.addEventListener('error', onError);
     });
   }
 }

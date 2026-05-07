@@ -15,6 +15,11 @@ export interface GameRoom {
   player2: Player | null;
   roundNumber: number;
   maxRounds: number;
+  // --- APUESTAS ---
+  betAmount?: number;
+  player1BetConfirmed?: boolean;
+  player2BetConfirmed?: boolean;
+ 
 }
 
 export interface RoundResult {

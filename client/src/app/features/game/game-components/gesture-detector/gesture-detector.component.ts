@@ -18,7 +18,7 @@ import { Choice } from '../../../../models/game-state.model';
   standalone: true,
   imports: [CommonModule],
   templateUrl: './gesture-detector.component.html',
-  styleUrl: './gesture-detector.component.css',
+  styleUrls: ['./gesture-detector.component.css'],
 })
 export class GestureDetectorComponent implements AfterViewInit, OnDestroy {
   private mediaPipeService = inject(MediaPipeService);
@@ -43,21 +43,30 @@ export class GestureDetectorComponent implements AfterViewInit, OnDestroy {
       const gesture = this.currentGesture();
 
       if (gesture && gesture !== this.lastSentChoice) {
-        console.log('🎮 Gesto detectado:', gesture);
         this.lastSentChoice = gesture as Choice;
         this.gameService.makeChoice(gesture as Choice);
       }
     });
   }
 
-  async ngAfterViewInit() {
-    await this.mediaPipeService.initCamera(
-      this.videoElement.nativeElement,
-      this.canvasElement.nativeElement,
-    );
+  async ngAfterViewInit(): Promise<void> {
+    if (!this.videoElement?.nativeElement || !this.canvasElement?.nativeElement) {
+      this.error.set('No se pudo inicializar la cámara');
+      return;
+    }
+
+    const video = this.videoElement.nativeElement;
+    const canvas = this.canvasElement.nativeElement;
+
+    video.onloadedmetadata = () => {
+      canvas.width = video.videoWidth || 640;
+      canvas.height = video.videoHeight || 480;
+    };
+
+    await this.mediaPipeService.initCamera(video, canvas);
   }
 
-  ngOnDestroy() {
+  ngOnDestroy(): void {
     this.mediaPipeService.stopCamera();
     this.lastSentChoice = null;
   }
