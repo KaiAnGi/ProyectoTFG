@@ -10,9 +10,9 @@ const backendProtocol = (globalThis as any).__RPS_BACKEND_PROTOCOL__ || (runtime
 const defaultBackendHost = runtimeHost === 'localhost' ? 'localhost' : 'server-567m.onrender.com';
 const backendHost = (globalThis as any).__RPS_BACKEND_HOST__ || defaultBackendHost;
 
-// Allow an optional port override. If empty, omit the port from the URL.
-const backendPortRaw = (globalThis as any).__RPS_BACKEND_PORT__ ?? runtimeWindow?.location.port ?? '';
-const backendPort = backendPortRaw !== '' && backendPortRaw !== undefined && backendPortRaw !== null ? String(backendPortRaw) : '';
+// Backend port: only use a specific port if in development (localhost)
+// In production (Onrender), don't specify a port - use the default HTTPS port (443)
+const backendPort = runtimeHost === 'localhost' ? (runtimeWindow?.location.port || '3000') : '';
 
 const backendBaseUrl = backendPort ? `${backendProtocol}://${backendHost}:${backendPort}` : `${backendProtocol}://${backendHost}`;
 
