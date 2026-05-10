@@ -34,8 +34,8 @@ export class AuthService {
   user$ = new BehaviorSubject<User | null>(null);
 
   constructor() {
-    const saved = sessionStorage.getItem('rps_user');
-    const token = sessionStorage.getItem('rps_token');
+    const saved = localStorage.getItem('rps_user');
+    const token = localStorage.getItem('rps_token');
 
     if (saved && token) {
       this.http.get<AuthApiResponse>(`${this.authUrl}/verify`, {
@@ -84,7 +84,7 @@ export class AuthService {
     };
 
     if (response.token) {
-      sessionStorage.setItem('rps_token', response.token);
+      localStorage.setItem('rps_token', response.token);
     }
 
     this.setUser(user);
@@ -104,19 +104,19 @@ export class AuthService {
 
   private setUser(user: User) {
     this.currentUser.set(user);
-    sessionStorage.setItem('rps_user', JSON.stringify(user));
+    localStorage.setItem('rps_user', JSON.stringify(user));
     this.user$.next(user);
   }
 
   logout() {
     this.currentUser.set(null);
-    sessionStorage.removeItem('rps_user');
-    sessionStorage.removeItem('rps_token');
+    localStorage.removeItem('rps_user');
+    localStorage.removeItem('rps_token');
     this.user$.next(null);
   }
 
   getToken() {
-    return sessionStorage.getItem('rps_token');
+    return localStorage.getItem('rps_token');
   }
 
   getCurrentUser() {
