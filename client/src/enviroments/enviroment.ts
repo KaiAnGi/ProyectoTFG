@@ -10,9 +10,7 @@ const backendHost =
 
 const backendPort = (globalThis as any).RPS_BACKEND_PORT || (isLocalhost ? '3000' : '');
 
-const backendBaseUrl = backendPort
-  ? `${backendProtocol}://${backendHost}:${backendPort}`
-  : `${backendProtocol}://${backendHost}`;
+const backendBaseUrl = backendPort ? `${backendProtocol}://${backendHost}:${backendPort}` : `${backendProtocol}://${backendHost}`;
 
 export const environment = {
   production: !isLocalhost,
