@@ -1,31 +1,21 @@
 const runtimeWindow = typeof window !== 'undefined' ? window : null;
 const runtimeHost = runtimeWindow?.location.hostname || 'localhost';
+const isLocalhost = runtimeHost === 'localhost' || runtimeHost === '127.0.0.1';
 
-// Optional runtime overrides exposed through the browser console/global scope.
-// Default protocol follows the page protocol (so HTTPS pages call HTTPS APIs).
 const backendProtocol =
-  (globalThis as any).RPS_BACKEND_PROTOCOL ||
-  runtimeWindow?.location.protocol?.replace(':', '') ||
-  'http';
+  (globalThis as any).RPS_BACKEND_PROTOCOL || (isLocalhost ? 'http' : 'https');
 
-// Default backend host: when developing locally use localhost, otherwise use the deployed server host.
-// Replace 'server-567m.onrender.com' with your actual backend host if different.
-const defaultBackendHost = runtimeHost === 'localhost' ? 'localhost' : 'server-567m.onrender.com';
-const backendHost = (globalThis as any).RPS_BACKEND_HOST || defaultBackendHost;
+const backendHost =
+  (globalThis as any).RPS_BACKEND_HOST || (isLocalhost ? 'localhost' : 'server-567m.onrender.com');
 
-// Allow an optional port override. If empty, omit the port from the URL.
-const backendPortRaw = (globalThis as any).RPS_BACKEND_PORT ?? runtimeWindow?.location.port ?? '';
-const backendPort =
-  backendPortRaw !== '' && backendPortRaw !== undefined && backendPortRaw !== null
-    ? String(backendPortRaw)
-    : '';
+const backendPort = (globalThis as any).RPS_BACKEND_PORT || (isLocalhost ? '3000' : '');
 
 const backendBaseUrl = backendPort
   ? `${backendProtocol}://${backendHost}:${backendPort}`
   : `${backendProtocol}://${backendHost}`;
 
 export const environment = {
-  production: false,
+  production: !isLocalhost,
   socketUrl: backendBaseUrl,
   apiUrl: `${backendBaseUrl}/api`,
 };

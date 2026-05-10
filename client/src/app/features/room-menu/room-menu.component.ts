@@ -121,6 +121,10 @@ export class RoomMenuComponent implements OnInit, OnDestroy {
     this.router.navigate(['/join-room']);
   }
 
+  onLeaderboard() {
+    this.router.navigate(['/leaderboard']);
+  }
+
   onBack() {
     this.authService.logout();
     this.router.navigate(['/']);
