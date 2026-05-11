@@ -343,6 +343,15 @@ export function setupGameHandlers(
 
       socket.on("disconnect", () => {
         console.log("Cliente desconectado:", socket.id);
+
+        const roomId = gameRooms.getRoomIdBySocketId(socket.id);
+        if (roomId) {
+          io.to(roomId).emit("opponent_left", {
+            message: "Tu oponente ha abandonado la partida",
+          });
+          clearRoundTimer(roomId);
+          gameRooms.cleanupRoom(roomId);
+        }
       });
     },
   );

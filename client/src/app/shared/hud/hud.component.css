@@ -8,6 +8,13 @@
   gap: 0.8rem;
 }
 
+/* ── VOLUMEN ── */
+.volume-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
 .mute-btn {
   background: rgba(25, 18, 18, 0.85);
   border: 1px solid rgba(110, 35, 35, 0.5);
@@ -31,7 +38,6 @@
   width: 20px;
   height: 20px;
   object-fit: contain;
-  object-position: center;
   filter: brightness(0.6) saturate(0.4);
   transition: filter 0.2s;
   transform: scale(1.4);
@@ -41,6 +47,34 @@
   filter: brightness(0.85) saturate(0.6);
 }
 
+.volume-slider-popup {
+  position: absolute;
+  top: calc(100% + 0.6rem);
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(20, 12, 12, 0.92);
+  border: 1px solid rgba(110, 35, 35, 0.5);
+  border-radius: 12px;
+  padding: 0.75rem 0.6rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1001;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.7);
+}
+
+.volume-slider {
+  writing-mode: vertical-lr;
+  direction: rtl;
+  -webkit-appearance: slider-vertical;
+  appearance: auto;
+  width: 6px;
+  height: 80px;
+  cursor: pointer;
+  accent-color: #9b1212;
+}
+
+/* ── BONES ── */
 .bones-display {
   display: flex;
   align-items: center;
@@ -75,7 +109,41 @@
   filter: brightness(1.35);
 }
 
-/* SHOP PANEL */
+/* ── LEADERBOARD LATERAL ── */
+.bottom-left-btn {
+  position: fixed;
+  left: -3.2rem;
+  top: 50%;
+  transform: translateY(-50%) rotate(-90deg);
+  z-index: 50;
+  transition: left 0.3s ease;
+}
+
+.bottom-left-btn:hover {
+  left: -1rem;
+}
+
+.leaderboard-btn {
+  padding: 0.5rem 1.2rem;
+  background: rgba(60, 60, 60, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 0 0 8px 8px;
+  color: #c0c0c0;
+  font-family: 'Metal Mania', system-ui, cursive;
+  font-size: 0.82rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.leaderboard-btn:hover {
+  background: rgba(100, 100, 100, 0.85);
+  color: #fff;
+}
+
+/* ── SHOP ── */
 .shop-overlay {
   position: fixed;
   inset: 0;
@@ -91,6 +159,10 @@
   align-items: center;
   justify-content: center;
   pointer-events: none;
+}
+
+.shop-open .bottom-left-btn {
+  display: none;
 }
 
 .shop-frame {
@@ -182,32 +254,7 @@
   justify-content: center;
   align-items: center;
   margin-top: 0.5rem;
-  position: relative;
-  transform: translateX(-1.8rem) translateY(-1.5rem);
-}
-
-.back-btn {
-  position: absolute;
-  bottom: -0.3rem;
-  left: -10rem;
-  background: rgba(80, 80, 80, 0.5);
-  border: none;
-  color: #b0b0b0;
-  padding: 0.6rem 1.5rem;
-  font-size: clamp(0.85rem, 1.8vw, 1rem);
-  font-family: 'Metal Mania', cursive;
-  cursor: pointer;
-  border-radius: 10px;
-  transition: all 0.3s ease;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-  background-blend-mode: overlay;
-  z-index: 10;
-  letter-spacing: 0.05em;
-}
-
-.back-btn:hover {
-  filter: brightness(1.15);
-  transform: scale(1.05);
+  transform: translateY(-1.5rem);
 }
 
 .pay-btn {

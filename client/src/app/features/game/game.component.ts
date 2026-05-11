@@ -1,10 +1,4 @@
-import {
-  Component,
-  OnInit,
-  OnDestroy,
-  inject,
-  ChangeDetectionStrategy,
-  ChangeDetectorRef,
+import { Component, OnInit, OnDestroy, inject, ChangeDetectionStrategy, ChangeDetectorRef,
 } from '@angular/core';
 import { Router } from '@angular/router';
 import { GameService } from '../../services/game.service';
@@ -26,7 +20,6 @@ export class GameComponent implements OnInit, OnDestroy {
   private gameService = inject(GameService);
   private cdr = inject(ChangeDetectorRef);
 
-  // Estado UI
   roomCode = '';
   roomName = '';
   playerName = '';
@@ -51,7 +44,11 @@ export class GameComponent implements OnInit, OnDestroy {
   myGesture: Choice | null = null;
   opponentGesture: Choice | null = null;
 
+  opponentLeft = false;
+  opponentLeftMessage = '';
+
   private stateSub?: Subscription;
+  private opponentLeftSub?: Subscription;
 
   ngOnInit() {
     this.stateSub = this.gameService.gameState$
@@ -104,6 +101,13 @@ export class GameComponent implements OnInit, OnDestroy {
 
         this.cdr.markForCheck();
       });
+
+    this.opponentLeftSub = this.gameService.onOpponentLeft().subscribe((data) => {
+      if (!data) return;
+      this.opponentLeft = true;
+      this.opponentLeftMessage = data.message;
+      this.cdr.markForCheck();
+    });
   }
 
   private getRoundResultText(state: any): string {
@@ -145,5 +149,6 @@ export class GameComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.stateSub?.unsubscribe();
+    this.opponentLeftSub?.unsubscribe();
   }
 }

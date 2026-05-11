@@ -1,9 +1,4 @@
-import type {
-  GameRoom,
-  GameChoice,
-  GameResult,
-  RoundResult,
-} from "../types/game-types.ts";
+import type { GameRoom, GameChoice, GameResult, RoundResult, } from "../types/game-types.ts";
 
 export class GameRooms {
   private rooms: Map<string, GameRoom>;
@@ -197,5 +192,17 @@ export class GameRooms {
 
   cleanupRoom(roomId: string): void {
     this.rooms.delete(roomId);
+  }
+
+  getRoomIdBySocketId(socketId: string): string | null {
+    for (const [roomId, room] of this.rooms.entries()) {
+      if (
+        room.player1.id === socketId ||
+        (room.player2 && room.player2.id === socketId)
+      ) {
+        return roomId;
+      }
+    }
+    return null;
   }
 }

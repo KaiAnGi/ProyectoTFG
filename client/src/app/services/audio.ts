@@ -6,7 +6,6 @@ export class AudioService {
   private sounds: Map<string, HTMLAudioElement> = new Map();
   private muted = false;
   private musicVolume = 0.2;
-
   private startHandler: (() => void) | null = null;
 
   preload(key: string, src: string) {
@@ -16,22 +15,16 @@ export class AudioService {
   }
 
   playMusic(src: string, volume: number) {
-    // Si ya suena la misma cancion, no hacemos nada
     if (this.music && !this.music.paused && this.music.src.endsWith(src)) return;
-
-    // Paramos lo que habia antes
     this.stopMusic();
-
     this.musicVolume = volume;
 
-    // Si el audio ya fue desbloqueado antes (hay interaccion previa), arrancamos directo
     if (this.music !== null || document.hasFocus()) {
       this.music = new Audio(src);
       this.music.loop = true;
       this.music.volume = this.musicVolume;
       this.music.muted = this.muted;
       this.music.play().catch(() => {
-        // El navegador bloqueo el autoplay, esperamos interaccion
         this.waitForInteraction(src);
       });
       return;
@@ -40,8 +33,12 @@ export class AudioService {
     this.waitForInteraction(src);
   }
 
+  setVolume(volume: number) {
+    this.musicVolume = volume;
+    if (this.music) this.music.volume = volume;
+  }
+
   private waitForInteraction(src: string) {
-    // Limpiamos listener anterior si lo habia
     this.removeStartHandler();
 
     this.startHandler = () => {
