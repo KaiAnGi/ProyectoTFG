@@ -7,12 +7,11 @@ import { Subscription } from 'rxjs';
 
 import { GameService } from '../../services/game.service';
 import { AuthService, User } from '../../services/auth';
-import { GestureDetectorComponent } from '../game/game-components/gesture-detector/gesture-detector.component';
 
 @Component({
   selector: 'app-waiting-room',
   standalone: true,
-  imports: [CommonModule, FormsModule, GestureDetectorComponent],
+  imports: [CommonModule, FormsModule],
   templateUrl: './waiting-room.component.html',
   styleUrls: ['./waiting-room.component.css'],
 })
@@ -23,19 +22,22 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
   private betErrorSub?: Subscription;
   private betResolvedSub?: Subscription;
 
+  private readonly API_URL = 'http://localhost:3000';
+
   roomCode = '';
   roomName = '';
   copyFeedback = false;
   private copyTimeoutId: ReturnType<typeof setTimeout> | null = null;
 
   player1 = { name: 'You', isReady: false, isYou: true };
-  player2 = { name: 'Opponent', isReady: false, isYou: false };
+  player2 = { name: 'Waiting...', isReady: false, isYou: false };
 
   myBones = 0;
   betInput = 1;
   betAmount = 0;
-  player1BetConfirmed = false;
-  player2BetConfirmed = false;
+  myBetConfirmed = false;
+  opponentBetConfirmed = false;
+  playerRole: 'player1' | 'player2' | null = null;
   betError = '';
   betResolved = false;
   betResultMessage = '';
@@ -50,7 +52,6 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     const initialUser = this.authService.getCurrentUser();
-    console.log('Usuario inicial:', initialUser);
 
     if (initialUser?.username) {
       this.applyUser(initialUser);
@@ -58,9 +59,7 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
     }
 
     this.userSub = this.authService.user$.subscribe((user) => {
-      console.log('Usuario desde user$:', user);
-
-      if (user?.username) {
+      if (user?.username && !this.myUsername) {
         this.applyUser(user);
         this.loadBones();
       }
@@ -73,6 +72,7 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
       this.player2.name = state.opponentName || 'Waiting...';
       this.player1.isReady = state.myCameraReady ?? false;
       this.player2.isReady = state.opponentCameraReady ?? false;
+      this.playerRole = state.playerRole ?? null;
 
       if (state.isRoundActive && state.roomId) {
         this.router.navigate(['/game']);
@@ -81,15 +81,15 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
 
     this.betUpdatedSub = this.gameService.onBetUpdated().subscribe((data) => {
       if (!data) return;
-
       this.betAmount = Number(data.betAmount ?? 0);
-      this.player1BetConfirmed = !!data.player1Confirmed;
-      this.player2BetConfirmed = !!data.player2Confirmed;
       this.betError = '';
 
-      if (!this.player1BetConfirmed && this.betAmount > 0) {
-        this.betInput = this.betAmount;
-        this.normalizeBetInput();
+      if (this.playerRole === 'player1') {
+        this.myBetConfirmed = !!data.player1Confirmed;
+        this.opponentBetConfirmed = !!data.player2Confirmed;
+      } else {
+        this.myBetConfirmed = !!data.player2Confirmed;
+        this.opponentBetConfirmed = !!data.player1Confirmed;
       }
     });
 
@@ -100,20 +100,17 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
 
     this.betResolvedSub = this.gameService.onBetResolved().subscribe((data) => {
       if (!data) return;
-
       this.betResolved = true;
 
       if (data.winner === 'Empate' || data.winner === 'tie') {
         this.betResultMessage = 'Tie - bones returned';
       } else if (data.winner === this.myUsername) {
         this.betResultMessage = `You won ${data.amount} bones`;
-        this.myBones += Number(data.amount ?? 0);
       } else {
         this.betResultMessage = `You lost ${data.amount} bones`;
-        this.myBones -= Number(data.amount ?? 0);
       }
 
-      this.normalizeBetInput();
+      this.loadBones();
     });
   }
 
@@ -131,12 +128,10 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
       return;
     }
 
-    console.log('Cargando shines para:', this.myUsername);
-
-    this.http.get<{ bones: number }>(`/api/bones/${this.myUsername}`).subscribe({
+    this.http.get<{ bones: number }>(`${this.API_URL}/api/bones/${this.myUsername}`).subscribe({
       next: (res) => {
-        console.log('Respuesta bones:', res);
         this.myBones = Number(res.bones ?? 0);
+        this.authService.updateBones(this.myBones);
         this.normalizeBetInput();
         this.betError = '';
       },
@@ -144,10 +139,7 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
         console.error('Error en /api/bones:', err);
         this.myBones = Number(this.authService.getCurrentUser()?.bones ?? 0);
         this.normalizeBetInput();
-
-        if (this.myBones > 0) {
-          this.betError = '';
-        } else {
+        if (this.myBones <= 0) {
           this.betError = 'No se pudieron cargar tus shines';
         }
       },
@@ -165,35 +157,22 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
   }
 
   canDecreaseBet(): boolean {
-    return !this.player1BetConfirmed && this.myBones > 0 && this.betInput > 1;
+    return !this.myBetConfirmed && this.myBones > 0 && this.betInput > 1;
   }
 
   canIncreaseBet(): boolean {
-    return !this.player1BetConfirmed && this.myBones > 0 && this.betInput < this.myBones;
+    return !this.myBetConfirmed && this.myBones > 0 && this.betInput < this.myBones;
   }
 
   canConfirmBet(): boolean {
-    return !this.player1BetConfirmed && this.myBones > 0 && this.betInput > 0 && this.betInput <= this.myBones;
+    return !this.myBetConfirmed && this.myBones > 0 && this.betInput > 0 && this.betInput <= this.myBones;
   }
 
   confirmBet(): void {
     if (!this.roomCode) return;
-
-    if (this.myBones <= 0) {
-      this.betError = 'No tienes shines suficientes';
-      return;
-    }
-
-    if (this.betInput < 1) {
-      this.betError = 'La apuesta mínima es 1';
-      return;
-    }
-
-    if (this.betInput > this.myBones) {
-      this.betError = 'No tienes shines suficientes';
-      return;
-    }
-
+    if (this.myBones <= 0) { this.betError = 'No tienes shines suficientes'; return; }
+    if (this.betInput < 1) { this.betError = 'La apuesta minima es 1'; return; }
+    if (this.betInput > this.myBones) { this.betError = 'No tienes shines suficientes'; return; }
     this.betError = '';
     this.gameService.setBet(this.roomCode, this.betInput);
   }
@@ -210,11 +189,21 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
     this.betError = '';
   }
 
+  onBetInputChange(event: Event): void {
+    const raw = Number((event.target as HTMLInputElement).value);
+    if (!Number.isFinite(raw) || raw < 1) {
+      this.betInput = 1;
+    } else if (raw > this.myBones) {
+      this.betInput = this.myBones;
+    } else {
+      this.betInput = Math.floor(raw);
+    }
+    this.betError = '';
+  }
+
   toggleReady(): void {
     this.player1.isReady = !this.player1.isReady;
-
     if (!this.roomCode) return;
-
     if (this.player1.isReady) {
       this.gameService.sendCameraReady(this.roomCode);
     } else {
@@ -239,22 +228,14 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
 
   copyRoomCode(): void {
     if (!this.roomCode) return;
-
-    navigator.clipboard
-      .writeText(this.roomCode)
-      .then(() => {
-        this.copyFeedback = true;
-
-        if (this.copyTimeoutId) {
-          clearTimeout(this.copyTimeoutId);
-        }
-
-        this.copyTimeoutId = setTimeout(() => {
-          this.copyFeedback = false;
-          this.copyTimeoutId = null;
-        }, 1500);
-      })
-      .catch((err) => console.error('Error copying room code:', err));
+    navigator.clipboard.writeText(this.roomCode).then(() => {
+      this.copyFeedback = true;
+      if (this.copyTimeoutId) clearTimeout(this.copyTimeoutId);
+      this.copyTimeoutId = setTimeout(() => {
+        this.copyFeedback = false;
+        this.copyTimeoutId = null;
+      }, 1500);
+    }).catch((err) => console.error('Error copying room code:', err));
   }
 
   goBack(): void {
@@ -268,9 +249,6 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
     this.betUpdatedSub?.unsubscribe();
     this.betErrorSub?.unsubscribe();
     this.betResolvedSub?.unsubscribe();
-
-    if (this.copyTimeoutId) {
-      clearTimeout(this.copyTimeoutId);
-    }
+    if (this.copyTimeoutId) clearTimeout(this.copyTimeoutId);
   }
 }

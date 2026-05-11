@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth';
@@ -19,15 +19,17 @@ export class HudComponent implements OnInit, OnDestroy {
   muted = false;
   shopOpen = false;
   selectedItem: number | null = null;
+  sliderVisible = false;
+  volume = 0.2;
 
   paying = false;
   payMessage = '';
   payError = '';
 
   shopItems = [
-    { id: 'pack100', img: '/images/3huesos.png', label: '+100 Shines', price: '4,65€' },
-    { id: 'pack500', img: '/images/5huesos.png', label: '+500 Shines', price: '8,70€' },
-    { id: 'pack1000', img: '/images/bulto.png', label: '+1000 Shines', price: '15,78€' },
+    { id: 'pack100',  img: '/images/3huesos.png', label: '+100 Shines',  price: '4,65€'  },
+    { id: 'pack500',  img: '/images/5huesos.png', label: '+500 Shines',  price: '8,70€'  },
+    { id: 'pack1000', img: '/images/bulto.png',   label: '+1000 Shines', price: '15,78€' },
   ];
 
   private authSub?: Subscription;
@@ -37,19 +39,48 @@ export class HudComponent implements OnInit, OnDestroy {
     private audioService: AudioService,
     private router: Router,
     private paypalService: PaypalService
-  ) { }
+  ) {}
+
+  get isGameRoute(): boolean     { return this.router.url === '/game'; }
+  get isLeaderboardRoute(): boolean { return this.router.url === '/leaderboard'; }
+  get isWaitingRoomRoute(): boolean { return this.router.url.startsWith('/waiting-room'); }
 
   ngOnInit() {
     this.authSub = this.authService.user$.subscribe(user => {
       this.isLoggedIn = !!user && !user.guest;
       this.bones = user?.bones ?? 0;
     });
-
     this.audioService.playMusic('/sounds/musicaFondo.mp3', 0.2);
   }
 
   toggleMute() {
     this.muted = this.audioService.toggleMute();
+  }
+
+  toggleVolumeSlider() {
+    this.sliderVisible = !this.sliderVisible;
+  }
+
+  onVolumeChange(event: Event) {
+    const val = parseFloat((event.target as HTMLInputElement).value);
+    this.volume = val;
+    this.audioService.setVolume(val);
+
+    if (val > 0 && this.muted) {
+      this.muted = this.audioService.toggleMute();
+    }
+    if (val === 0 && !this.muted) {
+      this.muted = this.audioService.toggleMute();
+    }
+  }
+
+  // Cierra el slider al hacer click fuera
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent) {
+    const target = event.target as HTMLElement;
+    if (!target.closest('.volume-wrapper')) {
+      this.sliderVisible = false;
+    }
   }
 
   toggleShop() {
@@ -65,6 +96,10 @@ export class HudComponent implements OnInit, OnDestroy {
     this.selectedItem = index;
     this.payMessage = '';
     this.payError = '';
+  }
+
+  goToLeaderboard() {
+    this.router.navigate(['/leaderboard']);
   }
 
   async onPay() {
@@ -141,12 +176,8 @@ export class HudComponent implements OnInit, OnDestroy {
 
         try {
           const check = await this.paypalService.checkOrder(orderID);
-          if (check.approved) {
-            finish(true);
-          }
-        } catch {
-          // Si falla el check, seguimos esperando
-        }
+          if (check.approved) finish(true);
+        } catch {}
       }, 2000);
 
       setTimeout(() => finish(false), 5 * 60 * 1000);

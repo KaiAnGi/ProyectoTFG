@@ -5,6 +5,10 @@ import type { ILeaderboard } from "../models/Leaderboard.ts";
 export interface ServerToClientEvents {
   "leaderboard:update": (data: ILeaderboard[]) => void;
 
+  opponent_left: (data: { 
+    message: string 
+  }) => void;
+
   room_created: (data: {
     roomId: string;
     message: string;

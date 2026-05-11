@@ -160,12 +160,12 @@
 .player-card {
   background: rgba(80, 80, 80, 0.5);
   border-radius: 15px;
-  padding: 0.92rem;
+  padding: 1.2rem 0.92rem;
   width: 235px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.58rem;
+  gap: 0.75rem;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
   background-blend-mode: overlay;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
@@ -174,12 +174,23 @@
 .player-header {
   width: 100%;
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.1rem;
 }
 
 .player-title {
-  font-size: clamp(0.9rem, 1.25vw, 1rem);
-  color: #d0d0d0;
-  letter-spacing: 0.04em;
+  font-size: clamp(1rem, 1.4vw, 1.15rem);
+  color: #e0d8d0;
+  letter-spacing: 0.06em;
+  font-weight: bold;
+}
+
+.player-you-tag {
+  font-size: 0.72rem;
+  color: #9a9080;
+  letter-spacing: 0.08em;
 }
 
 .player-avatar {
@@ -263,52 +274,23 @@
   animation: blink 1.5s ease-in-out infinite;
 }
 
-.camera-preview {
-  position: relative;
-  width: 100%;
-  min-height: 118px;
-  height: 118px;
-  background: rgba(20, 6, 10, 0.72);
-  border-radius: 10px;
-  overflow: hidden;
-  display: flex;
-  align-items: stretch;
-  justify-content: stretch;
-}
-
-.camera-preview app-gesture-detector {
-  display: block;
-  width: 100%;
-  height: 100%;
-  min-height: 118px;
-  flex: 1 1 auto;
-}
-
-.camera-preview video,
-.camera-preview canvas,
-.camera-preview img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
+/* ── BETTING SECTION ── */
 .bet-section {
   background: rgba(0, 0, 0, 0.58);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 12px;
-  padding: 0.62rem 0.9rem;
-  margin: 0.05rem auto 0;
-  width: min(100%, 350px);
+  border-radius: 14px;
+  padding: 1.4rem 2rem;
+  margin: 0.8rem auto 0;
+  width: min(100%, 500px);
   text-align: center;
   color: #f4ece1;
 }
 
 .bet-title {
-  font-size: 0.98rem;
-  letter-spacing: 0.06em;
+  font-size: 1.3rem;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  margin: 0 0 0.18rem;
+  margin: 0 0 0.6rem;
   color: #eadbcf;
 }
 
@@ -316,9 +298,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.25rem;
-  margin-bottom: 0.35rem;
-  font-size: 0.7rem;
+  gap: 0.5rem;
+  margin-bottom: 0.8rem;
+  font-size: 0.88rem;
   letter-spacing: 0.04em;
   color: #c8b7a7;
 }
@@ -327,18 +309,18 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.38rem;
+  gap: 0.6rem;
   flex-wrap: nowrap;
 }
 
 .bet-adjust-btn {
-  width: 32px;
-  height: 32px;
-  border-radius: 6px;
+  width: 42px;
+  height: 42px;
+  border-radius: 8px;
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.12);
   color: #fff;
-  font-size: 0.95rem;
+  font-size: 1.2rem;
   cursor: pointer;
   transition: background 0.15s;
 }
@@ -353,27 +335,28 @@
 }
 
 .bet-amount-display {
-  min-width: 54px;
+  min-width: 72px;
   text-align: center;
-  font-size: 0.95rem;
+  font-size: 1.1rem;
   font-weight: 600;
   color: #fff;
   background: rgba(0, 0, 0, 0.34);
   border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 6px;
-  padding: 0.26rem 0.45rem;
+  border-radius: 8px;
+  padding: 0.4rem 0.6rem;
 }
 
 .bet-confirm-btn {
-  padding: 0.38rem 0.75rem;
-  border-radius: 6px;
+  padding: 0.55rem 1.2rem;
+  border-radius: 8px;
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.16);
   color: #fff;
-  font-size: 0.7rem;
-  letter-spacing: 0.04em;
+  font-size: 0.88rem;
+  letter-spacing: 0.06em;
   cursor: pointer;
   transition: background 0.15s;
+  font-family: 'Metal Mania', cursive;
 }
 
 .bet-confirm-btn:hover:not(:disabled) {
@@ -387,28 +370,29 @@
 
 .bet-error {
   color: #f2a3a3;
-  font-size: 0.72rem;
-  margin-top: 0.3rem;
+  font-size: 0.8rem;
+  margin-top: 0.5rem;
 }
 
 .bet-status {
   display: flex;
   justify-content: center;
-  gap: 0.5rem;
+  gap: 0.8rem;
   flex-wrap: wrap;
-  margin-top: 0.35rem;
-  font-size: 0.72rem;
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
   color: #d4c4b2;
 }
 
 .bet-result {
-  margin-top: 0.32rem;
-  font-size: 0.72rem;
+  margin-top: 0.45rem;
+  font-size: 0.85rem;
   font-weight: 700;
   color: #f2e5d6;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.95);
 }
 
+/* ── ACTION BUTTONS ── */
 .action-buttons {
   display: flex;
   gap: 0.9rem;
@@ -521,19 +505,29 @@
   animation: spin 1s linear infinite;
 }
 
+input.bet-amount-display {
+  -moz-appearance: textfield;
+  text-align: center;
+  background: transparent;
+  border: none;
+  color: inherit;
+  font: inherit;
+  width: 72px;
+}
+
+input.bet-amount-display::-webkit-outer-spin-button,
+input.bet-amount-display::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+}
+
 @media (max-width: 640px) {
   .content {
     padding: 0.9rem 0.8rem 4rem;
     overflow-y: auto;
   }
 
-  .title {
-    font-size: clamp(2rem, 8vw, 2.8rem);
-  }
-
-  .subtitle {
-    font-size: clamp(1.2rem, 5vw, 1.6rem);
-  }
+  .title { font-size: clamp(2rem, 8vw, 2.8rem); }
+  .subtitle { font-size: clamp(1.2rem, 5vw, 1.6rem); }
 
   .players-container {
     flex-direction: column;
@@ -546,26 +540,9 @@
     max-width: 250px;
   }
 
-  .camera-preview {
-    min-height: 110px;
-    height: 110px;
-  }
-
-  .camera-preview app-gesture-detector {
-    min-height: 110px;
-  }
-
-  .bet-section {
-    width: min(100%, 320px);
-  }
-
-  .bet-controls {
-    flex-wrap: wrap;
-  }
-
-  .bet-confirm-btn {
-    width: 100%;
-  }
+  .bet-section { width: min(100%, 340px); padding: 1rem 1.2rem; }
+  .bet-controls { flex-wrap: wrap; }
+  .bet-confirm-btn { width: 100%; }
 
   .action-buttons {
     flex-direction: column;
@@ -573,35 +550,19 @@
     max-width: 250px;
   }
 
-  .action-btn {
-    width: 100%;
-  }
+  .action-btn { width: 100%; }
 }
 
 @keyframes pulse {
-  0%,
-  100% {
-    opacity: 0.5;
-  }
-
-  50% {
-    opacity: 0.8;
-  }
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 0.8; }
 }
 
 @keyframes blink {
-  0%,
-  100% {
-    opacity: 1;
-  }
-
-  50% {
-    opacity: 0.6;
-  }
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
 }
 
 @keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
+  to { transform: rotate(360deg); }
 }

@@ -45,7 +45,7 @@ export class UserMenuComponent implements OnInit, OnDestroy {
   private unreadCountsSub?: Subscription;
 
   get shouldShow(): boolean {
-    return this.isLoggedIn && !this.authService.getCurrentUser()?.guest;
+    return this.isLoggedIn && !this.authService.getCurrentUser()?.guest && this.router.url !== '/game';
   }
 
   get activeMessages(): ChatMessage[] {
