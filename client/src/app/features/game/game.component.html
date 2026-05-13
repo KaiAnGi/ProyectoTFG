@@ -1,7 +1,6 @@
 <div class="game-screen">
   <div class="logo-background"></div>
 
-  <!-- Overlay: partida terminada -->
   <div class="victory-overlay" *ngIf="isMatchFinished">
     <div class="victory-card">
       <h2 class="victory-title"
@@ -9,20 +8,11 @@
         {{ matchWinnerName === 'Empate' ? 'TIE' : (matchWinnerName === playerName ? 'VICTORY' : 'DEFEAT') }}
       </h2>
       <p class="victory-message">
-        {{ matchWinnerName === 'Empate' ? 'It\'s a tie' : (matchWinnerName === playerName ? 'You have won' : 'You have lost') }}
+        {{ matchWinnerName === 'Empate' ? 'It\'s a tie' : (matchWinnerName === playerName ? 'You have won' : 'You have
+        lost') }}
         {{ opponentName ? ' against ' + opponentName : '' }}
       </p>
       <p class="victory-score">Final Score: {{ myScore }} - {{ opponentScore }}</p>
-      <button class="exit-btn" (click)="onBackToMenu()">Back to Menu</button>
-    </div>
-  </div>
-
-  <!-- Overlay: oponente abandonó -->
-  <div class="victory-overlay" *ngIf="opponentLeft && !isMatchFinished">
-    <div class="victory-card">
-      <h2 class="victory-title title-win">VICTORY</h2>
-      <p class="victory-message">{{ opponentLeftMessage }}</p>
-      <p class="victory-score">Your opponent left the game</p>
       <button class="exit-btn" (click)="onBackToMenu()">Back to Menu</button>
     </div>
   </div>
@@ -83,5 +73,3 @@
   <div class="game-footer">
     <button class="exit-btn" (click)="onExit()">EXIT</button>
   </div>
-
-</div>

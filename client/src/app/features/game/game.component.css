@@ -38,7 +38,6 @@
   z-index: 1;
 }
 
-/* ── OVERLAYS ── */
 .victory-overlay {
   position: absolute;
   inset: 0;
@@ -57,10 +56,6 @@
   padding: 1.5rem;
   text-align: center;
   box-shadow: 0 20px 45px rgba(0, 0, 0, 0.55);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.6rem;
 }
 
 .victory-title {
@@ -70,22 +65,19 @@
 }
 
 .victory-message {
+  margin-top: 0.8rem;
   font-size: clamp(1.1rem, 2.5vw, 1.5rem);
   color: #f1d489;
   letter-spacing: 0.08em;
 }
 
 .victory-score {
+  margin-top: 0.4rem;
+  margin-bottom: 1.2rem;
   color: #cfcfcf;
   font-family: 'Outfit', sans-serif;
-  margin-bottom: 0.6rem;
 }
 
-.title-win  { color: #80754b; }
-.title-lose { color: #4b1712; }
-.title-tie  { color: #aaaaaa; }
-
-/* ── Z-INDEX BASE ── */
 .game-header,
 .players-container,
 .game-footer {
@@ -103,9 +95,10 @@
   gap: 1rem;
 }
 
-.status-row { margin-top: 0.35rem; }
+.status-row {
+  margin-top: 0.35rem;
+}
 
-/* ── TIMER ── */
 .timer-box {
   width: 58px;
   height: 58px;
@@ -127,8 +120,9 @@
   text-transform: uppercase;
 }
 
-/* ── SCORE ── */
-.score-row { margin-top: 0.4rem; }
+.score-row {
+  margin-top: 0.4rem;
+}
 
 .score-chip {
   background: rgba(180, 180, 180, 0.15);
@@ -140,7 +134,7 @@
   font-size: clamp(0.75rem, 1.5vw, 0.95rem);
 }
 
-/* ── CAMERA READY ── */
+/* Camera Ready */
 .camera-ready-row {
   display: flex;
   justify-content: center;
@@ -168,9 +162,9 @@
 
 /* ── HEADER ── */
 .game-header {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
+  display: flex;
   align-items: flex-start;
+  justify-content: space-between;
   padding: 0.8rem 1.5rem 0.2rem;
 }
 
@@ -178,7 +172,6 @@
   font-size: clamp(0.7rem, 1.2vw, 0.9rem);
   color: #aaa;
   letter-spacing: 0.1em;
-  justify-self: start;
 }
 
 .code-badge {
@@ -189,7 +182,9 @@
   font-size: 0.85rem;
 }
 
-.header-center { text-align: center; }
+.header-center {
+  text-align: center;
+}
 
 .game-title {
   font-size: clamp(1.8rem, 4vw, 2.8rem);
@@ -212,7 +207,6 @@
   color: #aaa;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  justify-self: end;
 }
 
 /* ── JUGADORES ── */
@@ -255,13 +249,6 @@
   isolation: isolate;
 }
 
-.camera-video {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
 .camera-feed {
   width: 100%;
   height: 100%;
@@ -269,7 +256,19 @@
   display: block;
 }
 
-/* ── GESTURE LABEL ── */
+.title-win {
+  color: #80754b;
+}
+
+.title-lose {
+  color: #4b1712;
+}
+
+.title-tie {
+  color: #aaaaaa;
+}
+
+/* gesture-label FUERA del camera-box, debajo */
 .gesture-label {
   width: 100%;
   text-align: center;
@@ -323,6 +322,7 @@
   transform: translateY(-2px);
 }
 
+
 /* ── RESPONSIVE ── */
 @media (max-width: 768px) {
   .players-container {
@@ -330,7 +330,9 @@
     gap: 0.5rem;
   }
 
-  .vs-divider { display: none; }
+  .vs-divider {
+    display: none;
+  }
 
   .player-section {
     max-width: 50%;
@@ -342,4 +344,23 @@
     gap: 0.5rem;
     align-items: center;
   }
+}
+
+.camera-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.title-win {
+  color: #80754b;
+}
+
+.title-lose {
+  color: #4b1712;
+}
+
+.title-tie {
+  color: #aaaaaa;
 }

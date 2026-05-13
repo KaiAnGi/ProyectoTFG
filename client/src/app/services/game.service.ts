@@ -1,8 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { HttpClient } from '@angular/common/http';
 import { SocketService } from './socket.service';
-import { AuthService } from './auth';
 import {
   GameState,
   Choice,
@@ -16,10 +14,6 @@ import {
 })
 export class GameService {
   private socketService = inject(SocketService);
-  private authService = inject(AuthService);
-  private http = inject(HttpClient);
-
-  private readonly API_URL = 'http://localhost:3000';
 
   private gameStateSubject = new BehaviorSubject<GameState>({ ...INITIAL_GAME_STATE });
   private listenersInitialized = false;
@@ -36,8 +30,6 @@ export class GameService {
     winner: string;
     amount: number;
   } | null>(null);
-
-  private opponentLeftSubject = new BehaviorSubject<{ message: string } | null>(null);
 
   public gameState$ = this.gameStateSubject.asObservable();
 
@@ -174,22 +166,6 @@ export class GameService {
         winner: data?.winner || '',
         amount: Number(data?.amount ?? 0),
       });
-
-      const username = this.authService.getCurrentUser()?.username;
-      if (username) {
-        this.http.get<{ bones: number }>(`${this.API_URL}/api/bones/${username}`).subscribe({
-          next: (res) => {
-            this.authService.updateBones(Number(res.bones ?? 0));
-          },
-          error: (err) => console.error('Error recargando bones tras apuesta:', err),
-        });
-      }
-    });
-
-    this.socketService.on('opponent_left').subscribe((data: any) => {
-      this.opponentLeftSubject.next({
-        message: data?.message || 'Tu oponente ha abandonado la partida',
-      });
     });
 
     this.socketService.on('error').subscribe((data: any) => {
@@ -250,7 +226,6 @@ export class GameService {
     this.betUpdatedSubject.next(null);
     this.betErrorSubject.next(null);
     this.betResolvedSubject.next(null);
-    this.opponentLeftSubject.next(null);
     this.socketService.disconnect();
   }
 
@@ -278,7 +253,7 @@ export class GameService {
     const safeAmount = Math.floor(Number(amount));
 
     if (!roomId || !Number.isFinite(safeAmount) || safeAmount < 1) {
-      this.betErrorSubject.next({ message: 'Monto invalido' });
+      this.betErrorSubject.next({ message: 'Monto inválido' });
       return;
     }
 
@@ -299,9 +274,5 @@ export class GameService {
 
   onBetResolved(): Observable<{ winner: string; amount: number } | null> {
     return this.betResolvedSubject.asObservable();
-  }
-
-  onOpponentLeft(): Observable<{ message: string } | null> {
-    return this.opponentLeftSubject.asObservable();
   }
 }

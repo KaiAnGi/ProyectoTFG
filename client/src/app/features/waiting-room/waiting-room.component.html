@@ -29,11 +29,9 @@
     <h2 class="subtitle">PLAYERS IN ROOM</h2>
 
     <div class="players-container">
-      <!-- PLAYER 1 (TÚ) -->
       <div class="player-card">
         <div class="player-header">
-          <span class="player-title">{{ player1.name }}</span>
-          <span class="player-you-tag">(YOU)</span>
+          <span class="player-title">PLAYER 1 (YOU)</span>
         </div>
 
         <div class="player-avatar">
@@ -50,13 +48,15 @@
           (click)="toggleReady()">
           {{ player1.isReady ? 'READY' : 'NOT READY' }}
         </button>
+
+        <div class="camera-preview">
+          <app-gesture-detector></app-gesture-detector>
+        </div>
       </div>
 
-      <!-- PLAYER 2 (OPONENTE) -->
       <div class="player-card">
         <div class="player-header">
-          <span class="player-title">{{ player2.name }}</span>
-          <span class="player-you-tag" *ngIf="player2.name !== 'Waiting...'"></span>
+          <span class="player-title">PLAYER 2 (OPPONENT)</span>
         </div>
 
         <div class="player-avatar" [class.waiting]="!player2.isReady">
@@ -89,15 +89,7 @@
           -
         </button>
 
-        <input
-          class="bet-amount-display"
-          type="number"
-          min="1"
-          [max]="myBones"
-          [value]="betInput"
-          [disabled]="myBetConfirmed || myBones <= 0"
-          (input)="onBetInputChange($event)"
-        />
+        <span class="bet-amount-display">{{ betInput }}</span>
 
         <button
           class="bet-adjust-btn"
@@ -112,7 +104,7 @@
           type="button"
           (click)="confirmBet()"
           [disabled]="!canConfirmBet()">
-          {{ myBetConfirmed ? 'CONFIRMED' : 'SET BET' }}
+          {{ player1BetConfirmed ? 'CONFIRMED' : 'SET BET' }}
         </button>
       </div>
 
@@ -120,8 +112,8 @@
 
       <div class="bet-status" *ngIf="betAmount > 0">
         <span>Active bet: <strong>{{ betAmount }}</strong></span>
-        <span>You: {{ myBetConfirmed ? 'Ready' : 'Pending' }}</span>
-        <span>Opponent: {{ opponentBetConfirmed ? 'Ready' : 'Pending' }}</span>
+        <span>You: {{ player1BetConfirmed ? 'Ready' : 'Pending' }}</span>
+        <span>Opponent: {{ player2BetConfirmed ? 'Ready' : 'Pending' }}</span>
       </div>
 
       <p class="bet-result" *ngIf="betResolved">{{ betResultMessage }}</p>
@@ -139,7 +131,7 @@
 
     <div class="ready-note">
       <p *ngIf="!player2.isReady || !player1.isReady">
-        Waiting for both players to be ready.
+        Waiting for both players to confirm the camera.
       </p>
       <p *ngIf="player1.isReady && player2.isReady">
         Both players are ready. Press START GAME to begin.

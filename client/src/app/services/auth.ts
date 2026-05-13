@@ -108,15 +108,6 @@ export class AuthService {
     this.user$.next(user);
   }
 
-    updateBones(bones: number): void {
-    const user = this.currentUser();
-    if (!user) return;
-    const updated = { ...user, bones };
-    this.currentUser.set(updated);
-    sessionStorage.setItem('rps_user', JSON.stringify(updated));
-    this.user$.next(updated);
-  }
-
   logout() {
     this.currentUser.set(null);
     localStorage.removeItem('rps_user');

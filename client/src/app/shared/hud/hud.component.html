@@ -1,74 +1,43 @@
-<ng-container *ngIf="!isGameRoute">
-  <div [class.shop-open]="shopOpen">
+<div class="hud">
+  <button class="mute-btn" (click)="toggleMute()" [attr.aria-label]="muted ? 'Activar sonido' : 'Silenciar'">
+    <img [src]="muted ? '/images/novolumen.png' : '/images/volumen.png'" alt="" class="mute-icon" />
+  </button>
 
-    <!-- HUD TOP LEFT -->
-    <div class="hud">
-
-      <!-- Volumen -->
-      <div class="volume-wrapper">
-        <button class="mute-btn"
-          (click)="toggleMute(); toggleVolumeSlider()"
-          [attr.aria-label]="muted ? 'Activar sonido' : 'Silenciar'">
-          <img [src]="muted ? '/images/novolumen.png' : '/images/volumen.png'" alt="" class="mute-icon" />
-        </button>
-
-        <div class="volume-slider-popup" *ngIf="sliderVisible">
-          <input
-            type="range"
-            min="0" max="1" step="0.01"
-            [value]="volume"
-            (input)="onVolumeChange($event)"
-            class="volume-slider"
-          />
-        </div>
-      </div>
-
-      <ng-container *ngIf="isLoggedIn">
-        <div class="bones-display">
-          <img src="/images/huesito.png" alt="huesos" class="hud-icon" />
-          <span class="bones-count">x{{ bones }}</span>
-        </div>
-
-        <button class="cart-btn" (click)="toggleShop()" aria-label="Tienda">
-          <img src="/images/carrito.png" alt="carrito" class="hud-icon" />
-        </button>
-      </ng-container>
+  <ng-container *ngIf="isLoggedIn">
+    <div class="bones-display">
+      <img src="/images/huesito.png" alt="huesos" class="hud-icon" />
+      <span class="bones-count">x{{ bones }}</span>
     </div>
 
-    <!-- LEADERBOARD lateral -->
-    <div class="bottom-left-btn" *ngIf="isLoggedIn && !shopOpen && !isLeaderboardRoute && !isWaitingRoomRoute">
-      <button class="leaderboard-btn" (click)="goToLeaderboard()">LEADERBOARD</button>
-    </div>
+    <button class="cart-btn" (click)="toggleShop()" aria-label="Tienda">
+      <img src="/images/carrito.png" alt="carrito" class="hud-icon" />
+    </button>
+  </ng-container>
+</div>
 
-    <!-- SHOP OVERLAY -->
-    <div class="shop-overlay" *ngIf="shopOpen" (click)="toggleShop()"></div>
+<div class="shop-overlay" *ngIf="shopOpen" (click)="toggleShop()"></div>
 
-    <!-- SHOP PANEL -->
-    <div class="shop-panel" *ngIf="shopOpen">
-      <div class="shop-frame">
-        <h1 class="shop-title">SHOP</h1>
+<div class="shop-panel" *ngIf="shopOpen">
+  <div class="shop-frame">
+    <h1 class="shop-title">SHOP</h1>
 
-        <div class="shop-items">
-          <div class="shop-item"
-            *ngFor="let item of shopItems; let i = index"
-            [class.selected]="selectedItem === i"
-            (click)="selectItem(i)">
-            <img [src]="item.img" [alt]="item.label" class="item-img" />
-            <span class="item-label">{{ item.label }}</span>
-            <span class="item-price">{{ item.price }}</span>
-          </div>
-        </div>
-
-        <div class="shop-actions">
-          <button class="pay-btn" (click)="onPay()" [disabled]="paying || selectedItem === null">
-            {{ paying ? 'PROCESANDO...' : 'PAY' }}
-          </button>
-        </div>
-
-        <p class="pay-success" *ngIf="payMessage">{{ payMessage }}</p>
-        <p class="pay-error"   *ngIf="payError">{{ payError }}</p>
+    <div class="shop-items">
+      <div class="shop-item" *ngFor="let item of shopItems; let i = index"
+        [class.selected]="selectedItem === i" (click)="selectItem(i)">
+        <img [src]="item.img" [alt]="item.label" class="item-img" />
+        <span class="item-label">{{ item.label }}</span>
+        <span class="item-price">{{ item.price }}</span>
       </div>
     </div>
 
+    <div class="shop-actions">
+      <button class="back-btn" (click)="toggleShop()">BACK</button>
+      <button class="pay-btn" (click)="onPay()" [disabled]="paying || selectedItem === null">
+        {{ paying ? 'PROCESANDO...' : 'PAY' }}
+      </button>
+    </div>
+
+    <p class="pay-success" *ngIf="payMessage">{{ payMessage }}</p>
+    <p class="pay-error" *ngIf="payError">{{ payError }}</p>
   </div>
-</ng-container>
+</div>
