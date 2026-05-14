@@ -36,9 +36,14 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
   betAmount = 0;
   player1BetConfirmed = false;
   player2BetConfirmed = false;
+  player1BetAmount = 0;
+  player2BetAmount = 0;
+  myBetAmount = 0;
+  opponentBetAmount = 0;
   betError = '';
   betResolved = false;
   betResultMessage = '';
+  showBetResultModal = false;
   myUsername = '';
 
   constructor(
@@ -82,13 +87,29 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
     this.betUpdatedSub = this.gameService.onBetUpdated().subscribe((data) => {
       if (!data) return;
 
+      const currentState = this.gameService.currentState;
+      const isPlayerTwo = currentState.playerRole === 'player2';
+
       this.betAmount = Number(data.betAmount ?? 0);
-      this.player1BetConfirmed = !!data.player1Confirmed;
-      this.player2BetConfirmed = !!data.player2Confirmed;
+      this.player1BetAmount = Number(data.player1Bet ?? 0);
+      this.player2BetAmount = Number(data.player2Bet ?? 0);
+
+      if (isPlayerTwo) {
+        this.player1BetConfirmed = !!data.player2Confirmed;
+        this.player2BetConfirmed = !!data.player1Confirmed;
+        this.myBetAmount = Number(data.player2Bet ?? 0);
+        this.opponentBetAmount = Number(data.player1Bet ?? 0);
+      } else {
+        this.player1BetConfirmed = !!data.player1Confirmed;
+        this.player2BetConfirmed = !!data.player2Confirmed;
+        this.myBetAmount = Number(data.player1Bet ?? 0);
+        this.opponentBetAmount = Number(data.player2Bet ?? 0);
+      }
+
       this.betError = '';
 
-      if (!this.player1BetConfirmed && this.betAmount > 0) {
-        this.betInput = this.betAmount;
+      if (!this.player1BetConfirmed && this.myBetAmount === 0 && this.opponentBetAmount > 0) {
+        this.betInput = this.opponentBetAmount;
         this.normalizeBetInput();
       }
     });
@@ -102,17 +123,18 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
       if (!data) return;
 
       this.betResolved = true;
+      const totalPot = Number(data.amount ?? 0);
 
       if (data.winner === 'Empate' || data.winner === 'tie') {
-        this.betResultMessage = 'Tie - bones returned';
+        this.betResultMessage = `Empate - Se devolvieron las apuestas (${this.myBetAmount} shines)`;
       } else if (data.winner === this.myUsername) {
-        this.betResultMessage = `You won ${data.amount} bones`;
-        this.myBones += Number(data.amount ?? 0);
+        this.betResultMessage = `Ganaste ${totalPot} shines (bote total)`;
       } else {
-        this.betResultMessage = `You lost ${data.amount} bones`;
-        this.myBones -= Number(data.amount ?? 0);
+        this.betResultMessage = `Perdiste tu apuesta de ${this.myBetAmount} shines`;
       }
 
+      this.showBetResultModal = true;
+      this.loadBones();
       this.normalizeBetInput();
     });
   }
@@ -223,7 +245,7 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
   }
 
   canStartGame(): boolean {
-    return this.player1.isReady && this.player2.isReady;
+    return this.player1.isReady && this.player2.isReady && this.player1BetConfirmed && this.player2BetConfirmed;
   }
 
   startGame(): void {

@@ -17,6 +17,8 @@ export interface GameRoom {
   maxRounds: number;
   // --- APUESTAS ---
   betAmount?: number;
+  player1BetAmount?: number;
+  player2BetAmount?: number;
   player1BetConfirmed?: boolean;
   player2BetConfirmed?: boolean;
  

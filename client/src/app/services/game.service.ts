@@ -20,6 +20,8 @@ export class GameService {
 
   private betUpdatedSubject = new BehaviorSubject<{
     betAmount: number;
+    player1Bet: number;
+    player2Bet: number;
     player1Confirmed: boolean;
     player2Confirmed: boolean;
   } | null>(null);
@@ -29,6 +31,8 @@ export class GameService {
   private betResolvedSubject = new BehaviorSubject<{
     winner: string;
     amount: number;
+    player1Bet: number;
+    player2Bet: number;
   } | null>(null);
 
   public gameState$ = this.gameStateSubject.asObservable();
@@ -150,6 +154,8 @@ export class GameService {
     this.socketService.on('bet_updated').subscribe((data: any) => {
       this.betUpdatedSubject.next({
         betAmount: Number(data?.betAmount ?? 0),
+        player1Bet: Number(data?.player1Bet ?? 0),
+        player2Bet: Number(data?.player2Bet ?? 0),
         player1Confirmed: !!data?.player1Confirmed,
         player2Confirmed: !!data?.player2Confirmed,
       });
@@ -165,6 +171,8 @@ export class GameService {
       this.betResolvedSubject.next({
         winner: data?.winner || '',
         amount: Number(data?.amount ?? 0),
+        player1Bet: Number(data?.player1Bet ?? 0),
+        player2Bet: Number(data?.player2Bet ?? 0),
       });
     });
 
@@ -262,6 +270,8 @@ export class GameService {
 
   onBetUpdated(): Observable<{
     betAmount: number;
+    player1Bet: number;
+    player2Bet: number;
     player1Confirmed: boolean;
     player2Confirmed: boolean;
   } | null> {
@@ -272,7 +282,12 @@ export class GameService {
     return this.betErrorSubject.asObservable();
   }
 
-  onBetResolved(): Observable<{ winner: string; amount: number } | null> {
+  onBetResolved(): Observable<{
+    winner: string;
+    amount: number;
+    player1Bet: number;
+    player2Bet: number;
+  } | null> {
     return this.betResolvedSubject.asObservable();
   }
 }

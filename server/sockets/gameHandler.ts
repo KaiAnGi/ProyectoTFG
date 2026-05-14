@@ -96,29 +96,45 @@ export function setupGameHandlers(
         emitLeaderboardUpdate();
       }
 
-      if (room.betAmount && room.betAmount > 0) {
+      const p1Bet = room.player1BetAmount || 0;
+      const p2Bet = room.player2BetAmount || 0;
+      const totalPot = p1Bet + p2Bet;
+
+      if (totalPot > 0) {
         try {
           if (winnerName !== "Empate") {
-            const loserName =
-              winnerName === room.player1.name
-                ? room.player2.name
-                : room.player1.name;
-
-            await Promise.all([
-              User.findOneAndUpdate(
-                { username: winnerName },
-                { $inc: { bones: room.betAmount } },
-              ),
-              User.findOneAndUpdate(
-                { username: loserName },
-                { $inc: { bones: -room.betAmount } },
-              ),
-            ]);
+            // El ganador se lleva el bote completo
+            await User.findOneAndUpdate(
+              { username: winnerName },
+              { $inc: { bones: totalPot } },
+            );
+          } else {
+            // Empate: devolver lo apostado a cada uno
+            const updates: Promise<any>[] = [];
+            if (p1Bet > 0) {
+              updates.push(
+                User.findOneAndUpdate(
+                  { username: room.player1.name },
+                  { $inc: { bones: p1Bet } },
+                ),
+              );
+            }
+            if (p2Bet > 0) {
+              updates.push(
+                User.findOneAndUpdate(
+                  { username: room.player2.name },
+                  { $inc: { bones: p2Bet } },
+                ),
+              );
+            }
+            await Promise.all(updates);
           }
 
           io.to(roomId).emit("bet_resolved", {
             winner: winnerName,
-            amount: room.betAmount,
+            amount: totalPot,
+            player1Bet: p1Bet,
+            player2Bet: p2Bet,
           });
         } catch (err) {
           console.error("Error liquidando apuesta:", err);
@@ -305,37 +321,47 @@ export function setupGameHandlers(
 
         const playerName = isPlayer1 ? room.player1.name : room.player2.name;
 
+        // Verificar fondos suficientes
         const user = await User.findOne({ username: playerName });
         if (!user || (user.bones ?? 0) < normalizedAmount) {
           socket.emit("bet_error", { message: "No tienes suficientes bones" });
           return;
         }
 
-        if (!room.betAmount) {
-          room.betAmount = normalizedAmount;
-        } else if (room.betAmount !== normalizedAmount) {
-          socket.emit("bet_error", {
-            message: `La apuesta debe ser ${room.betAmount} bones (igual a la del oponente)`,
-          });
+        // Prevenir doble confirmación
+        if (isPlayer1 && room.player1BetConfirmed) {
+          socket.emit("bet_error", { message: "Ya confirmaste tu apuesta" });
+          return;
+        }
+        if (isPlayer2 && room.player2BetConfirmed) {
+          socket.emit("bet_error", { message: "Ya confirmaste tu apuesta" });
           return;
         }
 
+        // Descontar la apuesta del jugador inmediatamente
+        await User.findOneAndUpdate(
+          { username: playerName },
+          { $inc: { bones: -normalizedAmount } },
+        );
+
+        // Registrar la apuesta individual
         if (isPlayer1) {
-          if (room.player1BetConfirmed) {
-            socket.emit("bet_error", { message: "Ya confirmaste tu apuesta" });
-            return;
-          }
+          room.player1BetAmount = normalizedAmount;
           room.player1BetConfirmed = true;
         } else {
-          if (room.player2BetConfirmed) {
-            socket.emit("bet_error", { message: "Ya confirmaste tu apuesta" });
-            return;
-          }
+          room.player2BetAmount = normalizedAmount;
           room.player2BetConfirmed = true;
         }
 
+        // Calcular bote total
+        const p1Bet = room.player1BetAmount || 0;
+        const p2Bet = room.player2BetAmount || 0;
+        room.betAmount = p1Bet + p2Bet;
+
         io.to(roomId).emit("bet_updated", {
-          betAmount: room.betAmount,
+          betAmount: p1Bet + p2Bet,
+          player1Bet: p1Bet,
+          player2Bet: p2Bet,
           player1Confirmed: !!room.player1BetConfirmed,
           player2Confirmed: !!room.player2BetConfirmed,
         });
