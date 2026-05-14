@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { SocketService } from './socket.service';
 import { AuthService } from './auth';
+import { environment } from '../../enviroments/enviroment';
 import {
   GameState,
   Choice,
@@ -185,7 +186,7 @@ export class GameService {
       const username = user?.username;
       if (username) {
         console.log('[GameService] Solicitando bones para:', username);
-        this.http.get<{ bones: number }>(`/api/bones/${username}`).subscribe({
+        this.http.get<{ bones: number }>(`${environment.apiUrl}/bones/${username}`).subscribe({
           next: (res) => {
             console.log('[GameService] Respuesta bones:', res);
             this.authService.updateBones(Number(res.bones ?? 0));
