@@ -4,33 +4,52 @@ import User from "../models/User.js";
 import { FriendRequest, IFriendRequest } from "../models/FriendRequest.js";
 
 export class FriendsHandler {
-  private connectedUsers: Map<string, string> = new Map(); // username -> socketId
+  private connectedUsers: Map<string, string[]> = new Map(); // username -> socketIds[]
 
   constructor(private io: any) {}
 
   // Registrar conexión de usuario
   registerUser(socket: Socket, username: string) {
-    this.connectedUsers.set(username, socket.id);
+    const sockets = this.connectedUsers.get(username) || [];
+    if (!sockets.includes(socket.id)) {
+      sockets.push(socket.id);
+    }
+    this.connectedUsers.set(username, sockets);
     console.log(`Usuario ${username} conectado con socket ${socket.id}`);
   }
 
-  // Desregistrar conexión de usuario
-  unregisterUser(username: string) {
-    this.connectedUsers.delete(username);
-    console.log(`Usuario ${username} desconectado`);
+  // Desregistrar conexión de usuario (solo este socket, no todos)
+  unregisterUser(socketId: string, username: string) {
+    const sockets = this.connectedUsers.get(username);
+    if (sockets) {
+      const idx = sockets.indexOf(socketId);
+      if (idx !== -1) {
+        sockets.splice(idx, 1);
+      }
+      if (sockets.length === 0) {
+        this.connectedUsers.delete(username);
+      }
+      console.log(`Socket ${socketId} de ${username} desconectado`);
+    }
   }
 
-  // Obtener socket ID de un usuario
-  private getSocketId(username: string): string | undefined {
+  // Obtener todos los socket IDs de un usuario
+  private getSocketIds(username: string): string[] | undefined {
     return this.connectedUsers.get(username);
   }
 
   // Manejar envío de solicitud de amistad
-  async handleSendFriendRequest(socket: Socket, data: { toUsername: string }) {
+  async handleSendFriendRequest(
+    socket: Socket,
+    data: { toUsername: string },
+    callback?: Function,
+  ) {
     try {
       const fromUsername = (socket as any).username;
       if (!fromUsername) {
-        socket.emit("error", { message: "Usuario no autenticado" });
+        const msg = "Usuario no autenticado";
+        if (callback) return callback({ success: false, message: msg });
+        socket.emit("error", { message: msg });
         return;
       }
 
@@ -40,16 +59,11 @@ export class FriendsHandler {
       );
 
       if (result.success) {
-        // Notificar al remitente
-        socket.emit("friend_request_sent", {
-          toUsername: data.toUsername,
-          message: result.message,
-        });
+        if (callback) callback(result);
 
         // Notificar al destinatario si está conectado
-        const toSocketId = this.getSocketId(data.toUsername);
-        if (toSocketId) {
-          // Obtener el ID de la solicitud para el destinatario
+        const toSocketIds = this.getSocketIds(data.toUsername);
+        if (toSocketIds && toSocketIds.length > 0) {
           const requests = await FriendsService.getPendingRequests(
             data.toUsername,
           );
@@ -59,18 +73,23 @@ export class FriendsHandler {
           );
 
           if (request) {
-            this.io.to(toSocketId).emit("friend_request_received", {
-              fromUsername,
-              requestId: request._id.toString(),
-            });
+            for (const sid of toSocketIds) {
+              this.io.to(sid).emit("friend_request_received", {
+                fromUsername,
+                requestId: request._id.toString(),
+              });
+            }
           }
         }
       } else {
+        if (callback) return callback(result);
         socket.emit("error", { message: result.message });
       }
     } catch (error) {
       console.error("Error in handleSendFriendRequest:", error);
-      socket.emit("error", { message: "Error interno del servidor" });
+      const msg = "Error interno del servidor";
+      if (callback) return callback({ success: false, message: msg });
+      socket.emit("error", { message: msg });
     }
   }
 
@@ -103,11 +122,13 @@ export class FriendsHandler {
           });
 
           // Notificar al que envió la solicitud si está conectado
-          const fromSocketId = this.getSocketId(request.from);
-          if (fromSocketId) {
-            this.io.to(fromSocketId).emit("friend_request_accepted", {
-              friendUsername: username,
-            });
+          const fromSocketIds = this.getSocketIds(request.from);
+          if (fromSocketIds) {
+            for (const sid of fromSocketIds) {
+              this.io.to(sid).emit("friend_request_accepted", {
+                friendUsername: username,
+              });
+            }
           }
         }
       } else {
@@ -148,11 +169,13 @@ export class FriendsHandler {
           });
 
           // Notificar al que envió la solicitud si está conectado
-          const fromSocketId = this.getSocketId(request.from);
-          if (fromSocketId) {
-            this.io.to(fromSocketId).emit("friend_request_rejected", {
-              fromUsername: username,
-            });
+          const fromSocketIds = this.getSocketIds(request.from);
+          if (fromSocketIds) {
+            for (const sid of fromSocketIds) {
+              this.io.to(sid).emit("friend_request_rejected", {
+                fromUsername: username,
+              });
+            }
           }
         }
       } else {
@@ -185,11 +208,13 @@ export class FriendsHandler {
         });
 
         // Notificar al amigo eliminado si está conectado
-        const friendSocketId = this.getSocketId(data.friendUsername);
-        if (friendSocketId) {
-          this.io.to(friendSocketId).emit("friend_removed", {
-            friendUsername: username,
-          });
+        const friendSocketIds = this.getSocketIds(data.friendUsername);
+        if (friendSocketIds) {
+          for (const sid of friendSocketIds) {
+            this.io.to(sid).emit("friend_removed", {
+              friendUsername: username,
+            });
+          }
         }
       } else {
         socket.emit("error", { message: result.message });
@@ -229,9 +254,11 @@ export class FriendsHandler {
         };
 
         // Enviar mensaje al destinatario si está conectado
-        const toSocketId = this.getSocketId(data.to);
-        if (toSocketId) {
-          this.io.to(toSocketId).emit("chat_message", messageData);
+        const toSocketIds = this.getSocketIds(data.to);
+        if (toSocketIds) {
+          for (const sid of toSocketIds) {
+            this.io.to(sid).emit("chat_message", messageData);
+          }
         }
 
         // Confirmar envío al remitente también
@@ -264,11 +291,13 @@ export class FriendsHandler {
       await FriendsService.markMessagesAsRead(data.friendUsername, username);
 
       // Notificar al amigo que los mensajes fueron leídos
-      const friendSocketId = this.getSocketId(data.friendUsername);
-      if (friendSocketId) {
-        this.io.to(friendSocketId).emit("chat_messages_read", {
-          friendUsername: username,
-        });
+      const friendSocketIds = this.getSocketIds(data.friendUsername);
+      if (friendSocketIds) {
+        for (const sid of friendSocketIds) {
+          this.io.to(sid).emit("chat_messages_read", {
+            friendUsername: username,
+          });
+        }
       }
     } catch (error) {
       console.error("Error in handleMarkChatMessagesRead:", error);

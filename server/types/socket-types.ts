@@ -51,13 +51,17 @@ export interface ServerToClientEvents {
   // --- APUESTAS ---
   bet_updated: (data: {
     betAmount: number;
+    player1Bet: number;
+    player2Bet: number;
     player1Confirmed: boolean;
     player2Confirmed: boolean;
   }) => void;
 
   bet_resolved: (data: {
-    winner: string;  // username del ganador o "Empate"
+    winner: string;
     amount: number;
+    player1Bet: number;
+    player2Bet: number;
   }) => void;
 
   bet_error: (data: { message: string }) => void;

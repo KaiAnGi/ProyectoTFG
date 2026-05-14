@@ -206,9 +206,15 @@ export class FriendsService {
   }
 
   // Socket methods
-  sendFriendRequestSocket(toUsername: string) {
-    this.socketService.emit('send_friend_request', { toUsername });
-    this.loadPendingRequests();
+  sendFriendRequestSocket(toUsername: string): Promise<{ success: boolean; message: string }> {
+    return new Promise((resolve) => {
+      this.socketService.emit('send_friend_request', { toUsername }, (response: any) => {
+        if (response.success) {
+          this.loadPendingRequests();
+        }
+        resolve(response);
+      });
+    });
   }
 
   acceptFriendRequestSocket(requestId: string) {

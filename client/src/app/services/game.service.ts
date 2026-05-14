@@ -1,6 +1,8 @@
 import { Injectable, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { SocketService } from './socket.service';
+import { AuthService } from './auth';
 import {
   GameState,
   Choice,
@@ -14,12 +16,16 @@ import {
 })
 export class GameService {
   private socketService = inject(SocketService);
+  private http = inject(HttpClient);
+  private authService = inject(AuthService);
 
   private gameStateSubject = new BehaviorSubject<GameState>({ ...INITIAL_GAME_STATE });
   private listenersInitialized = false;
 
   private betUpdatedSubject = new BehaviorSubject<{
     betAmount: number;
+    player1Bet: number;
+    player2Bet: number;
     player1Confirmed: boolean;
     player2Confirmed: boolean;
   } | null>(null);
@@ -29,6 +35,8 @@ export class GameService {
   private betResolvedSubject = new BehaviorSubject<{
     winner: string;
     amount: number;
+    player1Bet: number;
+    player2Bet: number;
   } | null>(null);
 
   public gameState$ = this.gameStateSubject.asObservable();
@@ -150,6 +158,8 @@ export class GameService {
     this.socketService.on('bet_updated').subscribe((data: any) => {
       this.betUpdatedSubject.next({
         betAmount: Number(data?.betAmount ?? 0),
+        player1Bet: Number(data?.player1Bet ?? 0),
+        player2Bet: Number(data?.player2Bet ?? 0),
         player1Confirmed: !!data?.player1Confirmed,
         player2Confirmed: !!data?.player2Confirmed,
       });
@@ -162,10 +172,29 @@ export class GameService {
     });
 
     this.socketService.on('bet_resolved').subscribe((data: any) => {
+      console.log('[GameService] bet_resolved recibido:', data);
       this.betResolvedSubject.next({
         winner: data?.winner || '',
         amount: Number(data?.amount ?? 0),
+        player1Bet: Number(data?.player1Bet ?? 0),
+        player2Bet: Number(data?.player2Bet ?? 0),
       });
+
+      const user = this.authService.getCurrentUser();
+      console.log('[GameService] Usuario actual:', user);
+      const username = user?.username;
+      if (username) {
+        console.log('[GameService] Solicitando bones para:', username);
+        this.http.get<{ bones: number }>(`/api/bones/${username}`).subscribe({
+          next: (res) => {
+            console.log('[GameService] Respuesta bones:', res);
+            this.authService.updateBones(Number(res.bones ?? 0));
+          },
+          error: (err) => console.error('[GameService] Error fetching bones after bet resolved:', err),
+        });
+      } else {
+        console.warn('[GameService] No se encontró usuario para actualizar bones');
+      }
     });
 
     this.socketService.on('error').subscribe((data: any) => {
@@ -262,6 +291,8 @@ export class GameService {
 
   onBetUpdated(): Observable<{
     betAmount: number;
+    player1Bet: number;
+    player2Bet: number;
     player1Confirmed: boolean;
     player2Confirmed: boolean;
   } | null> {
@@ -272,7 +303,12 @@ export class GameService {
     return this.betErrorSubject.asObservable();
   }
 
-  onBetResolved(): Observable<{ winner: string; amount: number } | null> {
+  onBetResolved(): Observable<{
+    winner: string;
+    amount: number;
+    player1Bet: number;
+    player2Bet: number;
+  } | null> {
     return this.betResolvedSubject.asObservable();
   }
 }

@@ -68,11 +68,15 @@ export class SocketService {
     }
   }
 
-  emit(event: string, data: any): void {
+  emit(event: string, data: any, callback?: (response: any) => void): void {
     if (!this.socket || !this.socket.connected) {
       this.connect();
     }
-    this.socket?.emit(event, data);
+    if (callback) {
+      this.socket?.emit(event, data, callback);
+    } else {
+      this.socket?.emit(event, data);
+    }
   }
 
   on(event: string): Observable<any> {

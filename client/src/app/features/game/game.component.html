@@ -13,6 +13,18 @@
         {{ opponentName ? ' against ' + opponentName : '' }}
       </p>
       <p class="victory-score">Final Score: {{ myScore }} - {{ opponentScore }}</p>
+      <div class="bet-result-section" *ngIf="betResolved">
+        <div class="bet-divider"></div>
+        <p class="bet-result-title">BET RESULT</p>
+        <p class="bet-result-msg">{{ betResultMessage }}</p>
+        <div class="bet-detail-line">
+          <span>Your bet: <strong>{{ myBetAmount }}</strong></span>
+          <span>Opponent bet: <strong>{{ opponentBetAmount }}</strong></span>
+        </div>
+        <div class="bet-detail-line total">
+          <span>Total pot: <strong class="pot-highlight">{{ totalBetPot }}</strong></span>
+        </div>
+      </div>
       <button class="exit-btn" (click)="onBackToMenu()">Back to Menu</button>
     </div>
   </div>
@@ -37,8 +49,8 @@
   </div>
 
   <div class="score-row">
-    <div class="score-chip">Tu marcador: {{ myScore }}</div>
-    <div class="score-chip">Marcador rival: {{ opponentScore }}</div>
+    <div class="score-chip">Your score: {{ myScore }}</div>
+    <div class="score-chip">Opponent score: {{ opponentScore }}</div>
   </div>
 
   <!-- JUGADORES -->
