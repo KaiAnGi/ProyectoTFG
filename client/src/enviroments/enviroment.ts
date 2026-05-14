@@ -11,8 +11,8 @@ const injectedApi = typeof window !== 'undefined' ? window.__env?.API_URL : unde
 const injectedSocket = typeof window !== 'undefined' ? window.__env?.SOCKET_URL : undefined;
 const injectedFrontend = typeof window !== 'undefined' ? window.__env?.FRONTEND_URL : undefined;
 
-const apiBase = injectedApi || injectedFrontend || origin;
-const socketBase = injectedSocket || injectedFrontend || origin;
+const apiBase = injectedApi || origin;
+const socketBase = injectedSocket || origin;
 
 export const environment = {
   production: typeof window !== 'undefined' ? window.location.hostname !== 'localhost' : false,

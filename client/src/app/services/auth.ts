@@ -1,6 +1,6 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, catchError, of } from 'rxjs';
 import { environment } from '../../enviroments/enviroment';
 
 export interface User {
@@ -34,6 +34,7 @@ export class AuthService {
   user$ = new BehaviorSubject<User | null>(null);
 
   constructor() {
+    console.log('[AuthService] authUrl =', this.authUrl);
     const saved = localStorage.getItem('rps_user');
     const token = localStorage.getItem('rps_token');
 
@@ -72,11 +73,21 @@ export class AuthService {
     password: string;
     confirmPassword: string;
   }) {
-    return this.http.post<AuthApiResponse>(`${this.authUrl}/register`, data);
+    return this.http.post<AuthApiResponse>(`${this.authUrl}/register`, data).pipe(
+      catchError((err) => {
+        console.error('[AuthService] register error for', data.email, err);
+        return of({ success: false, error: 'No se pudo conectar con el servidor' } as AuthApiResponse);
+      }),
+    );
   }
 
   login(data: { email: string; password: string }) {
-    return this.http.post<AuthApiResponse>(`${this.authUrl}/login`, data);
+    return this.http.post<AuthApiResponse>(`${this.authUrl}/login`, data).pipe(
+      catchError((err) => {
+        console.error('[AuthService] login error for', data.email, err);
+        return of({ success: false, error: 'No se pudo conectar con el servidor' } as AuthApiResponse);
+      }),
+    );
   }
 
   handleAuthSuccess(response: AuthApiResponse): User {

@@ -91,8 +91,9 @@ export class PaypalController {
             },
           ],
           application_context: {
-            return_url: process.env.FRONTEND_URL || "http://localhost:4200",
-            cancel_url: process.env.FRONTEND_URL || "http://localhost:4200",
+            // Use FRONTEND_URL if set in env, otherwise fallback to the known frontend URL
+            return_url: process.env.FRONTEND_URL || "https://cliente-2a5q.onrender.com",
+            cancel_url: process.env.FRONTEND_URL || "https://cliente-2a5q.onrender.com",
             brand_name: "RPS Game",
             user_action: "PAY_NOW",
             landing_page: "LOGIN",
