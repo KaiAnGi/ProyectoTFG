@@ -89,6 +89,11 @@ export class HudComponent implements OnInit, OnDestroy {
 
       const result = await this.paypalService.captureOrder(orderID, pack.id);
 
+      if (!result || typeof result !== 'object') {
+        this.payError = 'Respuesta inválida del servidor al capturar pago.';
+        return;
+      }
+
       if (result.success) {
         this.bones = result.bones;
         this.payMessage = '+' + result.shinesAdded + ' Shines añadidos!';

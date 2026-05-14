@@ -79,11 +79,15 @@ export class RoomMenuComponent implements OnInit, OnDestroy {
     }
 
     const result = await this.friendsService.sendFriendRequestSocket(name);
+    if (!result || typeof result !== 'object') {
+      this.modalMessage = 'No se obtuvo respuesta del servidor';
+      return;
+    }
     if (result.success) {
       this.modalMessage = 'Solicitud enviada a ' + name;
       setTimeout(() => this.closeModal(), 1400);
     } else {
-      this.modalMessage = result.message;
+      this.modalMessage = result.message || 'Error enviando solicitud';
     }
   }
 

@@ -28,6 +28,11 @@ export class LoginComponent {
     this.auth.login({ email: this.correo, password: this.password }).subscribe({
       next: (response) => {
         this.isLoading = false;
+        if (!response || typeof response !== 'object') {
+          this.loginError = true;
+          this.errorMessage = 'Respuesta inválida del servidor';
+          return;
+        }
         if (!response.success) {
           this.loginError = true;
           this.errorMessage = response.error || 'Correo o contraseña incorrectos';

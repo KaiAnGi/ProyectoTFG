@@ -40,29 +40,37 @@ export class RegisterComponent {
       })
       .subscribe({
         next: (response) => {
-          this.isLoading = false;
-          if (!response.success) {
-            this.registerError = response.error || 'No se pudo registrar el usuario';
-            return;
-          }
+            this.isLoading = false;
+            if (!response || typeof response !== 'object') {
+              this.registerError = 'Respuesta inválida del servidor';
+              return;
+            }
+            if (!response.success) {
+              this.registerError = response.error || 'No se pudo registrar el usuario';
+              return;
+            }
 
-          this.auth
-            .login({ email: this.correo, password: this.password })
-            .subscribe({
-              next: (loginResponse) => {
-                if (!loginResponse.success) {
-                  this.registerError =
-                    loginResponse.error || 'Usuario creado, pero fallo el inicio de sesion';
-                  return;
-                }
-                this.auth.handleAuthSuccess(loginResponse);
-                this.router.navigate(['/room-menu']);
-              },
-              error: () => {
-                this.registerError = 'Usuario creado, pero fallo la conexion para iniciar sesion';
-              },
-            });
-        },
+            this.auth
+              .login({ email: this.correo, password: this.password })
+              .subscribe({
+                next: (loginResponse) => {
+                  if (!loginResponse || typeof loginResponse !== 'object') {
+                    this.registerError = 'Respuesta inválida al iniciar sesión';
+                    return;
+                  }
+                  if (!loginResponse.success) {
+                    this.registerError =
+                      loginResponse.error || 'Usuario creado, pero fallo el inicio de sesion';
+                    return;
+                  }
+                  this.auth.handleAuthSuccess(loginResponse);
+                  this.router.navigate(['/room-menu']);
+                },
+                error: () => {
+                  this.registerError = 'Usuario creado, pero fallo la conexion para iniciar sesion';
+                },
+              });
+          },
         error: (err) => {
           this.isLoading = false;
           this.registerError = err?.error?.error || 'No se pudo conectar con el servidor';

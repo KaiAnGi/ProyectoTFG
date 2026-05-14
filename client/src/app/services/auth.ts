@@ -42,6 +42,11 @@ export class AuthService {
         headers: { Authorization: `Bearer ${token}` }
       }).subscribe({
         next: (res) => {
+          if (!res || typeof res !== 'object') {
+            console.warn('[AuthService] verify returned invalid response:', res);
+            this.logout();
+            return;
+          }
           if (res.success) {
             const parsed = JSON.parse(saved) as User & { nombre?: string };
             const normalized: User = {

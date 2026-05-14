@@ -159,19 +159,26 @@ export class FriendsService {
   loadFriends() {
     this.getFriends().subscribe({
       next: (response) => {
-        if (response.success) {
-          this.friendsSubject.next(response.friends);
+        if (response && response.success) {
+          this.friendsSubject.next(response.friends || []);
+        } else {
+          this.friendsSubject.next([]);
         }
       },
-      error: (error) => console.error('Error loading friends:', error),
+      error: (error) => {
+        console.error('Error loading friends:', error);
+        this.friendsSubject.next([]);
+      },
     });
   }
 
   loadPendingRequests() {
     this.getPendingRequests().subscribe({
       next: (response) => {
-        if (response.success) {
+        if (response && response.success) {
           this.pendingRequestsSubject.next(response.requests || []);
+        } else {
+          this.pendingRequestsSubject.next([]);
         }
       },
       error: (error) => {
@@ -184,24 +191,38 @@ export class FriendsService {
   loadUnreadCounts() {
     this.getUnreadCounts().subscribe({
       next: (response) => {
-        if (response.success) {
-          this.unreadCountsSubject.next(response.unreadCounts);
+        if (response && response.success) {
+          this.unreadCountsSubject.next(response.unreadCounts || {});
+        } else {
+          this.unreadCountsSubject.next({});
         }
       },
-      error: (error) => console.error('Error loading unread counts:', error),
+      error: (error) => {
+        console.error('Error loading unread counts:', error);
+        this.unreadCountsSubject.next({});
+      },
     });
   }
 
   loadChatMessages(friendUsername: string) {
     this.getChatMessages(friendUsername).subscribe({
       next: (response) => {
-        if (response.success) {
+        if (response && response.success) {
           const currentMessages = this.chatMessagesSubject.value;
-          currentMessages[friendUsername] = response.messages;
+          currentMessages[friendUsername] = response.messages || [];
+          this.chatMessagesSubject.next({ ...currentMessages });
+        } else {
+          const currentMessages = this.chatMessagesSubject.value;
+          currentMessages[friendUsername] = [];
           this.chatMessagesSubject.next({ ...currentMessages });
         }
       },
-      error: (error) => console.error('Error loading chat messages:', error),
+      error: (error) => {
+        console.error('Error loading chat messages:', error);
+        const currentMessages = this.chatMessagesSubject.value;
+        currentMessages[friendUsername] = [];
+        this.chatMessagesSubject.next({ ...currentMessages });
+      },
     });
   }
 
@@ -209,10 +230,11 @@ export class FriendsService {
   sendFriendRequestSocket(toUsername: string): Promise<{ success: boolean; message: string }> {
     return new Promise((resolve) => {
       this.socketService.emit('send_friend_request', { toUsername }, (response: any) => {
-        if (response.success) {
+        const safeResponse = response || { success: false, message: 'Sin respuesta del servidor' };
+        if (safeResponse.success) {
           this.loadPendingRequests();
         }
-        resolve(response);
+        resolve(safeResponse);
       });
     });
   }
