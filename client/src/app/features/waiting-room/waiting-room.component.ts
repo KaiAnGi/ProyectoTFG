@@ -7,12 +7,11 @@ import { Subscription } from 'rxjs';
 
 import { GameService } from '../../services/game.service';
 import { AuthService, User } from '../../services/auth';
-import { GestureDetectorComponent } from '../game/game-components/gesture-detector/gesture-detector.component';
 
 @Component({
   selector: 'app-waiting-room',
   standalone: true,
-  imports: [CommonModule, FormsModule, GestureDetectorComponent],
+  imports: [CommonModule, FormsModule],
   templateUrl: './waiting-room.component.html',
   styleUrls: ['./waiting-room.component.css'],
 })
@@ -195,7 +194,12 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
   }
 
   canConfirmBet(): boolean {
-    return !this.player1BetConfirmed && this.myBones > 0 && this.betInput > 0 && this.betInput <= this.myBones;
+    return (
+      !this.player1BetConfirmed &&
+      this.myBones > 0 &&
+      this.betInput > 0 &&
+      this.betInput <= this.myBones
+    );
   }
 
   confirmBet(): void {
@@ -245,7 +249,12 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
   }
 
   canStartGame(): boolean {
-    return this.player1.isReady && this.player2.isReady && this.player1BetConfirmed && this.player2BetConfirmed;
+    return (
+      this.player1.isReady &&
+      this.player2.isReady &&
+      this.player1BetConfirmed &&
+      this.player2BetConfirmed
+    );
   }
 
   startGame(): void {

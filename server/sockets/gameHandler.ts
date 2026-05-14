@@ -276,6 +276,16 @@ export function setupGameHandlers(
           return;
         }
 
+        // Verificar que ambos jugadores siguen conectados
+        const p1Sockets = io.sockets.sockets.get(room.player1.id);
+        const p2Sockets = io.sockets.sockets.get(room.player2.id);
+        if (!p1Sockets || !p2Sockets) {
+          socket.emit("error", {
+            message: "El oponente se ha desconectado",
+          });
+          return;
+        }
+
         if (!gameRooms.isBothCamerasReady(roomId)) {
           socket.emit("error", {
             message: "Ambos jugadores deben estar ready para iniciar",
@@ -321,13 +331,6 @@ export function setupGameHandlers(
 
         const playerName = isPlayer1 ? room.player1.name : room.player2.name;
 
-        // Verificar fondos suficientes
-        const user = await User.findOne({ username: playerName });
-        if (!user || (user.bones ?? 0) < normalizedAmount) {
-          socket.emit("bet_error", { message: "No tienes suficientes bones" });
-          return;
-        }
-
         // Prevenir doble confirmación
         if (isPlayer1 && room.player1BetConfirmed) {
           socket.emit("bet_error", { message: "Ya confirmaste tu apuesta" });
@@ -338,11 +341,16 @@ export function setupGameHandlers(
           return;
         }
 
-        // Descontar la apuesta del jugador inmediatamente
-        await User.findOneAndUpdate(
-          { username: playerName },
+        // Descontar la apuesta del jugador atómicamente (solo si tiene fondos suficientes)
+        const deducted = await User.findOneAndUpdate(
+          { username: playerName, bones: { $gte: normalizedAmount } },
           { $inc: { bones: -normalizedAmount } },
+          { new: true },
         );
+        if (!deducted) {
+          socket.emit("bet_error", { message: "No tienes suficientes bones" });
+          return;
+        }
 
         // Registrar la apuesta individual
         if (isPlayer1) {
@@ -367,8 +375,41 @@ export function setupGameHandlers(
         });
       });
 
-      socket.on("disconnect", () => {
+      socket.on("disconnect", async () => {
         console.log("Cliente desconectado:", socket.id);
+        const room = gameRooms.findRoomByPlayerSocket(socket.id);
+        if (!room) return;
+
+        // Si la partida ya empezó (ronda activa), no refundir
+        if (room.roundNumber > 1 || room.player1.choice !== null || room.player2?.choice !== null) return;
+
+        const playerBet = gameRooms.getPlayerBetAmount(room, socket.id);
+        if (!playerBet || playerBet.bet <= 0) return;
+
+        // Reembolsar la apuesta al jugador que se desconectó
+        try {
+          await User.findOneAndUpdate(
+            { username: playerBet.playerName },
+            { $inc: { bones: playerBet.bet } },
+          );
+          console.log(
+            `Reembolsados ${playerBet.bet} bones a ${playerBet.playerName} por desconexión en sala ${room.roomId}`,
+          );
+        } catch (err) {
+          console.error("Error reembolsando apuesta por desconexión:", err);
+        }
+
+        // Notificar al otro jugador
+        const otherId =
+          room.player1.id === socket.id ? room.player2?.id : room.player1.id;
+        if (otherId) {
+          io.to(otherId).emit("bet_error", {
+            message: "El oponente se desconectó — apuesta reembolsada",
+          });
+        }
+
+        // Limpiar la sala
+        gameRooms.cleanupRoom(room.roomId);
       });
     },
   );

@@ -102,6 +102,20 @@ export class AuthService {
     return guest;
   }
 
+  updateBones(bones: number): void {
+    const current = this.currentUser();
+    console.log('[AuthService] updateBones llamado. bones:', bones, 'current:', current);
+    if (!current) {
+      console.warn('[AuthService] updateBones: currentUser es null, saltando');
+      return;
+    }
+    const updated: User = { ...current, bones };
+    this.currentUser.set(updated);
+    localStorage.setItem('rps_user', JSON.stringify(updated));
+    this.user$.next(updated);
+    console.log('[AuthService] user$ actualizado:', updated);
+  }
+
   private setUser(user: User) {
     this.currentUser.set(user);
     localStorage.setItem('rps_user', JSON.stringify(user));

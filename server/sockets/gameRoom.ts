@@ -195,6 +195,28 @@ export class GameRooms {
     return this.rooms.get(roomId);
   }
 
+  findRoomByPlayerSocket(socketId: string): GameRoom | undefined {
+    for (const room of this.rooms.values()) {
+      if (room.player1.id === socketId || room.player2?.id === socketId) {
+        return room;
+      }
+    }
+    return undefined;
+  }
+
+  getPlayerBetAmount(
+    room: GameRoom,
+    socketId: string,
+  ): { bet: number; playerName: string } | null {
+    if (room.player1.id === socketId) {
+      return { bet: room.player1BetAmount || 0, playerName: room.player1.name };
+    }
+    if (room.player2?.id === socketId) {
+      return { bet: room.player2BetAmount || 0, playerName: room.player2.name };
+    }
+    return null;
+  }
+
   cleanupRoom(roomId: string): void {
     this.rooms.delete(roomId);
   }

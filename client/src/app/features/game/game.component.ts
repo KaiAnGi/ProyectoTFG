@@ -51,7 +51,14 @@ export class GameComponent implements OnInit, OnDestroy {
   myGesture: Choice | null = null;
   opponentGesture: Choice | null = null;
 
+  betResolved = false;
+  betResultMessage = '';
+  myBetAmount = 0;
+  opponentBetAmount = 0;
+  totalBetPot = 0;
+
   private stateSub?: Subscription;
+  private betResolvedSub?: Subscription;
 
   ngOnInit() {
     this.stateSub = this.gameService.gameState$
@@ -104,6 +111,33 @@ export class GameComponent implements OnInit, OnDestroy {
 
         this.cdr.markForCheck();
       });
+
+    this.betResolvedSub = this.gameService.onBetResolved().subscribe((data) => {
+      if (!data) return;
+
+      const isPlayerTwo = this.playerRole === 'player2';
+      this.totalBetPot = Number(data.amount ?? 0);
+
+      if (isPlayerTwo) {
+        this.myBetAmount = Number(data.player2Bet ?? 0);
+        this.opponentBetAmount = Number(data.player1Bet ?? 0);
+      } else {
+        this.myBetAmount = Number(data.player1Bet ?? 0);
+        this.opponentBetAmount = Number(data.player2Bet ?? 0);
+      }
+
+      if (data.winner === 'Empate' || data.winner === 'tie') {
+        this.betResultMessage = `Empate - Apuestas devueltas (${this.myBetAmount} shines)`;
+      } else if (data.winner === this.playerName) {
+        this.betResultMessage = `Ganaste ${this.totalBetPot} shines (bote total)`;
+      } else {
+        this.betResultMessage = `Perdiste tu apuesta de ${this.myBetAmount} shines`;
+      }
+      this.betResolved = true;
+      this.cdr.markForCheck();
+    });
+
+    this.cdr.markForCheck();
   }
 
   private getRoundResultText(state: any): string {
@@ -145,5 +179,6 @@ export class GameComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.stateSub?.unsubscribe();
+    this.betResolvedSub?.unsubscribe();
   }
 }
