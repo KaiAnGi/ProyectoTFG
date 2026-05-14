@@ -41,8 +41,8 @@ export function initializeSocketIO(app: Express) {
     console.log(`Usuario conectado: ${username} (${socket.id})`);
 
     // Eventos de amigos
-    socket.on("send_friend_request", (data) =>
-      friendsHandler.handleSendFriendRequest(socket, data),
+    socket.on("send_friend_request", (data, callback) =>
+      friendsHandler.handleSendFriendRequest(socket, data, callback),
     );
     socket.on("accept_friend_request", (data) =>
       friendsHandler.handleAcceptFriendRequest(socket, data),

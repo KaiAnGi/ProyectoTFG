@@ -38,6 +38,9 @@ export class RoomMenuComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     const user = this.authService.getCurrentUser();
+    this.friendsSub = this.friendsService.friends$.subscribe((friends) => {
+      this.friends = friends;
+    });
     this.pendingRequestsSub = this.friendsService.pendingRequests$.subscribe((requests) => {
       this.pendingRequests = requests;
     });
@@ -60,7 +63,7 @@ export class RoomMenuComponent implements OnInit, OnDestroy {
     this.menuOpen = false;
   }
 
-  confirmAddFriend() {
+  async confirmAddFriend() {
     const name = this.newFriendName.trim();
     if (!name) {
       this.modalMessage = 'Escribe un nombre de usuario.';
@@ -75,9 +78,13 @@ export class RoomMenuComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.friendsService.sendFriendRequestSocket(name);
-    this.modalMessage = `Solicitud enviada a ${name} ✔`;
-    setTimeout(() => this.closeModal(), 1400);
+    const result = await this.friendsService.sendFriendRequestSocket(name);
+    if (result.success) {
+      this.modalMessage = 'Solicitud enviada a ' + name;
+      setTimeout(() => this.closeModal(), 1400);
+    } else {
+      this.modalMessage = result.message;
+    }
   }
 
   closeModal() {

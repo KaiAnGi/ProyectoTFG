@@ -39,11 +39,17 @@ export class FriendsHandler {
   }
 
   // Manejar envío de solicitud de amistad
-  async handleSendFriendRequest(socket: Socket, data: { toUsername: string }) {
+  async handleSendFriendRequest(
+    socket: Socket,
+    data: { toUsername: string },
+    callback?: Function,
+  ) {
     try {
       const fromUsername = (socket as any).username;
       if (!fromUsername) {
-        socket.emit("error", { message: "Usuario no autenticado" });
+        const msg = "Usuario no autenticado";
+        if (callback) return callback({ success: false, message: msg });
+        socket.emit("error", { message: msg });
         return;
       }
 
@@ -53,16 +59,11 @@ export class FriendsHandler {
       );
 
       if (result.success) {
-        // Notificar al remitente
-        socket.emit("friend_request_sent", {
-          toUsername: data.toUsername,
-          message: result.message,
-        });
+        if (callback) callback(result);
 
         // Notificar al destinatario si está conectado
         const toSocketIds = this.getSocketIds(data.toUsername);
         if (toSocketIds && toSocketIds.length > 0) {
-          // Obtener el ID de la solicitud para el destinatario
           const requests = await FriendsService.getPendingRequests(
             data.toUsername,
           );
@@ -81,11 +82,14 @@ export class FriendsHandler {
           }
         }
       } else {
+        if (callback) return callback(result);
         socket.emit("error", { message: result.message });
       }
     } catch (error) {
       console.error("Error in handleSendFriendRequest:", error);
-      socket.emit("error", { message: "Error interno del servidor" });
+      const msg = "Error interno del servidor";
+      if (callback) return callback({ success: false, message: msg });
+      socket.emit("error", { message: msg });
     }
   }
 
