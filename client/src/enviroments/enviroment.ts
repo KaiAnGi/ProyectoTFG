@@ -1,7 +1,7 @@
-const host = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
+const origin = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000';
 
 export const environment = {
-  production: false,
-  socketUrl: `http://${host}:3000`,
-  apiUrl: `http://${host}:3000/api`,
+  production: typeof window !== 'undefined' ? window.location.hostname !== 'localhost' : false,
+  socketUrl: origin,
+  apiUrl: `${origin}/api`,
 };

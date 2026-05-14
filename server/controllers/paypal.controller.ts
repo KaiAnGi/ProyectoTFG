@@ -91,8 +91,8 @@ export class PaypalController {
             },
           ],
           application_context: {
-            return_url: "http://localhost:4200",
-            cancel_url: "http://localhost:4200",
+            return_url: process.env.FRONTEND_URL || "http://localhost:4200",
+            cancel_url: process.env.FRONTEND_URL || "http://localhost:4200",
             brand_name: "RPS Game",
             user_action: "PAY_NOW",
             landing_page: "LOGIN",
