@@ -8,6 +8,9 @@ export interface IUser extends Document {
   profilePicture?: string;
   friends?: string[];
   bones?: number;
+  paypalVaultId?: string;
+  paypalEmail?: string;
+  paypalCustomerId?: string;
   createdAt?: Date;
   updatedAt?: Date;
   comparePassword(candidatePassword: string): Promise<boolean>;
@@ -50,6 +53,9 @@ const userSchema: Schema<IUser> = new Schema(
       required: false,
       default: 25,
     },
+    paypalVaultId: { type: String, required: false },
+    paypalEmail: { type: String, required: false },
+    paypalCustomerId: { type: String, required: false },
   },
   {
     timestamps: true,

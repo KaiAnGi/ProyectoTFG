@@ -5,6 +5,7 @@ const router = Router();
 
 router.post("/create-order", PaypalController.createOrder);
 router.post("/capture-order", PaypalController.captureOrder);
-router.get("/check-order/:orderID", PaypalController.checkOrder); // ← nuevo
+router.get("/check-order/:orderID", PaypalController.checkOrder);
+router.post("/refund", PaypalController.refund);
 
 export default router;

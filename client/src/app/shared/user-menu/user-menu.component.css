@@ -670,3 +670,196 @@
   .chat-panel { width: calc(100vw - 3rem); right: 1rem; }
   .chat-toggle { right: 1rem; }
 }
+
+/* ================================================
+   REEMBOLSO (misma estética que Shop)
+================================================ */
+.refund-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.90);
+  z-index: 1998;
+}
+
+.refund-panel {
+  position: fixed;
+  inset: 0;
+  z-index: 1999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.refund-frame {
+  pointer-events: all;
+  background-image: url('/images/marcogrande.png');
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  background-position: center;
+  width: 92vw;
+  height: 88vh;
+  max-width: 1200px;
+  max-height: 720px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  padding: 3.5rem 4rem 2.5rem 4rem;
+  box-sizing: border-box;
+  position: relative;
+}
+
+.refund-title {
+  font-family: 'Metal Mania', cursive;
+  color: #d4c09a;
+  font-size: 4rem;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.95);
+  margin: 0;
+}
+
+.refund-bones-info {
+  font-family: 'Metal Mania', cursive;
+  color: #a08080;
+  font-size: 1.2rem;
+  letter-spacing: 0.1em;
+  margin: 0;
+}
+
+.refund-bones-info strong {
+  color: #d4c09a;
+}
+
+.refund-items {
+  display: flex;
+  gap: 1.5rem;
+  justify-content: center;
+  width: 100%;
+  flex-wrap: wrap;
+}
+
+.refund-item {
+  background-image: url('/images/marcomedio.png');
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  background-position: center;
+  width: 200px;
+  height: 180px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  transition: filter 0.2s, transform 0.2s, box-shadow 0.2s;
+}
+
+.refund-item:hover {
+  filter: brightness(1.4);
+  transform: scale(1.05);
+}
+
+.refund-item.selected {
+  filter: brightness(1.55);
+  transform: scale(1.06);
+  box-shadow: 0 0 22px rgba(212, 192, 154, 0.45);
+}
+
+.refund-item-label {
+  font-family: 'Metal Mania', cursive;
+  color: #d4c09a;
+  font-size: 1.3rem;
+  text-align: center;
+}
+
+.refund-item-price {
+  background: rgba(30, 20, 20, 0.8);
+  border-radius: 16px;
+  padding: 0.25rem 1rem;
+  color: #d8d0d0;
+  font-size: 1.1rem;
+}
+
+.refund-actions {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 0.3rem;
+  position: relative;
+  transform: translateX(-1.8rem) translateY(-1.5rem);
+}
+
+.refund-back-btn {
+  position: absolute;
+  bottom: -0.3rem;
+  left: -10rem;
+  background: rgba(80, 80, 80, 0.5);
+  border: none;
+  color: #b0b0b0;
+  padding: 0.6rem 1.5rem;
+  font-size: clamp(0.85rem, 1.8vw, 1rem);
+  font-family: 'Metal Mania', cursive;
+  cursor: pointer;
+  border-radius: 10px;
+  transition: all 0.3s ease;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4'%3E%3Cpath d='M0 0h4v4H0z' fill='%23555' fill-opacity='0.1'/%3E%3C/svg%3E");
+  background-blend-mode: overlay;
+  z-index: 10;
+  letter-spacing: 0.05em;
+}
+
+.refund-back-btn:hover {
+  filter: brightness(1.15);
+  transform: scale(1.05);
+}
+
+.refund-btn {
+  background-image: url('/images/panelPiedra.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-color: transparent;
+  border: none;
+  width: 340px;
+  height: 120px;
+  font-family: 'Metal Mania', cursive;
+  color: #d4c09a;
+  font-size: 2.8rem;
+  cursor: pointer;
+  transition: filter 0.2s, transform 0.2s;
+  padding: 0 0 10px 0;
+  display: block;
+  margin: 0 auto;
+}
+
+.refund-btn:hover {
+  filter: brightness(1.2);
+  transform: scale(1.03);
+}
+
+.refund-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  filter: none;
+  transform: none;
+}
+
+.refund-success {
+  color: #4caf50;
+  font-family: 'Metal Mania', cursive;
+  font-size: 1.2rem;
+  text-align: center;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.8);
+  margin: 0;
+}
+
+.refund-error {
+  color: #f44336;
+  font-family: 'Metal Mania', cursive;
+  font-size: 1.2rem;
+  text-align: center;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.8);
+  margin: 0;
+}

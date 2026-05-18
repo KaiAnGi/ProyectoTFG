@@ -46,4 +46,14 @@ export class PaypalService {
       )
     );
   }
+
+  requestRefund(amount: number | "all") {
+    return firstValueFrom(
+      this.http.post<{ success: boolean; refundedShines: number; refundedEur: number; bones: number }>(
+        `${this.api}/refund`,
+        { amount },
+        { headers: this.getHeaders() }
+      )
+    );
+  }
 }
