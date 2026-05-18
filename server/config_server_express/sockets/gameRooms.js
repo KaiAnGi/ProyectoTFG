@@ -5,7 +5,7 @@ class GameRooms {
   }
 
   createRoom(player1Id, player1Name) {
-    const roomId = `room_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
+    const roomId = `${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
     this.rooms.set(roomId, {
       roomId,
       player1: { id: player1Id, name: player1Name, score: 0 },
