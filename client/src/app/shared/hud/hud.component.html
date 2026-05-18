@@ -3,7 +3,7 @@
     <img [src]="muted ? '/images/novolumen.png' : '/images/volumen.png'" alt="" class="mute-icon" />
   </button>
 
-  <ng-container *ngIf="isLoggedIn">
+  <ng-container *ngIf="showUserDetails">
     <div class="bones-display">
       <img src="/images/huesito.png" alt="huesos" class="hud-icon" />
       <span class="bones-count">x{{ bones }}</span>
@@ -17,7 +17,7 @@
 
 <div class="shop-overlay" *ngIf="shopOpen" (click)="toggleShop()"></div>
 
-<div class="shop-panel" *ngIf="shopOpen">
+<div class="shop-panel" *ngIf="showUserDetails && shopOpen">
   <div class="shop-frame">
     <h1 class="shop-title">SHOP</h1>
 
