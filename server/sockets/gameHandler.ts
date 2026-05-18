@@ -303,6 +303,47 @@ export function setupGameHandlers(
         startTimedRound(roomId);
       });
 
+      // --- WEBRTC SIGNALING RELAY ---
+      socket.on("webrtc_offer", ({ sdp, roomId }) => {
+        const room = gameRooms.getRoom(roomId);
+        if (!room) return;
+        const targetId = room.player1.id === socket.id ? room.player2?.id : room.player1.id;
+        if (targetId) {
+          io.to(targetId).emit("webrtc_offer", {
+            sdp,
+            type: "offer",
+            targetSocketId: socket.id,
+          });
+        }
+      });
+
+      socket.on("webrtc_answer", ({ sdp, roomId }) => {
+        const room = gameRooms.getRoom(roomId);
+        if (!room) return;
+        const targetId = room.player1.id === socket.id ? room.player2?.id : room.player1.id;
+        if (targetId) {
+          io.to(targetId).emit("webrtc_answer", {
+            sdp,
+            type: "answer",
+            targetSocketId: socket.id,
+          });
+        }
+      });
+
+      socket.on("webrtc_ice_candidate", ({ candidate, sdpMid, sdpMLineIndex, roomId }) => {
+        const room = gameRooms.getRoom(roomId);
+        if (!room) return;
+        const targetId = room.player1.id === socket.id ? room.player2?.id : room.player1.id;
+        if (targetId) {
+          io.to(targetId).emit("webrtc_ice_candidate", {
+            candidate,
+            sdpMid,
+            sdpMLineIndex,
+            targetSocketId: socket.id,
+          });
+        }
+      });
+
       socket.on("set_bet", async ({ roomId, amount }) => {
         const room = gameRooms.getRoom(roomId);
         if (!room) {
