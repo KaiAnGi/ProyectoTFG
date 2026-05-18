@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth';
 import { FriendsService, FriendRequest, ChatMessage } from '../../services/friends.service';
+import { PaypalService } from '../../services/paypal.service';
 import { Subscription } from 'rxjs';
 import { AudioService } from '../../services/audio';
 
@@ -36,6 +37,14 @@ export class UserMenuComponent implements OnInit, OnDestroy {
   selectedFriend: string | null = null;
   unreadCounts: { [friend: string]: number } = {};
 
+  refundOpen = false;
+  refundAmounts = [100, 200, 500, 1000];
+  selectedRefundAmount: number | 'all' | null = null;
+  refundEmail = '';
+  refunding = false;
+  refundMessage = '';
+  refundError = '';
+
   @ViewChild('messagesContainer') messagesContainer!: ElementRef;
 
   private authSub?: Subscription;
@@ -64,6 +73,7 @@ export class UserMenuComponent implements OnInit, OnDestroy {
   constructor(
     private authService: AuthService,
     private friendsService: FriendsService,
+    private paypalService: PaypalService,
     private router: Router,
     private audio: AudioService,
   ) {}
@@ -73,6 +83,7 @@ export class UserMenuComponent implements OnInit, OnDestroy {
       if (user && !user.guest) {
         this.username = user.username;
         this.isLoggedIn = true;
+        this.bones = user.bones ?? 0;
       } else {
         this.isLoggedIn = false;
         this.clearData();
@@ -145,6 +156,59 @@ export class UserMenuComponent implements OnInit, OnDestroy {
 
   openShop() {
     this.router.navigate(['/shop']);
+  }
+
+  toggleRefund() {
+    this.refundOpen = !this.refundOpen;
+    if (!this.refundOpen) {
+      this.selectedRefundAmount = null;
+      this.refundEmail = '';
+      this.refundMessage = '';
+      this.refundError = '';
+    }
+  }
+
+  selectRefundAmount(amount: number | 'all') {
+    this.selectedRefundAmount = amount;
+    this.refundMessage = '';
+    this.refundError = '';
+  }
+
+  async onRefund() {
+    if (!this.selectedRefundAmount) {
+      this.refundError = 'Selecciona una cantidad de shines a reembolsar.';
+      return;
+    }
+    const email = this.refundEmail.trim();
+    if (!email) {
+      this.refundError = 'Introduce tu email de PayPal.';
+      return;
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      this.refundError = 'Email de PayPal inválido.';
+      return;
+    }
+
+    this.refunding = true;
+    this.refundMessage = '';
+    this.refundError = '';
+
+    try {
+      const result = await this.paypalService.requestRefund(this.selectedRefundAmount, email);
+      if (result.success) {
+        this.authService.updateBones(result.bones);
+        this.refundMessage = `Reembolso de ${result.refundedShines} shines (${result.refundedEur.toFixed(2)}€) procesado con éxito.`;
+        this.selectedRefundAmount = null;
+        this.refundEmail = '';
+      } else {
+        this.refundError = 'El reembolso no se pudo procesar.';
+      }
+    } catch (err: any) {
+      this.refundError = err.error?.message || 'Error al procesar el reembolso.';
+    } finally {
+      this.refunding = false;
+    }
   }
 
   onAddFriend() {

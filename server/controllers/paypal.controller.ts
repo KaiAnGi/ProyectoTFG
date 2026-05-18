@@ -23,6 +23,13 @@ interface PaypalOrderResponse {
   }[];
 }
 
+interface PaypalPayoutResponse {
+  batch_header: {
+    payout_batch_id: string;
+    batch_status: string;
+  };
+}
+
 const BASE = process.env.PAYPAL_API_BASE!;
 const CLIENT_ID = process.env.PAYPAL_CLIENT_ID!;
 const SECRET = process.env.PAYPAL_CLIENT_SECRET!;
@@ -185,6 +192,128 @@ export class PaypalController {
 
     } catch (error) {
       console.error("Error in captureOrder:", error);
+      res.status(500).json({ success: false, message: "Error interno del servidor" });
+    }
+  }
+
+  static async refund(req: Request, res: Response) {
+    try {
+      const usernameRaw = (req as AuthenticatedRequest).user?.username;
+      if (!usernameRaw || Array.isArray(usernameRaw)) {
+        return res.status(401).json({ success: false, message: "Usuario no autenticado" });
+      }
+
+      const { amount, paypalEmail } = req.body;
+
+      if (!paypalEmail || typeof paypalEmail !== "string") {
+        return res.status(400).json({ success: false, message: "Email de PayPal requerido" });
+      }
+
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(paypalEmail.trim())) {
+        return res.status(400).json({ success: false, message: "Email de PayPal inválido" });
+      }
+
+      let shinesToRefund: number;
+
+      if (amount === "all") {
+        const userDoc = await User.findOne({ username: usernameRaw });
+        if (!userDoc) {
+          return res.status(404).json({ success: false, message: "Usuario no encontrado" });
+        }
+        shinesToRefund = userDoc.bones ?? 0;
+        if (shinesToRefund <= 0) {
+          return res.status(400).json({ success: false, message: "No tienes shines para reembolsar" });
+        }
+      } else {
+        shinesToRefund = Number(amount);
+        if (!Number.isFinite(shinesToRefund) || ![100, 200, 500, 1000].includes(shinesToRefund)) {
+          return res.status(400).json({ success: false, message: "Cantidad inválida. Opciones: 100, 200, 500, 1000" });
+        }
+      }
+
+      const user = await User.findOne({ username: usernameRaw });
+      if (!user) {
+        return res.status(404).json({ success: false, message: "Usuario no encontrado" });
+      }
+
+      const currentBones = user.bones ?? 0;
+      if (currentBones < shinesToRefund) {
+        return res.status(400).json({ success: false, message: "No tienes suficientes shines" });
+      }
+
+      // Calcular valor en EUR (misma tasa que pack100: 100 shines = 4.65€)
+      const eurValue = Math.round((shinesToRefund * 4.65 / 100) * 100) / 100;
+
+      if (eurValue < 1.0) {
+        return res.status(400).json({ success: false, message: "El mínimo de reembolso es 1.00€ (equivalente a ~22 shines)" });
+      }
+
+      const token = await getAccessToken();
+
+      const payoutBatchId = `refund_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+
+      const payoutResponse = await fetch(`${BASE}/v1/payments/payouts`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          sender_batch_header: {
+            sender_batch_id: payoutBatchId,
+            email_subject: "Reembolso RPS Game",
+            email_message: `Has recibido un reembolso de ${eurValue.toFixed(2)}€ por ${shinesToRefund} shines.`,
+          },
+          items: [
+            {
+              recipient_type: "EMAIL",
+              amount: {
+                value: eurValue.toFixed(2),
+                currency: "EUR",
+              },
+              receiver: paypalEmail.trim(),
+              note: `Reembolso de ${shinesToRefund} shines`,
+              sender_item_id: `refund_${shinesToRefund}`,
+            },
+          ],
+        }),
+      });
+
+      const payoutData = await payoutResponse.json() as PaypalPayoutResponse;
+
+      if (!payoutResponse.ok) {
+        console.error("Error en payout PayPal:", payoutData);
+        return res.status(500).json({
+          success: false,
+          message: "Error procesando el reembolso en PayPal",
+          details: payoutData,
+        });
+      }
+
+      const updatedUser = await User.findOneAndUpdate(
+        { username: usernameRaw },
+        { $inc: { bones: -shinesToRefund } },
+        { new: true }
+      );
+
+      if (!updatedUser) {
+        return res.status(500).json({
+          success: false,
+          message: "Error actualizando los shines después del reembolso",
+        });
+      }
+
+      res.json({
+        success: true,
+        refundedShines: shinesToRefund,
+        refundedEur: eurValue,
+        bones: updatedUser.bones ?? 0,
+        payoutBatchId: payoutData.batch_header.payout_batch_id,
+      });
+
+    } catch (error) {
+      console.error("Error in refund:", error);
       res.status(500).json({ success: false, message: "Error interno del servidor" });
     }
   }

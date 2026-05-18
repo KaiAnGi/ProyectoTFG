@@ -40,13 +40,18 @@
         ✦ Add friends
       </button>
 
+      <button class="dropdown-action" (click)="toggleRefund()">
+        ↻ Reembolsar Shines
+      </button>
+
     </div>
   </div>
 
   <div class="modal-overlay" *ngIf="showAddFriendModal" (click)="closeModal()">
     <div class="modal" (click)="$event.stopPropagation()">
       <h2 class="modal-title">ADD FRIEND</h2>
-      <input class="modal-input" type="text" placeholder="Username..." [(ngModel)]="newFriendName" (keydown.enter)="confirmAddFriend()" />
+      <input class="modal-input" type="text" placeholder="Username..." [(ngModel)]="newFriendName"
+        (keydown.enter)="confirmAddFriend()" />
       <div class="modal-actions">
         <button class="modal-btn confirm" (click)="confirmAddFriend()">SEND REQUEST</button>
         <button class="modal-btn cancel" (click)="closeModal()">CANCEL</button>
@@ -66,7 +71,41 @@
     </div>
   </div>
 
-  <button class="chat-toggle" (click)="toggleChat()" [class.active]="chatOpen" aria-label="Open chat">
+  <div class="refund-overlay" *ngIf="refundOpen" (click)="toggleRefund()"></div>
+
+  <div class="refund-panel" *ngIf="refundOpen">
+    <div class="refund-frame">
+      <h1 class="refund-title">REEMBOLSO</h1>
+
+      <p class="refund-bones-info">Tus shines: <strong>{{ bones }}</strong></p>
+
+      <div class="refund-items">
+        <div class="refund-item" *ngFor="let amt of refundAmounts; let i = index"
+          [class.selected]="selectedRefundAmount === amt" (click)="selectRefundAmount(amt)">
+          <span class="refund-item-label">{{ amt }} shines</span>
+          <span class="refund-item-price">{{ (amt * 4.65 / 100).toFixed(2) }}€</span>
+        </div>
+        <div class="refund-item" [class.selected]="selectedRefundAmount === 'all'" (click)="selectRefundAmount('all')">
+          <span class="refund-item-label">Todos los shines</span>
+          <span class="refund-item-price">{{ (bones * 4.65 / 100).toFixed(2) }}€</span>
+        </div>
+      </div>
+
+      <input class="refund-email-input" type="email" placeholder="Email de PayPal..." [(ngModel)]="refundEmail" />
+
+      <div class="refund-actions">
+        <button class="refund-back-btn" (click)="toggleRefund()">BACK</button>
+        <button class="refund-btn" (click)="onRefund()" [disabled]="refunding || !selectedRefundAmount">
+          {{ refunding ? 'PROCESANDO...' : 'REEMBOLSAR' }}
+        </button>
+      </div>
+
+      <p class="refund-success" *ngIf="refundMessage">{{ refundMessage }}</p>
+      <p class="refund-error" *ngIf="refundError">{{ refundError }}</p>
+    </div>
+  </div>
+
+  <button class="chat-toggle" (click)="toggleChat()" [class.active]="chatOpen" aria-label="Abrir chat">
     <img src="/images/ouija.png" alt="Chat" class="ouija-icon" />
     <span class="chat-badge" *ngIf="totalUnread > 0">{{ totalUnread > 9 ? '9+' : totalUnread }}</span>
   </button>
@@ -74,7 +113,8 @@
   <div class="chat-panel" [class.open]="chatOpen">
 
     <div class="chat-tabs">
-      <button class="chat-tab" [class.active]="chatTab === 'friends'" (click)="chatTab = 'friends'; selectedFriend = null">Friends</button>
+      <button class="chat-tab" [class.active]="chatTab === 'friends'"
+        (click)="chatTab = 'friends'; selectedFriend = null">Friends</button>
       <button class="chat-tab" [class.active]="chatTab === 'chat'" (click)="chatTab = 'chat'">Chat</button>
     </div>
 
@@ -83,7 +123,8 @@
         <li *ngFor="let friend of friends" class="chat-friend-item" (click)="openChatWith(friend)">
           <span class="chat-friend-dot"></span>
           {{ friend }}
-          <span class="chat-unread-badge" *ngIf="unreadCounts[friend] > 0">{{ unreadCounts[friend] > 9 ? '9+' : unreadCounts[friend] }}</span>
+          <span class="chat-unread-badge" *ngIf="unreadCounts[friend] > 0">{{ unreadCounts[friend] > 9 ? '9+' :
+            unreadCounts[friend] }}</span>
           <span class="chat-friend-arrow" *ngIf="!unreadCounts[friend]">›</span>
         </li>
         <li *ngIf="friends.length === 0" class="chat-no-content">No friends yet</li>
@@ -97,7 +138,7 @@
         <span class="chat-friend-dot"></span>
         {{ selectedFriend }}
       </div>
-        <ng-template #noFriend>
+      <ng-template #noFriend>
         <div class="chat-with muted">Choose a friend to chat</div>
       </ng-template>
 
@@ -115,7 +156,9 @@
       </div>
 
       <div class="chat-input-row">
-        <input class="chat-input" type="text" [placeholder]="selectedFriend ? 'Message ' + selectedFriend + '...' : 'Choose a friend first'" [(ngModel)]="chatInput" (keydown.enter)="sendMessage()" [disabled]="!selectedFriend" maxlength="200" />
+        <input class="chat-input" type="text"
+          [placeholder]="selectedFriend ? 'Message ' + selectedFriend + '...' : 'Choose a friend first'"
+          [(ngModel)]="chatInput" (keydown.enter)="sendMessage()" [disabled]="!selectedFriend" maxlength="200" />
         <button class="chat-send" (click)="sendMessage()" [disabled]="!selectedFriend">➤</button>
       </div>
 
