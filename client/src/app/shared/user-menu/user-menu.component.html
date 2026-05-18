@@ -103,7 +103,7 @@
     </div>
   </div>
 
-  <button class="chat-toggle" (click)="toggleChat()" [class.active]="chatOpen" aria-label="Abrir chat">
+  <button class="chat-toggle" (click)="toggleChat()" [class.active]="chatOpen" aria-label="Open chat">
     <img src="/images/ouija.png" alt="Chat" class="ouija-icon" />
     <span class="chat-badge" *ngIf="totalUnread > 0">{{ totalUnread > 9 ? '9+' : totalUnread }}</span>
   </button>
