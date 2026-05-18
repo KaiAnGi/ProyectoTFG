@@ -38,6 +38,9 @@ export class AuthService {
     const saved = sessionStorage.getItem('rps_user');
     const token = sessionStorage.getItem('rps_token');
 
+    localStorage.removeItem('rps_user');
+    localStorage.removeItem('rps_token');
+
     if (saved && token) {
       this.http.get<AuthApiResponse>(`${this.authUrl}/verify`, {
         headers: { Authorization: `Bearer ${token}` }
