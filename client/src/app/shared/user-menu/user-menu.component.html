@@ -110,54 +110,37 @@
 
   <div class="chat-panel" [class.open]="chatOpen">
 
-    <div class="chat-tabs">
-      <button class="chat-tab" [class.active]="chatTab === 'friends'"
-        (click)="chatTab = 'friends'; selectedFriend = null">Friends</button>
-      <button class="chat-tab" [class.active]="chatTab === 'chat'" (click)="chatTab = 'chat'">Chat</button>
-    </div>
-
-    <div class="chat-content" *ngIf="chatTab === 'friends'">
+    <div class="chat-content" *ngIf="!selectedFriend">
       <ul class="chat-friends-list">
         <li *ngFor="let friend of friends" class="chat-friend-item" (click)="openChatWith(friend)">
           <span class="chat-friend-dot"></span>
           {{ friend }}
-          <span class="chat-unread-badge" *ngIf="unreadCounts[friend] > 0">{{ unreadCounts[friend] > 9 ? '9+' :
-            unreadCounts[friend] }}</span>
+          <span class="chat-unread-badge" *ngIf="unreadCounts[friend] > 0">{{ unreadCounts[friend] > 9 ? '9+' : unreadCounts[friend] }}</span>
           <span class="chat-friend-arrow" *ngIf="!unreadCounts[friend]">›</span>
         </li>
         <li *ngIf="friends.length === 0" class="chat-no-content">No friends yet</li>
       </ul>
     </div>
 
-    <div class="chat-messages-wrap" *ngIf="chatTab === 'chat'">
+    <div class="chat-messages-wrap" *ngIf="selectedFriend">
 
-      <div class="chat-with" *ngIf="selectedFriend; else noFriend">
-        <button class="chat-back-btn" (click)="chatTab = 'friends'; selectedFriend = null">‹</button>
+      <div class="chat-with">
+        <button class="chat-back-btn" (click)="selectedFriend = null">‹</button>
         <span class="chat-friend-dot"></span>
         {{ selectedFriend }}
       </div>
-      <ng-template #noFriend>
-        <div class="chat-with muted">Choose a friend to chat</div>
-      </ng-template>
 
       <div class="chat-messages" #messagesContainer>
-        <ng-container *ngIf="selectedFriend; else pickFriend">
-          <div *ngFor="let msg of activeMessages" class="chat-message" [class.mine]="msg.from === username">
-            <span class="chat-msg-sender">{{ msg.from === username ? 'YOU' : msg.from }}:</span>
-            <span class="chat-msg-text">{{ msg.message }}</span>
-          </div>
-          <div *ngIf="activeMessages.length === 0" class="chat-no-content">No messages yet</div>
-        </ng-container>
-        <ng-template #pickFriend>
-          <div class="chat-no-content">Select a friend from Friends</div>
-        </ng-template>
+        <div *ngFor="let msg of activeMessages" class="chat-message" [class.mine]="msg.from === username">
+          <span class="chat-msg-sender">{{ msg.from === username ? 'YOU' : msg.from }}:</span>
+          <span class="chat-msg-text">{{ msg.message }}</span>
+        </div>
+        <div *ngIf="activeMessages.length === 0" class="chat-no-content">No messages yet</div>
       </div>
 
       <div class="chat-input-row">
-        <input class="chat-input" type="text"
-          [placeholder]="selectedFriend ? 'Message ' + selectedFriend + '...' : 'Choose a friend first'"
-          [(ngModel)]="chatInput" (keydown.enter)="sendMessage()" [disabled]="!selectedFriend" maxlength="200" />
-        <button class="chat-send" (click)="sendMessage()" [disabled]="!selectedFriend">➤</button>
+        <input class="chat-input" type="text" [placeholder]="'Message ' + selectedFriend + '...'" [(ngModel)]="chatInput" (keydown.enter)="sendMessage()" maxlength="200" />
+        <button class="chat-send" (click)="sendMessage()">➤</button>
       </div>
 
     </div>
