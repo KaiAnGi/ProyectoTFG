@@ -282,7 +282,7 @@ export class GameService {
     const safeAmount = Math.floor(Number(amount));
 
     if (!roomId || !Number.isFinite(safeAmount) || safeAmount < 0) {
-      this.betErrorSubject.next({ message: 'Monto inválido' });
+      this.betErrorSubject.next({ message: 'Invalid amount' });
       return;
     }
 
