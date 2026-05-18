@@ -59,7 +59,7 @@ export class FriendsService {
   }
 
   private getHeaders(): HttpHeaders {
-    const token = localStorage.getItem('rps_token');
+    const token = sessionStorage.getItem('rps_token');
     return new HttpHeaders({
       Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json',

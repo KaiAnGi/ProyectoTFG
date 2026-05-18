@@ -20,7 +20,7 @@ export class SocketService {
 
   connect(): void {
     const user = this.authService.getCurrentUser();
-    const token = localStorage.getItem('rps_token');
+    const token = sessionStorage.getItem('rps_token');
 
     if (!user?.username) {
       return;
