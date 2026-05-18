@@ -281,7 +281,7 @@ export class GameService {
   setBet(roomId: string, amount: number): void {
     const safeAmount = Math.floor(Number(amount));
 
-    if (!roomId || !Number.isFinite(safeAmount) || safeAmount < 1) {
+    if (!roomId || !Number.isFinite(safeAmount) || safeAmount < 0) {
       this.betErrorSubject.next({ message: 'Monto inválido' });
       return;
     }
