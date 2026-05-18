@@ -14,7 +14,7 @@ import { Subscription } from 'rxjs';
   styleUrl: './room-menu.component.css',
 })
 export class RoomMenuComponent implements OnInit, OnDestroy {
-  username = 'Usuario';
+  username = 'User';
   menuOpen = false;
 
   friends: string[] = [];
@@ -66,28 +66,28 @@ export class RoomMenuComponent implements OnInit, OnDestroy {
   async confirmAddFriend() {
     const name = this.newFriendName.trim();
     if (!name) {
-      this.modalMessage = 'Escribe un nombre de usuario.';
+      this.modalMessage = 'Enter a username.';
       return;
     }
     if (this.friends.includes(name)) {
-      this.modalMessage = 'Ya es tu amigo.';
+      this.modalMessage = 'This user is already your friend.';
       return;
     }
     if (this.pendingRequests.some((req) => req.from === name)) {
-      this.modalMessage = 'Este usuario ya te envió una solicitud. ¡Acéptala!';
+      this.modalMessage = 'This user already sent you a request. Accept it!';
       return;
     }
 
     const result = await this.friendsService.sendFriendRequestSocket(name);
     if (!result || typeof result !== 'object') {
-      this.modalMessage = 'No se obtuvo respuesta del servidor';
+      this.modalMessage = 'No response from server';
       return;
     }
     if (result.success) {
-      this.modalMessage = 'Solicitud enviada a ' + name;
+      this.modalMessage = 'Request sent to ' + name;
       setTimeout(() => this.closeModal(), 1400);
     } else {
-      this.modalMessage = result.message || 'Error enviando solicitud';
+      this.modalMessage = result.message || 'Error sending request';
     }
   }
 

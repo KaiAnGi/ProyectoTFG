@@ -5,7 +5,15 @@ class GameRooms {
   }
 
   createRoom(player1Id, player1Name) {
-    const roomId = `${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
+    // Original example: `room_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`
+    // Generate an alphanumeric ID with the same length as the original example,
+    // but without the explicit "room_" prefix.
+    const example = `room_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
+    const targetLength = example.length;
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    const roomId = Array.from({ length: targetLength }, () =>
+      chars.charAt(Math.floor(Math.random() * chars.length))
+    ).join("");
     this.rooms.set(roomId, {
       roomId,
       player1: { id: player1Id, name: player1Name, score: 0 },

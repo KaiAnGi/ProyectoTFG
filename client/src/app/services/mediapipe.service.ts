@@ -152,12 +152,12 @@ export class MediaPipeService {
 
       const onError = () => {
         cleanup();
-        reject(new Error('El video no pudo inicializarse'));
+        reject(new Error('Video could not initialize'));
       };
 
       const timeout = setTimeout(() => {
         cleanup();
-        reject(new Error('Timeout esperando el stream de cámara'));
+        reject(new Error('Timeout waiting for camera stream'));
       }, 8000);
 
       const cleanup = () => {

@@ -101,7 +101,7 @@ export class GameComponent implements OnInit, OnDestroy {
         this.opponentScore = state.opponentScore;
 
         this.isMatchFinished = state.isMatchFinished;
-        this.matchWinnerName = state.matchWinnerName || 'Empate';
+        this.matchWinnerName = state.matchWinnerName || 'Draw';
         this.playerRole = state.playerRole ?? null;
 
         this.isRoundActive = state.isRoundActive;
@@ -126,12 +126,12 @@ export class GameComponent implements OnInit, OnDestroy {
         this.opponentBetAmount = Number(data.player2Bet ?? 0);
       }
 
-      if (data.winner === 'Empate' || data.winner === 'tie') {
-        this.betResultMessage = `Empate - Apuestas devueltas (${this.myBetAmount} shines)`;
+      if (data.winner === 'Draw' || data.winner === 'tie') {
+        this.betResultMessage = `Draw - Bets returned (${this.myBetAmount} shines)`;
       } else if (data.winner === this.playerName) {
-        this.betResultMessage = `Ganaste ${this.totalBetPot} shines (bote total)`;
+        this.betResultMessage = `You won ${this.totalBetPot} shines (total pot)`;
       } else {
-        this.betResultMessage = `Perdiste tu apuesta de ${this.myBetAmount} shines`;
+        this.betResultMessage = `You lost your bet of ${this.myBetAmount} shines`;
       }
       this.betResolved = true;
       this.cdr.markForCheck();
@@ -144,11 +144,11 @@ export class GameComponent implements OnInit, OnDestroy {
     if (!state.lastRoundResult) return '';
 
     if (state.lastRoundResult === 'tie') {
-      return 'Ronda empatada';
+      return 'Round tied';
     }
 
-    const winnerName = state.lastRoundWinnerName || 'Jugador';
-    return `Ganador de ronda: ${winnerName}`;
+    const winnerName = state.lastRoundWinnerName || 'Player';
+    return `Round winner: ${winnerName}`;
   }
 
   selectedGestureText(choice: Choice | null): string {

@@ -12,13 +12,13 @@ export class FriendsController {
       if (!fromUsername) {
         return res
           .status(401)
-          .json({ success: false, message: "Usuario no autenticado" });
+          .json({ success: false, message: "User not authenticated" });
       }
 
       if (!toUsername) {
         return res
           .status(400)
-          .json({ success: false, message: "Nombre de usuario requerido" });
+          .json({ success: false, message: "Username required" });
       }
 
       const result = await FriendsService.sendFriendRequest(
@@ -35,7 +35,7 @@ export class FriendsController {
       console.error("Error in sendFriendRequest:", error);
       res
         .status(500)
-        .json({ success: false, message: "Error interno del servidor" });
+        .json({ success: false, message: "Internal server error" });
     }
   }
 
@@ -48,7 +48,7 @@ export class FriendsController {
       if (!usernameRaw || Array.isArray(usernameRaw)) {
         return res
           .status(401)
-          .json({ success: false, message: "Usuario no autenticado" });
+          .json({ success: false, message: "User not authenticated" });
       }
 
       const username = usernameRaw as string;
@@ -66,7 +66,7 @@ export class FriendsController {
       console.error("Error in acceptFriendRequest:", error);
       res
         .status(500)
-        .json({ success: false, message: "Error interno del servidor" });
+        .json({ success: false, message: "Internal server error" });
     }
   }
 
@@ -79,7 +79,7 @@ export class FriendsController {
       if (!usernameRaw || Array.isArray(usernameRaw)) {
         return res
           .status(401)
-          .json({ success: false, message: "Usuario no autenticado" });
+          .json({ success: false, message: "User not authenticated" });
       }
 
       const username = usernameRaw as string;
@@ -97,7 +97,7 @@ export class FriendsController {
       console.error("Error in rejectFriendRequest:", error);
       res
         .status(500)
-        .json({ success: false, message: "Error interno del servidor" });
+        .json({ success: false, message: "Internal server error" });
     }
   }
 
@@ -110,7 +110,7 @@ export class FriendsController {
       if (!usernameRaw || Array.isArray(usernameRaw)) {
         return res
           .status(401)
-          .json({ success: false, message: "Usuario no autenticado" });
+          .json({ success: false, message: "User not authenticated" });
       }
 
       const username = usernameRaw as string;
@@ -128,7 +128,7 @@ export class FriendsController {
       console.error("Error in removeFriend:", error);
       res
         .status(500)
-        .json({ success: false, message: "Error interno del servidor" });
+        .json({ success: false, message: "Internal server error" });
     }
   }
 
@@ -140,7 +140,7 @@ export class FriendsController {
       if (!usernameRaw || Array.isArray(usernameRaw)) {
         return res
           .status(401)
-          .json({ success: false, message: "Usuario no autenticado" });
+          .json({ success: false, message: "User not authenticated" });
       }
 
       const username = usernameRaw as string;
@@ -150,7 +150,7 @@ export class FriendsController {
       console.error("Error in getFriends:", error);
       res
         .status(500)
-        .json({ success: false, message: "Error interno del servidor" });
+        .json({ success: false, message: "Internal server error" });
     }
   }
 
@@ -162,7 +162,7 @@ export class FriendsController {
       if (!usernameRaw || Array.isArray(usernameRaw)) {
         return res
           .status(401)
-          .json({ success: false, message: "Usuario no autenticado" });
+          .json({ success: false, message: "User not authenticated" });
       }
 
       const username = usernameRaw as string;
@@ -172,7 +172,7 @@ export class FriendsController {
       console.error("Error in getPendingRequests:", error);
       res
         .status(500)
-        .json({ success: false, message: "Error interno del servidor" });
+        .json({ success: false, message: "Internal server error" });
     }
   }
 

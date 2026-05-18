@@ -240,12 +240,12 @@ bob.on("round_result", (data) => {
 });
 
 alice.on("waiting_action", (data) => {
-  console.error("ERROR: No se esperaba waiting_action en nuevo flujo", data);
+  console.error("ERROR: waiting_action not expected in new flow", data);
   cleanupAndExit(1);
 });
 
 bob.on("waiting_action", (data) => {
-  console.error("ERROR: No se esperaba waiting_action en nuevo flujo", data);
+  console.error("ERROR: waiting_action not expected in new flow", data);
   cleanupAndExit(1);
 });
 

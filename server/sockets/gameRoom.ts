@@ -17,16 +17,15 @@ export class GameRooms {
     player1Name: string,
     maxRounds: number = 3,
   ): string {
-    const roomId = `${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
-    // Antes: `room_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`
-    // Generar un identificador aleatorio alfanumérico con la misma longitud
-    // que el formato anterior, pero sin el prefijo "room_".
-    // const example = `room_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
-    // const targetLength = example.length;
-    // const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    // const roomId = Array.from({ length: targetLength }, () =>
-    //   chars.charAt(Math.floor(Math.random() * chars.length)),
-    // ).join("");
+    // Original example: `room_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`
+    // We want to remove the "room_" prefix and produce a random alphanumeric
+    // string with the same length as the original example.
+    const example = `room_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
+    const targetLength = example.length;
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    const roomId = Array.from({ length: targetLength }, () =>
+      chars.charAt(Math.floor(Math.random() * chars.length)),
+    ).join("");
     this.rooms.set(roomId, {
       roomId,
       player1: {

@@ -13,25 +13,25 @@ export class FriendsService {
       if (fromUsername === toUsername) {
         return {
           success: false,
-          message: "No puedes enviarte solicitud a ti mismo",
+          message: "You cannot send a friend request to yourself",
         };
       }
 
       // Verificar que el usuario destinatario existe
       const toUser = await User.findOne({ username: toUsername });
       if (!toUser) {
-        return { success: false, message: "Usuario no encontrado" };
+        return { success: false, message: "User not found" };
       }
 
       // Verificar que el usuario remitente existe
       const fromUser = await User.findOne({ username: fromUsername });
       if (!fromUser) {
-        return { success: false, message: "Usuario remitente no encontrado" };
+        return { success: false, message: "Sender user not found" };
       }
 
       // Verificar que no sean amigos ya
       if (fromUser.friends?.includes(toUsername)) {
-        return { success: false, message: "Ya son amigos" };
+        return { success: false, message: "Already friends" };
       }
 
       // Verificar que no haya una solicitud ya existente entre estos usuarios
@@ -44,14 +44,14 @@ export class FriendsService {
         if (existingRequest.status === "pending") {
           return {
             success: false,
-            message: "Ya tienes una solicitud pendiente con este usuario",
+            message: "You already have a pending request with this user",
           };
         }
 
         if (existingRequest.status === "accepted") {
           return {
             success: false,
-            message: "Ya son amigos",
+            message: "Already friends",
           };
         }
 
@@ -60,7 +60,7 @@ export class FriendsService {
           await existingRequest.save();
           return {
             success: true,
-            message: "Solicitud reenviada correctamente",
+            message: "Request resent successfully",
           };
         }
       }
@@ -74,7 +74,7 @@ export class FriendsService {
       if (reverseRequest) {
         return {
           success: false,
-          message: "Este usuario ya te ha enviado una solicitud pendiente",
+          message: "This user already sent you a pending request",
         };
       }
 
@@ -87,16 +87,16 @@ export class FriendsService {
 
       await friendRequest.save();
 
-      return { success: true, message: "Solicitud enviada correctamente" };
+      return { success: true, message: "Friend request sent successfully" };
     } catch (error: any) {
       if (error?.code === 11000) {
         return {
           success: false,
-          message: "Ya existe una solicitud entre estos usuarios",
+          message: "A request between these users already exists",
         };
       }
       console.error("Error sending friend request:", error);
-      return { success: false, message: "Error interno del servidor" };
+      return { success: false, message: "Internal server error" };
     }
   }
 
@@ -108,20 +108,20 @@ export class FriendsService {
     try {
       const request = await FriendRequest.findById(requestId);
       if (!request) {
-        return { success: false, message: "Solicitud no encontrada" };
+        return { success: false, message: "Request not found" };
       }
 
       // Verificar que el usuario sea el destinatario
       if (request.to !== username) {
         return {
           success: false,
-          message: "No tienes permiso para aceptar esta solicitud",
+          message: "You do not have permission to accept this request",
         };
       }
 
       // Verificar que esté pendiente
       if (request.status !== "pending") {
-        return { success: false, message: "Esta solicitud ya fue procesada" };
+        return { success: false, message: "This request has already been processed" };
       }
 
       // Actualizar estado de la solicitud
@@ -139,10 +139,10 @@ export class FriendsService {
         { $addToSet: { friends: request.from } },
       );
 
-      return { success: true, message: "Solicitud aceptada" };
+      return { success: true, message: "Request accepted" };
     } catch (error) {
       console.error("Error accepting friend request:", error);
-      return { success: false, message: "Error interno del servidor" };
+      return { success: false, message: "Internal server error" };
     }
   }
 
@@ -154,30 +154,30 @@ export class FriendsService {
     try {
       const request = await FriendRequest.findById(requestId);
       if (!request) {
-        return { success: false, message: "Solicitud no encontrada" };
+        return { success: false, message: "Request not found" };
       }
 
       // Verificar que el usuario sea el destinatario
       if (request.to !== username) {
         return {
           success: false,
-          message: "No tienes permiso para rechazar esta solicitud",
+          message: "You do not have permission to reject this request",
         };
       }
 
       // Verificar que esté pendiente
       if (request.status !== "pending") {
-        return { success: false, message: "Esta solicitud ya fue procesada" };
+        return { success: false, message: "This request has already been processed" };
       }
 
       // Actualizar estado de la solicitud
       request.status = "rejected";
       await request.save();
 
-      return { success: true, message: "Solicitud rechazada" };
+      return { success: true, message: "Request rejected" };
     } catch (error) {
       console.error("Error rejecting friend request:", error);
-      return { success: false, message: "Error interno del servidor" };
+      return { success: false, message: "Internal server error" };
     }
   }
 
@@ -190,7 +190,7 @@ export class FriendsService {
       // Verificar que sean amigos
       const user = await User.findOne({ username });
       if (!user?.friends?.includes(friendUsername)) {
-        return { success: false, message: "No son amigos" };
+        return { success: false, message: "Not friends" };
       }
 
       // Remover de ambas listas de amigos
@@ -204,10 +204,10 @@ export class FriendsService {
         { $pull: { friends: username } },
       );
 
-      return { success: true, message: "Amigo eliminado" };
+      return { success: true, message: "Friend removed" };
     } catch (error) {
       console.error("Error removing friend:", error);
-      return { success: false, message: "Error interno del servidor" };
+      return { success: false, message: "Internal server error" };
     }
   }
 
@@ -247,7 +247,7 @@ export class FriendsService {
       if (!fromUser?.friends?.includes(to)) {
         return {
           success: false,
-          message: "Solo puedes enviar mensajes a tus amigos",
+          message: "You can only send messages to your friends",
         };
       }
 

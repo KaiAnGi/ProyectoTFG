@@ -64,7 +64,7 @@ function runTest(testCase) {
   bob = io(baseUrl, { transports: ["websocket", "polling"], reconnection: false });
 
   alice.on("connect", () => {
-    console.log("Alice conectada");
+    console.log("Alice connected");
     alice.emit("create_room", { username: `alice_${maxRounds}`, maxRounds });
   });
 
@@ -77,7 +77,7 @@ function runTest(testCase) {
   });
 
   bob.on("connect", () => {
-    console.log("Bob conectado");
+    console.log("Bob connected");
   });
 
   bob.on("connect_error", (err) => {
@@ -90,9 +90,9 @@ function runTest(testCase) {
 
   alice.on("room_created", (data) => {
     roomId = data.roomId;
-    console.log(`Sala creada con maxRounds=${data.maxRounds}`);
+    console.log(`Room created with maxRounds=${data.maxRounds}`);
     if (data.maxRounds !== maxRounds) {
-      console.error(`ERROR: maxRounds esperado ${maxRounds}, obtuvo ${data.maxRounds}`);
+      console.error(`ERROR: expected maxRounds=${maxRounds}, got ${data.maxRounds}`);
       clearTimeout(failTimer);
       alice.disconnect();
       bob.disconnect();
@@ -102,16 +102,16 @@ function runTest(testCase) {
   });
 
   alice.on("room_joined", (data) => {
-    console.log(`Alice confirmó room_joined con maxRounds=${data.maxRounds}`);
+    console.log(`Alice confirmed room_joined with maxRounds=${data.maxRounds}`);
   });
 
   bob.on("room_joined", (data) => {
-    console.log(`Bob confirmó room_joined con maxRounds=${data.maxRounds}`);
+    console.log(`Bob confirmed room_joined with maxRounds=${data.maxRounds}`);
   });
 
   alice.on("start_round", (data) => {
     roundCount++;
-    console.log(`Ronda ${roundCount} iniciada`);
+    console.log(`Round ${roundCount} started`);
     setTimeout(() => {
       alice.emit("player_choice", { roomId, choice: aliceChoices[roundCount - 1] });
     }, 50);
@@ -145,13 +145,13 @@ function runTest(testCase) {
     }
 
     console.log(
-      `Duelo ${duelCount}: Alice ${aliceRoundsWon}-${bobRoundsWon} Bob | roundEnded: ${data.roundEnded} | ronda ${data.roundNumber}/${maxRounds} | isFinished: ${data.isFinished}`
+      `Duel ${duelCount}: Alice ${aliceRoundsWon}-${bobRoundsWon} Bob | roundEnded: ${data.roundEnded} | round ${data.roundNumber}/${maxRounds} | isFinished: ${data.isFinished}`
     );
 
     // Verificar que roundEnded es correcto
     if (data.roundEnded !== wasRoundEnded) {
       console.error(
-        `ERROR: roundEnded debería ser ${wasRoundEnded} pero es ${data.roundEnded}`
+        `ERROR: roundEnded should be ${wasRoundEnded} but is ${data.roundEnded}`
       );
       clearTimeout(failTimer);
       alice.disconnect();
@@ -163,7 +163,7 @@ function runTest(testCase) {
     const expectedFinished = wasRoundEnded && data.roundNumber >= maxRounds;
     if (data.isFinished !== expectedFinished) {
       console.error(
-        `ERROR: isFinished debería ser ${expectedFinished} pero es ${data.isFinished}`
+        `ERROR: isFinished should be ${expectedFinished} but is ${data.isFinished}`
       );
       clearTimeout(failTimer);
       alice.disconnect();
@@ -177,7 +177,7 @@ function runTest(testCase) {
   });
 
   alice.on("waiting_action", (data) => {
-    console.error("ERROR: No se esperaba waiting_action en nuevo flujo", data);
+    console.error("ERROR: waiting_action not expected in new flow", data);
     clearTimeout(failTimer);
     alice.disconnect();
     bob.disconnect();
@@ -185,13 +185,13 @@ function runTest(testCase) {
   });
 
   alice.on("match_finished", (data) => {
-    console.log(`Partida terminada. Ganador: ${data.winner}`);
-    console.log(`Score final: ${data.finalScore.player1} (Alice) vs ${data.finalScore.player2} (Bob) rondas ganadas`);
+    console.log(`Match finished. Winner: ${data.winner}`);
+    console.log(`Final score: ${data.finalScore.player1} (Alice) vs ${data.finalScore.player2} (Bob) rounds won`);
 
     // Verificar que el marcador final es correcto (rondas ganadas, no duels)
     if (data.finalScore.player1 !== aliceRoundsWon || data.finalScore.player2 !== bobRoundsWon) {
       console.error(
-        `ERROR: Score incorrecto. Esperado ${aliceRoundsWon}-${bobRoundsWon}, obtuvo ${data.finalScore.player1}-${data.finalScore.player2}`
+        `ERROR: Incorrect score. Expected ${aliceRoundsWon}-${bobRoundsWon}, got ${data.finalScore.player1}-${data.finalScore.player2}`
       );
       clearTimeout(failTimer);
       alice.disconnect();
@@ -203,7 +203,7 @@ function runTest(testCase) {
     const expectedWinnerName = aliceRoundsWon > bobRoundsWon ? `alice_${maxRounds}` : `bob_${maxRounds}`;
     if (data.winner !== expectedWinnerName) {
       console.error(
-        `ERROR: Ganador incorrecto. Esperado ${expectedWinnerName}, obtuvo ${data.winner}`
+        `ERROR: Incorrect winner. Expected ${expectedWinnerName}, got ${data.winner}`
       );
       clearTimeout(failTimer);
       alice.disconnect();
@@ -211,7 +211,7 @@ function runTest(testCase) {
       process.exit(1);
     }
 
-    console.log(`✓ Test ${testCase.name} completado exitosamente\n`);
+    console.log(`✓ Test ${testCase.name} completed successfully\n`);
     clearTimeout(failTimer);
     alice.disconnect();
     bob.disconnect();

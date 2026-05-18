@@ -5,13 +5,13 @@ const gameRooms = new GameRooms();
 
 module.exports = (io) => {
   io.on('connection', (socket) => {
-    console.log('👤 Cliente conectado:', socket.id);
+    console.log('👤 Client connected:', socket.id);
 
     // Crear o unirse a sala
     socket.on('create_room', async ({ username }) => {
       const roomId = gameRooms.createRoom(socket.id, username);
       socket.join(roomId);
-      socket.emit('room_created', { roomId, message: 'Sala creada, esperando oponente' });
+      socket.emit('room_created', { roomId, message: 'Room created, waiting for opponent' });
     });
 
     socket.on('join_room', async ({ roomId, username }) => {
@@ -24,7 +24,7 @@ module.exports = (io) => {
         });
         io.to(roomId).emit('start_round', { roundNumber: room.roundNumber });
       } else {
-        socket.emit('error', { message: 'Sala llena o no existe' });
+        socket.emit('error', { message: 'Room is full or does not exist' });
       }
     });
 
@@ -59,7 +59,7 @@ module.exports = (io) => {
     });
 
     socket.on('disconnect', () => {
-      console.log('👋 Cliente desconectado:', socket.id);
+      console.log('👋 Client disconnected:', socket.id);
     });
   });
 };

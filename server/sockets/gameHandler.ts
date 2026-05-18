@@ -64,7 +64,7 @@ export function setupGameHandlers(
       const player1Score = room.player1.roundsWon;
       const player2Score = room.player2.roundsWon;
 
-      let winnerName = "Empate";
+      let winnerName = "Draw";
       if (player1Score > player2Score) {
         winnerName = room.player1.name;
       } else if (player2Score > player1Score) {
@@ -76,7 +76,7 @@ export function setupGameHandlers(
         finalScore: { player1: player1Score, player2: player2Score },
       });
 
-      if (winnerName !== "Empate") {
+      if (winnerName !== "Draw") {
         const winner =
           winnerName === room.player1.name ? room.player1 : room.player2;
         const loser =
@@ -84,14 +84,14 @@ export function setupGameHandlers(
 
         rankingService
           .updatePlayerStats(winner.name, true)
-          .catch((err) =>
-            console.error("Error al actualizar estadísticas del ganador:", err),
-          );
-        rankingService
-          .updatePlayerStats(loser.name, false)
-          .catch((err) =>
-            console.error("Error al actualizar estadísticas del perdedor:", err),
-          );
+            .catch((err) =>
+              console.error("Error updating winner stats:", err),
+            );
+          rankingService
+            .updatePlayerStats(loser.name, false)
+            .catch((err) =>
+              console.error("Error updating loser stats:", err),
+            );
 
         emitLeaderboardUpdate();
       }
@@ -102,14 +102,14 @@ export function setupGameHandlers(
 
       if (totalPot > 0) {
         try {
-          if (winnerName !== "Empate") {
-            // El ganador se lleva el bote completo
+          if (winnerName !== "Draw") {
+            // Winner takes the whole pot
             await User.findOneAndUpdate(
               { username: winnerName },
               { $inc: { bones: totalPot } },
             );
           } else {
-            // Empate: devolver lo apostado a cada uno
+            // Draw: return bets to each player
             const updates: Promise<any>[] = [];
             if (p1Bet > 0) {
               updates.push(
@@ -139,12 +139,12 @@ export function setupGameHandlers(
         } catch (err) {
           console.error("Error liquidando apuesta:", err);
           io.to(roomId).emit("bet_error", {
-            message: "No se pudo resolver la apuesta",
+            message: "Could not resolve the bet",
           });
         }
       }
 
-      console.log(`Partida terminada en ${roomId}. Ganador: ${winnerName}`);
+      console.log(`Match finished in ${roomId}. Winner: ${winnerName}`);
       gameRooms.cleanupRoom(roomId);
       clearRoundTimer(roomId);
       return;
@@ -199,7 +199,7 @@ export function setupGameHandlers(
   io.on(
     "connection",
     (socket: Socket<ClientToServerEvents, ServerToClientEvents>) => {
-      console.log("Cliente conectado:", socket.id);
+      console.log("Client connected:", socket.id);
 
       socket.on("create_room", async ({ username, maxRounds = 3 }) => {
         const validMaxRounds = [3, 5, 9].includes(maxRounds) ? maxRounds : 3;
@@ -207,13 +207,13 @@ export function setupGameHandlers(
         socket.join(roomId);
         socket.emit("room_created", {
           roomId,
-          message: "Sala creada, esperando oponente",
+          message: "Room created, waiting for opponent",
           maxRounds: validMaxRounds,
           playerRole: "player1",
           playerName: username,
           opponentName: null,
         });
-        console.log(`Sala creada: ${roomId} por ${username} con ${validMaxRounds} rondas`);
+        console.log(`Room created: ${roomId} by ${username} with ${validMaxRounds} rounds`);
       });
 
       const emitCameraReadyStatus = (roomId: string) => {
@@ -240,20 +240,20 @@ export function setupGameHandlers(
             opponentName: username,
           });
           emitCameraReadyStatus(roomId);
-          console.log(`${username} se unió a sala ${roomId}`);
+          console.log(`${username} joined room ${roomId}`);
         } else {
-          socket.emit("error", { message: "Sala llena o no existe" });
+          socket.emit("error", { message: "Room is full or does not exist" });
         }
       });
 
       socket.on("player_choice", ({ roomId, choice }) => {
         const room = gameRooms.getRoom(roomId);
         if (!room) {
-          socket.emit("error", { message: "Sala no encontrada" });
+          socket.emit("error", { message: "Room not found" });
           return;
         }
         if (!room.player2) {
-          socket.emit("error", { message: "Aún no hay oponente en la sala" });
+          socket.emit("error", { message: "No opponent in the room yet" });
           return;
         }
         gameRooms.setPlayerChoice(roomId, socket.id, choice);
@@ -272,7 +272,7 @@ export function setupGameHandlers(
       socket.on("start_game", ({ roomId }) => {
         const room = gameRooms.getRoom(roomId);
         if (!room || !room.player2) {
-          socket.emit("error", { message: "La sala no está completa" });
+          socket.emit("error", { message: "The room is not complete" });
           return;
         }
 
@@ -281,21 +281,21 @@ export function setupGameHandlers(
         const p2Sockets = io.sockets.sockets.get(room.player2.id);
         if (!p1Sockets || !p2Sockets) {
           socket.emit("error", {
-            message: "El oponente se ha desconectado",
+            message: "The opponent has disconnected",
           });
           return;
         }
 
         if (!gameRooms.isBothCamerasReady(roomId)) {
           socket.emit("error", {
-            message: "Ambos jugadores deben estar ready para iniciar",
+            message: "Both players must be ready to start",
           });
           return;
         }
 
         if (!room.betAmount || !room.player1BetConfirmed || !room.player2BetConfirmed) {
           socket.emit("bet_error", {
-            message: "Ambos jugadores deben confirmar la apuesta antes de iniciar",
+            message: "Both players must confirm the bet before starting",
           });
           return;
         }
@@ -306,18 +306,18 @@ export function setupGameHandlers(
       socket.on("set_bet", async ({ roomId, amount }) => {
         const room = gameRooms.getRoom(roomId);
         if (!room) {
-          socket.emit("bet_error", { message: "Sala no encontrada" });
+          socket.emit("bet_error", { message: "Room not found" });
           return;
         }
 
         if (!room.player2) {
-          socket.emit("bet_error", { message: "Aún no hay oponente en la sala" });
+          socket.emit("bet_error", { message: "No opponent in the room yet" });
           return;
         }
 
         const normalizedAmount = Math.floor(Number(amount));
         if (!Number.isFinite(normalizedAmount) || normalizedAmount <= 0) {
-          socket.emit("bet_error", { message: "La apuesta debe ser mayor que 0" });
+          socket.emit("bet_error", { message: "Bet must be greater than 0" });
           return;
         }
 
@@ -325,7 +325,7 @@ export function setupGameHandlers(
         const isPlayer2 = socket.id === room.player2.id;
 
         if (!isPlayer1 && !isPlayer2) {
-          socket.emit("bet_error", { message: "Jugador no válido en la sala" });
+          socket.emit("bet_error", { message: "Invalid player in the room" });
           return;
         }
 
@@ -333,7 +333,7 @@ export function setupGameHandlers(
 
         // Prevenir doble confirmación
         if (isPlayer1 && room.player1BetConfirmed) {
-          socket.emit("bet_error", { message: "Ya confirmaste tu apuesta" });
+          socket.emit("bet_error", { message: "You have already confirmed your bet" });
           return;
         }
         if (isPlayer2 && room.player2BetConfirmed) {
@@ -348,7 +348,7 @@ export function setupGameHandlers(
           { new: true },
         );
         if (!deducted) {
-          socket.emit("bet_error", { message: "No tienes suficientes bones" });
+          socket.emit("bet_error", { message: "You don't have enough bones" });
           return;
         }
 
@@ -376,7 +376,7 @@ export function setupGameHandlers(
       });
 
       socket.on("disconnect", async () => {
-        console.log("Cliente desconectado:", socket.id);
+        console.log("Client disconnected:", socket.id);
         const room = gameRooms.findRoomByPlayerSocket(socket.id);
         if (!room) return;
 
@@ -393,10 +393,10 @@ export function setupGameHandlers(
             { $inc: { bones: playerBet.bet } },
           );
           console.log(
-            `Reembolsados ${playerBet.bet} bones a ${playerBet.playerName} por desconexión en sala ${room.roomId}`,
+            `Refunded ${playerBet.bet} bones to ${playerBet.playerName} for disconnection in room ${room.roomId}`,
           );
         } catch (err) {
-          console.error("Error reembolsando apuesta por desconexión:", err);
+          console.error("Error refunding bet after disconnection:", err);
         }
 
         // Notificar al otro jugador

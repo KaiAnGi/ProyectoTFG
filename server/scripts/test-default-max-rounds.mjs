@@ -36,7 +36,7 @@ let bobLives = 3;
 let duelCount = 0;
 
 alice.on("connect", () => {
-  console.log("Alice conectada");
+  console.log("Alice connected");
   // NO pasamos maxRounds, debe usar el valor por defecto
   alice.emit("create_room", { username: "alice_default" });
 });
@@ -47,7 +47,7 @@ alice.on("connect_error", (err) => {
 });
 
 bob.on("connect", () => {
-  console.log("Bob conectado");
+  console.log("Bob connected");
 });
 
 bob.on("connect_error", (err) => {
@@ -57,16 +57,16 @@ bob.on("connect_error", (err) => {
 
 alice.on("room_created", (data) => {
   roomId = data.roomId;
-  console.log(`Sala creada, maxRounds recibido: ${data.maxRounds}`);
+  console.log(`Room created, maxRounds received: ${data.maxRounds}`);
   
   // Verificar que maxRounds es el valor por defecto
-  if (data.maxRounds !== DEFAULT_MAX_ROUNDS) {
+    if (data.maxRounds !== DEFAULT_MAX_ROUNDS) {
     console.error(
-      `ERROR: maxRounds esperado ${DEFAULT_MAX_ROUNDS}, obtuvo ${data.maxRounds}`
+      `ERROR: expected maxRounds=${DEFAULT_MAX_ROUNDS}, got ${data.maxRounds}`
     );
     cleanupAndExit(1);
   }
-  console.log(`✓ Valor por defecto correcto: ${DEFAULT_MAX_ROUNDS}`);
+  console.log(`✓ Default value correct: ${DEFAULT_MAX_ROUNDS}`);
   
   bob.emit("join_room", { roomId, username: "bob_default" });
 });
@@ -128,21 +128,21 @@ bob.on("round_result", (data) => {
 });
 
 alice.on("waiting_action", (data) => {
-  console.error("ERROR: No se esperaba waiting_action en nuevo flujo", data);
+  console.error("ERROR: waiting_action not expected in new flow", data);
   cleanupAndExit(1);
 });
 
 alice.on("match_finished", (data) => {
   if (!matchFinished) {
     matchFinished = true;
-    console.log(`\nPartida terminada. Ganador: ${data.winner}`);
-    console.log(`Score final: Rondas ganadas - ${data.finalScore.player1} (Alice) vs ${data.finalScore.player2} (Bob)`);
+    console.log(`\nMatch finished. Winner: ${data.winner}`);
+    console.log(`Final score: Rounds won - ${data.finalScore.player1} (Alice) vs ${data.finalScore.player2} (Bob)`);
     
-    console.log("\n=== ✓ TEST DEFAULTMAXROUNDS PASÓ EXITOSAMENTE ===");
-    console.log("- maxRounds por defecto es 3");
-    console.log("- Sistema de 3 vidas por ronda implementado");
-    console.log("- Avance automático de ronda sin acciones manuales");
-    console.log("- Partida terminó al completar las rondas\n");
+    console.log("\n=== ✓ TEST DEFAULTMAXROUNDS PASSED ===");
+    console.log("- default maxRounds is 3");
+    console.log("- 3-lives-per-round system implemented");
+    console.log("- automatic round advancement without manual actions");
+    console.log("- match finished after completing rounds\n");
     
     clearTimeout(failTimer);
     alice.disconnect();

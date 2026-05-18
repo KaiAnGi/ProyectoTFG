@@ -15,7 +15,7 @@ export class FriendsHandler {
       sockets.push(socket.id);
     }
     this.connectedUsers.set(username, sockets);
-    console.log(`Usuario ${username} conectado con socket ${socket.id}`);
+    console.log(`User ${username} connected with socket ${socket.id}`);
   }
 
   // Desregistrar conexión de usuario (solo este socket, no todos)
@@ -47,7 +47,7 @@ export class FriendsHandler {
     try {
       const fromUsername = (socket as any).username;
       if (!fromUsername) {
-        const msg = "Usuario no autenticado";
+        const msg = "User not authenticated";
         if (callback) return callback({ success: false, message: msg });
         socket.emit("error", { message: msg });
         return;
@@ -87,7 +87,7 @@ export class FriendsHandler {
       }
     } catch (error) {
       console.error("Error in handleSendFriendRequest:", error);
-      const msg = "Error interno del servidor";
+      const msg = "Internal server error";
       if (callback) return callback({ success: false, message: msg });
       socket.emit("error", { message: msg });
     }
@@ -98,14 +98,14 @@ export class FriendsHandler {
     try {
       const username = (socket as any).username;
       if (!username) {
-        socket.emit("error", { message: "Usuario no autenticado" });
+        socket.emit("error", { message: "User not authenticated" });
         return;
       }
 
       // Obtener la solicitud antes de procesarla
       const request = await FriendRequest.findById(data.requestId);
       if (!request) {
-        socket.emit("error", { message: "Solicitud no encontrada" });
+        socket.emit("error", { message: "Request not found" });
         return;
       }
 
@@ -136,7 +136,7 @@ export class FriendsHandler {
       }
     } catch (error) {
       console.error("Error in handleAcceptFriendRequest:", error);
-      socket.emit("error", { message: "Error interno del servidor" });
+      socket.emit("error", { message: "Internal server error" });
     }
   }
 
@@ -145,14 +145,14 @@ export class FriendsHandler {
     try {
       const username = (socket as any).username;
       if (!username) {
-        socket.emit("error", { message: "Usuario no autenticado" });
+        socket.emit("error", { message: "User not authenticated" });
         return;
       }
 
       // Obtener la solicitud antes de procesarla
       const request = await FriendRequest.findById(data.requestId);
       if (!request) {
-        socket.emit("error", { message: "Solicitud no encontrada" });
+        socket.emit("error", { message: "Request not found" });
         return;
       }
 
@@ -183,7 +183,7 @@ export class FriendsHandler {
       }
     } catch (error) {
       console.error("Error in handleRejectFriendRequest:", error);
-      socket.emit("error", { message: "Error interno del servidor" });
+      socket.emit("error", { message: "Internal server error" });
     }
   }
 
@@ -192,7 +192,7 @@ export class FriendsHandler {
     try {
       const username = (socket as any).username;
       if (!username) {
-        socket.emit("error", { message: "Usuario no autenticado" });
+        socket.emit("error", { message: "User not authenticated" });
         return;
       }
 
@@ -221,7 +221,7 @@ export class FriendsHandler {
       }
     } catch (error) {
       console.error("Error in handleRemoveFriend:", error);
-      socket.emit("error", { message: "Error interno del servidor" });
+      socket.emit("error", { message: "Internal server error" });
     }
   }
 
@@ -233,7 +233,7 @@ export class FriendsHandler {
     try {
       const from = (socket as any).username;
       if (!from) {
-        socket.emit("error", { message: "Usuario no autenticado" });
+        socket.emit("error", { message: "User not authenticated" });
         return;
       }
 
@@ -267,12 +267,12 @@ export class FriendsHandler {
         const errorMessage =
           typeof result.message === "string"
             ? result.message
-            : "Error al enviar mensaje";
+            : "Error sending message";
         socket.emit("error", { message: errorMessage });
       }
     } catch (error) {
       console.error("Error in handleSendChatMessage:", error);
-      socket.emit("error", { message: "Error interno del servidor" });
+      socket.emit("error", { message: "Internal server error" });
     }
   }
 
@@ -284,7 +284,7 @@ export class FriendsHandler {
     try {
       const username = (socket as any).username;
       if (!username) {
-        socket.emit("error", { message: "Usuario no autenticado" });
+        socket.emit("error", { message: "User not authenticated" });
         return;
       }
 

@@ -22,11 +22,11 @@ export class AuthService {
   }> {
     const { username, email, password, confirmPassword } = data;
 
-    // Validar que las contraseñas coincidan
+    // Validate passwords match
     if (password !== confirmPassword) {
       return {
         success: false,
-        error: "Las contraseñas no coinciden",
+        error: "Passwords do not match",
       };
     }
 
@@ -34,7 +34,7 @@ export class AuthService {
     if (password.length < 6) {
       return {
         success: false,
-        error: "La contraseña debe tener al menos 6 caracteres",
+        error: "Password must be at least 6 characters",
       };
     }
 
@@ -42,7 +42,7 @@ export class AuthService {
     if (username.length < 3) {
       return {
         success: false,
-        error: "El nombre de usuario debe tener al menos 3 caracteres",
+        error: "Username must be at least 3 characters",
       };
     }
 
@@ -51,7 +51,7 @@ export class AuthService {
     if (!emailRegex.test(email)) {
       return {
         success: false,
-        error: "El formato del correo electrónico no es válido",
+        error: "Email format is not valid",
       };
     }
 
@@ -80,14 +80,14 @@ export class AuthService {
         const field = Object.keys(error.keyPattern)[0];
         return {
           success: false,
-          error: `El ${field === "email" ? "correo electrónico" : "nombre de usuario"} ya está en uso`,
+          error: `The ${field === "email" ? "email" : "username"} is already in use`,
         };
       }
 
-      return {
-        success: false,
-        error: "Error al registrar el usuario",
-      };
+        return {
+          success: false,
+          error: "Error registering user",
+        };
     }
   }
 
@@ -103,7 +103,7 @@ export class AuthService {
     if (!email || !password) {
       return {
         success: false,
-        error: "El correo y la contraseña son obligatorios",
+        error: "Email and password are required",
       };
     }
 
@@ -112,7 +112,7 @@ export class AuthService {
     if (!emailRegex.test(email)) {
       return {
         success: false,
-        error: "El formato del correo electrónico no es válido",
+        error: "Email format is not valid",
       };
     }
 
@@ -123,7 +123,7 @@ export class AuthService {
       if (!user) {
         return {
           success: false,
-          error: "Usuario o contraseña incorrectos",
+          error: "Incorrect username or password",
         };
       }
 
@@ -133,7 +133,7 @@ export class AuthService {
       if (!isPasswordValid) {
         return {
           success: false,
-          error: "Usuario o contraseña incorrectos",
+          error: "Incorrect username or password",
         };
       }
 
@@ -162,7 +162,7 @@ export class AuthService {
     } catch (error) {
       return {
         success: false,
-        error: "Error al iniciar sesión",
+        error: "Error logging in",
       };
     }
   }

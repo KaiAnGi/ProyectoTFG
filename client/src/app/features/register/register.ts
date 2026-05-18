@@ -42,11 +42,11 @@ export class RegisterComponent {
         next: (response) => {
             this.isLoading = false;
             if (!response || typeof response !== 'object') {
-              this.registerError = 'Respuesta inválida del servidor';
+              this.registerError = 'Invalid server response';
               return;
             }
             if (!response.success) {
-              this.registerError = response.error || 'No se pudo registrar el usuario';
+              this.registerError = response.error || 'Could not register user';
               return;
             }
 
@@ -55,25 +55,25 @@ export class RegisterComponent {
               .subscribe({
                 next: (loginResponse) => {
                   if (!loginResponse || typeof loginResponse !== 'object') {
-                    this.registerError = 'Respuesta inválida al iniciar sesión';
+                    this.registerError = 'Invalid response when logging in';
                     return;
                   }
                   if (!loginResponse.success) {
                     this.registerError =
-                      loginResponse.error || 'Usuario creado, pero fallo el inicio de sesion';
+                      loginResponse.error || 'User created, but login failed';
                     return;
                   }
                   this.auth.handleAuthSuccess(loginResponse);
                   this.router.navigate(['/room-menu']);
                 },
                 error: () => {
-                  this.registerError = 'Usuario creado, pero fallo la conexion para iniciar sesion';
+                  this.registerError = 'User created, but failed to connect to login';
                 },
               });
           },
         error: (err) => {
           this.isLoading = false;
-          this.registerError = err?.error?.error || 'No se pudo conectar con el servidor';
+          this.registerError = err?.error?.error || 'Could not connect to server';
         },
       });
   }
