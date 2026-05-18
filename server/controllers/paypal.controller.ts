@@ -80,32 +80,57 @@ export class PaypalController {
 
       const token = await getAccessToken();
 
+      const user = await User.findOne({ username: usernameRaw });
+      const body: Record<string, any> = {
+        intent: "CAPTURE",
+        purchase_units: [
+          {
+            description: `${pack.shines} Shines`,
+            amount: {
+              currency_code: "EUR",
+              value: pack.price,
+            },
+          },
+        ],
+        application_context: {
+          return_url: process.env.FRONTEND_URL || "https://cliente-2a5q.onrender.com",
+          cancel_url: process.env.FRONTEND_URL || "https://cliente-2a5q.onrender.com",
+          brand_name: "RPS Game",
+          user_action: "PAY_NOW",
+          landing_page: "LOGIN",
+        },
+      };
+
+      if (user?.paypalVaultId) {
+        // Compra recurrente con vault token
+        body.payment_source = {
+          token: {
+            id: user.paypalVaultId,
+            type: "PAYMENT_METHOD_TOKEN",
+          },
+        };
+      } else {
+        // Primera compra: solicitar vaulting de PayPal
+        body.payment_source = {
+          paypal: {
+            attributes: {
+              vault: {
+                store_in_vault: "ON_SUCCESS",
+                usage_type: "MERCHANT",
+                customer_type: "CONSUMER",
+              },
+            },
+          },
+        };
+      }
+
       const response = await fetch(`${BASE}/v2/checkout/orders`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          intent: "CAPTURE",
-          purchase_units: [
-            {
-              description: `${pack.shines} Shines`,
-              amount: {
-                currency_code: "EUR",
-                value: pack.price,
-              },
-            },
-          ],
-          application_context: {
-            // Use FRONTEND_URL if set in env, otherwise fallback to the known frontend URL
-            return_url: process.env.FRONTEND_URL || "https://cliente-2a5q.onrender.com",
-            cancel_url: process.env.FRONTEND_URL || "https://cliente-2a5q.onrender.com",
-            brand_name: "RPS Game",
-            user_action: "PAY_NOW",
-            landing_page: "LOGIN",
-          },
-        }),
+        body: JSON.stringify(body),
       });
 
       if (!response.ok) {
@@ -171,9 +196,18 @@ export class PaypalController {
         });
       }
 
+      // Extraer vault ID y email del capture
+      const paypalSource = (data as any)?.payment_source?.paypal;
+      const vaultId: string | undefined = paypalSource?.attributes?.vault?.id;
+      const vaultEmail: string | undefined = paypalSource?.email_address;
+
+      const vaultUpdate: Record<string, any> = { $inc: { bones: pack.shines } };
+      if (vaultId) vaultUpdate.$set = { paypalVaultId: vaultId };
+      if (vaultEmail) vaultUpdate.$set = { ...(vaultUpdate.$set || {}), paypalEmail: vaultEmail };
+
       const updatedUser = await User.findOneAndUpdate(
         { username: usernameRaw },
-        { $inc: { bones: pack.shines } },
+        vaultUpdate,
         { new: true }
       );
 
@@ -203,25 +237,21 @@ export class PaypalController {
         return res.status(401).json({ success: false, message: "Usuario no autenticado" });
       }
 
-      const { amount, paypalEmail } = req.body;
-
-      if (!paypalEmail || typeof paypalEmail !== "string") {
-        return res.status(400).json({ success: false, message: "Email de PayPal requerido" });
-      }
-
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(paypalEmail.trim())) {
-        return res.status(400).json({ success: false, message: "Email de PayPal inválido" });
-      }
+      const { amount } = req.body;
 
       let shinesToRefund: number;
 
+      const user = await User.findOne({ username: usernameRaw });
+      if (!user) {
+        return res.status(404).json({ success: false, message: "Usuario no encontrado" });
+      }
+
+      if (!user.paypalEmail) {
+        return res.status(400).json({ success: false, message: "No tienes un método de pago registrado. Debes comprar shines al menos una vez antes de solicitar un reembolso." });
+      }
+
       if (amount === "all") {
-        const userDoc = await User.findOne({ username: usernameRaw });
-        if (!userDoc) {
-          return res.status(404).json({ success: false, message: "Usuario no encontrado" });
-        }
-        shinesToRefund = userDoc.bones ?? 0;
+        shinesToRefund = user.bones ?? 0;
         if (shinesToRefund <= 0) {
           return res.status(400).json({ success: false, message: "No tienes shines para reembolsar" });
         }
@@ -232,17 +262,11 @@ export class PaypalController {
         }
       }
 
-      const user = await User.findOne({ username: usernameRaw });
-      if (!user) {
-        return res.status(404).json({ success: false, message: "Usuario no encontrado" });
-      }
-
       const currentBones = user.bones ?? 0;
       if (currentBones < shinesToRefund) {
         return res.status(400).json({ success: false, message: "No tienes suficientes shines" });
       }
 
-      // Calcular valor en EUR (misma tasa que pack100: 100 shines = 4.65€)
       const eurValue = Math.round((shinesToRefund * 4.65 / 100) * 100) / 100;
 
       if (eurValue < 1.0) {
@@ -272,7 +296,7 @@ export class PaypalController {
                 value: eurValue.toFixed(2),
                 currency: "EUR",
               },
-              receiver: paypalEmail.trim(),
+              receiver: user.paypalEmail,
               note: `Reembolso de ${shinesToRefund} shines`,
               sender_item_id: `refund_${shinesToRefund}`,
             },

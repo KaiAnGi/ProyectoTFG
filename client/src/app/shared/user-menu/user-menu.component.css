@@ -781,30 +781,6 @@
   font-size: 1.1rem;
 }
 
-.refund-email-input {
-  background: rgba(28, 14, 14, 0.85);
-  border: 1px solid rgba(110, 35, 35, 0.5);
-  border-radius: 6px;
-  color: #b08888;
-  font-family: 'Metal Mania', cursive;
-  font-size: 1.1rem;
-  padding: 0.6rem 1.2rem;
-  outline: none;
-  transition: border-color 0.2s;
-  width: 60%;
-  max-width: 400px;
-  text-align: center;
-  letter-spacing: 0.1em;
-}
-
-.refund-email-input:focus {
-  border-color: rgba(150, 45, 45, 0.8);
-}
-
-.refund-email-input::placeholder {
-  color: #3e2222;
-}
-
 .refund-actions {
   width: 100%;
   display: flex;

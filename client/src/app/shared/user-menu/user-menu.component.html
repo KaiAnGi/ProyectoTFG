@@ -91,8 +91,6 @@
         </div>
       </div>
 
-      <input class="refund-email-input" type="email" placeholder="Email de PayPal..." [(ngModel)]="refundEmail" />
-
       <div class="refund-actions">
         <button class="refund-back-btn" (click)="toggleRefund()">BACK</button>
         <button class="refund-btn" (click)="onRefund()" [disabled]="refunding || !selectedRefundAmount">
