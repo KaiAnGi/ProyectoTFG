@@ -78,7 +78,7 @@
           -
         </button>
 
-        <span class="bet-amount-display">{{ betInput }}</span>
+        <input class="bet-amount-input" type="number" min="0" [max]="myBones" [(ngModel)]="betInput" (ngModelChange)="onBetInputChange($event)" />
 
         <button class="bet-adjust-btn" type="button" (click)="increaseBet()" [disabled]="!canIncreaseBet()">
           +

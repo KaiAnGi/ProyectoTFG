@@ -176,42 +176,41 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
   }
 
   private normalizeBetInput(): void {
+    // Allow betting 0. Clamp the betInput between 0 and myBones.
     if (this.myBones <= 0) {
       this.betInput = 0;
-    } else if (this.betInput <= 0) {
-      this.betInput = 1;
-    } else if (this.betInput > this.myBones) {
+      return;
+    }
+
+    if (isNaN(this.betInput) || this.betInput < 0) {
+      this.betInput = 0;
+    }
+
+    if (this.betInput > this.myBones) {
       this.betInput = this.myBones;
     }
   }
 
   canDecreaseBet(): boolean {
-    return !this.player1BetConfirmed && this.myBones > 0 && this.betInput > 1;
+    // Can decrease while not confirmed and betInput greater than 0
+    return !this.player1BetConfirmed && this.betInput > 0;
   }
 
   canIncreaseBet(): boolean {
-    return !this.player1BetConfirmed && this.myBones > 0 && this.betInput < this.myBones;
+    return !this.player1BetConfirmed && this.betInput < this.myBones;
   }
 
   canConfirmBet(): boolean {
-    return (
-      !this.player1BetConfirmed &&
-      this.myBones > 0 &&
-      this.betInput > 0 &&
-      this.betInput <= this.myBones
-    );
+    // Allow confirming a 0 bet even if myBones is 0
+    return !this.player1BetConfirmed && this.betInput >= 0 && this.betInput <= this.myBones;
   }
 
   confirmBet(): void {
     if (!this.roomCode) return;
 
-    if (this.myBones <= 0) {
-      this.betError = 'No tienes shines suficientes';
-      return;
-    }
-
-    if (this.betInput < 1) {
-      this.betError = 'La apuesta mínima es 1';
+    // Validate bet: allow 0 (even if myBones is 0)
+    if (this.betInput < 0) {
+      this.betError = 'La apuesta mínima es 0';
       return;
     }
 
@@ -226,13 +225,29 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
 
   decreaseBet(): void {
     if (!this.canDecreaseBet()) return;
-    this.betInput--;
+    this.betInput = Math.max(0, this.betInput - 1);
     this.betError = '';
   }
 
   increaseBet(): void {
     if (!this.canIncreaseBet()) return;
-    this.betInput++;
+    this.betInput = Math.min(this.myBones, this.betInput + 1);
+    this.betError = '';
+  }
+
+  onBetInputChange(value: any): void {
+    // Normalize direct input from the user (string or number)
+    const parsed = Number(value);
+    if (isNaN(parsed)) {
+      this.betInput = 0;
+    } else {
+      this.betInput = Math.floor(parsed);
+    }
+
+    // Clamp to valid range
+    if (this.betInput < 0) this.betInput = 0;
+    if (this.betInput > this.myBones) this.betInput = this.myBones;
+
     this.betError = '';
   }
 
