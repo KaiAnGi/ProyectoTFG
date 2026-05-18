@@ -1,4 +1,4 @@
-import { Component, signal, effect } from '@angular/core';
+import { Component, OnInit, signal, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService, User } from '../../services/auth';
@@ -21,6 +21,10 @@ export class HomeComponent {
             this.currentUser.set(this.auth.getCurrentUser());
             this.isLoggedIn.set(!!this.auth.getCurrentUser());
         });
+    }
+
+    ngOnInit() {
+        this.auth.logout();
     }
 
     onStart() {

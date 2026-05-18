@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth';
@@ -14,7 +14,7 @@ import { Subscription } from 'rxjs';
   styleUrl: './hud.component.css'
 })
 export class HudComponent implements OnInit, OnDestroy {
-  @Input() showUserDetails = false;
+  isLoggedIn = false;
   bones = 50;
   muted = false;
   shopOpen = false;
@@ -41,6 +41,7 @@ export class HudComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.authSub = this.authService.user$.subscribe(user => {
+      this.isLoggedIn = !!user && !user.guest;
       this.bones = user?.bones ?? 0;
     });
 
