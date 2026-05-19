@@ -21,7 +21,8 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
   private betUpdatedSub?: Subscription;
   private betErrorSub?: Subscription;
   private betResolvedSub?: Subscription;
-  private opponentAvatarSub?: Subscription;
+
+  private avatarSub?: Subscription;
 
   roomCode = '';
   roomName = '';
@@ -38,21 +39,19 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
   selectedCharacterIndex = 0;
 
   nextCharacter(): void {
-    this.selectedCharacterIndex =
-      (this.selectedCharacterIndex + 1) % this.characters.length;
-    this.updateAvatarInBackend();
+    this.selectedCharacterIndex = (this.selectedCharacterIndex + 1) % this.characters.length;
+    this.broadcastAvatar();
   }
 
   prevCharacter(): void {
     this.selectedCharacterIndex =
       (this.selectedCharacterIndex - 1 + this.characters.length) % this.characters.length;
-    this.updateAvatarInBackend();
+    this.broadcastAvatar();
   }
 
-  updateAvatarInBackend(): void {
-    const selectedAvatar = this.characters[this.selectedCharacterIndex];
+  private broadcastAvatar(): void {
     if (this.roomCode) {
-      this.gameService.updateAvatar(this.roomCode, selectedAvatar);
+      this.gameService.sendAvatarSelection(this.roomCode, this.selectedCharacterIndex);
     }
   }
 
@@ -103,6 +102,10 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
       this.player2.name = state.opponentName || 'Waiting...';
       this.player1.isReady = state.myCameraReady ?? false;
       this.player2.isReady = state.opponentCameraReady ?? false;
+
+      if (state.roomId && state.opponentName) {
+        this.broadcastAvatar();
+      }
 
       if (state.isRoundActive && state.roomId) {
         this.router.navigate(['/game']);
@@ -163,10 +166,8 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
       this.normalizeBetInput();
     });
 
-    this.opponentAvatarSub = this.gameService.opponentAvatar$.subscribe((data) => {
-      if (data && data.avatar) {
-        this.player2.avatar = data.avatar;
-      }
+    this.avatarSub = this.gameService.onAvatarSelected().subscribe((index) => {
+      this.player2.avatar = this.characters[index] || '';
     });
   }
 
@@ -280,7 +281,7 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
     if (!this.roomCode) return;
 
     if (this.player1.isReady) {
-      this.updateAvatarInBackend();
+      this.broadcastAvatar();
       this.gameService.sendCameraReady(this.roomCode);
     } else {
       this.gameService.sendCameraNotReady(this.roomCode);
@@ -338,7 +339,7 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
     this.betUpdatedSub?.unsubscribe();
     this.betErrorSub?.unsubscribe();
     this.betResolvedSub?.unsubscribe();
-    this.opponentAvatarSub?.unsubscribe();
+    this.avatarSub?.unsubscribe();
 
     if (this.copyTimeoutId) {
       clearTimeout(this.copyTimeoutId);

@@ -70,6 +70,9 @@ export interface ServerToClientEvents {
 
   error: (data: { message: string }) => void;
 
+  // --- AVATAR ---
+  avatar_selected: (data: { characterIndex: number }) => void;
+
   // --- WEBRTC ---
   webrtc_offer: (data: WebrtcOfferData) => void;
   webrtc_answer: (data: WebrtcAnswerData) => void;
@@ -119,6 +122,9 @@ export interface ClientToServerEvents {
   // Chat
   send_chat_message: (data: { to: string; message: string }) => void;
   mark_chat_messages_read: (data: { friendUsername: string }) => void;
+
+  // --- AVATAR ---
+  avatar_selected: (data: { roomId: string; characterIndex: number }) => void;
 
   // --- WEBRTC ---
   webrtc_offer: (data: { sdp: string; roomId: string }) => void;
