@@ -180,14 +180,6 @@ export class GameComponent implements OnInit, OnDestroy, AfterViewInit {
       }),
     );
 
-    this.webrtcSubs.push(
-      this.webrtcService.localStream$.subscribe((stream) => {
-        if (this.localWebrtcVideoRef?.nativeElement) {
-          this.localWebrtcVideoRef.nativeElement.srcObject = stream;
-        }
-      }),
-    );
-
     // Player1 initiates the offer after a short delay to ensure both sides are listening
     if (this.playerRole === 'player1') {
       setTimeout(() => this.webrtcService.makeOffer(), 1000);
