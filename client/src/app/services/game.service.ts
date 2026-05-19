@@ -41,6 +41,10 @@ export class GameService {
 
   public gameState$ = this.gameStateSubject.asObservable();
 
+  // NUEVO: Observable para escuchar el cambio de avatar del oponente
+  private opponentAvatarSubject = new BehaviorSubject<{ avatar: string } | null>(null);
+  public opponentAvatar$ = this.opponentAvatarSubject.asObservable();
+
   constructor() {
     this.initListeners();
   }
@@ -196,6 +200,11 @@ export class GameService {
     this.socketService.on('error').subscribe((data: any) => {
       console.error('Socket error:', data?.message || data);
     });
+
+    // NUEVO: Escuchar cambios en el avatar del oponente
+    this.socketService.on('opponent_avatar_updated').subscribe((data: any) => {
+      this.opponentAvatarSubject.next({ avatar: data?.avatar });
+    });
   }
 
   createRoom(username: string, roomName: string, maxRounds: 3 | 5 | 9 = 3): void {
@@ -251,6 +260,7 @@ export class GameService {
     this.betUpdatedSubject.next(null);
     this.betErrorSubject.next(null);
     this.betResolvedSubject.next(null);
+    this.opponentAvatarSubject.next(null);
     this.socketService.disconnect();
   }
 
@@ -283,6 +293,12 @@ export class GameService {
     }
 
     this.socketService.emit('set_bet', { roomId, amount: safeAmount });
+  }
+
+  // NUEVO: Emitir el cambio de avatar al backend
+  updateAvatar(roomId: string, avatarUrl: string): void {
+    if (!roomId || !avatarUrl) return;
+    this.socketService.emit('update_avatar', { roomId, avatar: avatarUrl });
   }
 
   onBetUpdated(): Observable<{

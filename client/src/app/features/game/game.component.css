@@ -322,7 +322,6 @@
   transform: translateY(-2px);
 }
 
-
 /* ── RESPONSIVE ── */
 @media (max-width: 768px) {
   .players-container {
@@ -389,8 +388,6 @@
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
-
-
 .title-win {
   color: #80754b;
 }
@@ -401,4 +398,130 @@
 
 .title-tie {
   color: #aaaaaa;
+}
+
+/* --- Estilos para avatares en Game Over --- */
+.victory-avatars-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  margin: 1.5rem 0;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.avatar-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  transition: transform 0.3s ease;
+}
+
+.avatar-col.winner {
+  transform: scale(1.1);
+}
+
+.avatar-col.loser {
+  opacity: 0.6;
+  filter: grayscale(80%);
+}
+
+.end-avatar-img {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  background-color: #222;
+  color: transparent;
+}
+
+.avatar-col.winner .end-avatar-img {
+  border-color: #f1d489;
+  box-shadow: 0 0 15px rgba(241, 212, 137, 0.4);
+}
+
+.end-player-name {
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.85rem;
+  color: #cfcfcf;
+}
+
+.end-score {
+  font-size: 1.8rem;
+  color: #fff;
+  line-height: 1;
+}
+
+.vs-text {
+  font-size: 1.2rem;
+  color: #888;
+  font-style: italic;
+}
+
+/* --- Estilos mejorados para las apuestas --- */
+.bet-result-section {
+  margin-top: 1rem;
+  padding: 1rem 0;
+}
+
+.bet-result-title {
+  color: #e8e8e8;
+  font-family: 'Outfit', sans-serif;
+  font-size: 1rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: 0.3rem;
+}
+
+.bet-result-msg {
+  color: #f1d489;
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+}
+
+.bet-summary-grid {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.bet-box {
+  display: flex;
+  flex-direction: column;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 0.6rem 1rem;
+  border-radius: 8px;
+  min-width: 90px;
+}
+
+.total-pot-box {
+  background: rgba(241, 212, 137, 0.1);
+  border: 1px solid rgba(241, 212, 137, 0.3);
+  transform: scale(1.05);
+}
+
+.bet-label {
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.7rem;
+  color: #aaa;
+  text-transform: uppercase;
+  margin-bottom: 0.2rem;
+}
+
+.bet-value {
+  font-size: 1.2rem;
+  color: #e5e5e5;
+}
+
+.pot-highlight {
+  font-size: 1.4rem;
+  color: #f1d489;
 }
