@@ -32,7 +32,6 @@ export class GameComponent implements OnInit, OnDestroy, AfterViewInit {
   private cdr = inject(ChangeDetectorRef);
 
   @ViewChild('remoteVideo') remoteVideoRef!: ElementRef<HTMLVideoElement>;
-  @ViewChild('localWebrtcVideo') localWebrtcVideoRef!: ElementRef<HTMLVideoElement>;
 
   // Estado UI
   roomCode = '';
@@ -173,14 +172,6 @@ export class GameComponent implements OnInit, OnDestroy, AfterViewInit {
       this.webrtcService.remoteStream$.subscribe((stream) => {
         if (this.remoteVideoRef?.nativeElement) {
           this.remoteVideoRef.nativeElement.srcObject = stream;
-        }
-      }),
-    );
-
-    this.webrtcSubs.push(
-      this.webrtcService.localStream$.subscribe((stream) => {
-        if (this.localWebrtcVideoRef?.nativeElement) {
-          this.localWebrtcVideoRef.nativeElement.srcObject = stream;
         }
       }),
     );
