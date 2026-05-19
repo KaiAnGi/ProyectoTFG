@@ -1,7 +1,23 @@
 <div class="hud">
-  <button class="mute-btn" (click)="toggleMute()" [attr.aria-label]="muted ? 'Activar sonido' : 'Silenciar'">
-    <img [src]="muted ? '/images/novolumen.png' : '/images/volumen.png'" alt="" class="mute-icon" />
-  </button>
+  <div class="volume-wrapper">
+    <button class="mute-btn"
+      (click)="toggleMute(); toggleVolumeSlider()"
+      [attr.aria-label]="muted ? 'Activar sonido' : 'Silenciar'">
+      <img [src]="muted ? '/images/novolumen.png' : '/images/volumen.png'" alt="" class="mute-icon" />
+    </button>
+
+    <div class="volume-slider-popup" *ngIf="sliderOpen">
+      <input
+        class="volume-slider"
+        type="range"
+        min="0"
+        max="1"
+        step="0.01"
+        [value]="volume"
+        (input)="onVolumeChange($event)"
+      />
+    </div>
+  </div>
 
   <ng-container *ngIf="showUserDetails">
     <div class="bones-display">
@@ -33,7 +49,7 @@
     <div class="shop-actions">
       <button class="back-btn" (click)="toggleShop()">BACK</button>
       <button class="pay-btn" (click)="onPay()" [disabled]="paying || selectedItem === null">
-        {{ paying ? 'PROCESANDO...' : 'PAY' }}
+        {{ paying ? 'PROCESSING...' : 'PAY' }}
       </button>
     </div>
 

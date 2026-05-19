@@ -32,7 +32,6 @@ export class UserMenuComponent implements OnInit, OnDestroy {
   friendToRemove = '';
 
   chatOpen = false;
-  chatTab: 'friends' | 'chat' = 'friends';
   chatInput = '';
   selectedFriend: string | null = null;
   unreadCounts: { [friend: string]: number } = {};
@@ -49,7 +48,6 @@ export class UserMenuComponent implements OnInit, OnDestroy {
   private authSub?: Subscription;
   private friendsSub?: Subscription;
   private pendingRequestsSub?: Subscription;
-  private chatMessagesSub?: Subscription;
   private unreadCountsSub?: Subscription;
 
   get shouldShow(): boolean {
@@ -93,15 +91,8 @@ export class UserMenuComponent implements OnInit, OnDestroy {
       this.friends = friends;
     });
 
-    // Suscribirse a cambios en solicitudes pendientes (recibidas)
     this.pendingRequestsSub = this.friendsService.pendingRequests$.subscribe((requests) => {
       this.pendingRequests = requests;
-    });
-
-    this.chatMessagesSub = this.friendsService.chatMessages$.subscribe((messages) => {
-      if (this.selectedFriend) {
-        // No guardamos localmente, el getter activeMessages usa el estado del servicio.
-      }
     });
 
     this.unreadCountsSub = this.friendsService.unreadCounts$.subscribe((counts) => {
@@ -119,6 +110,9 @@ export class UserMenuComponent implements OnInit, OnDestroy {
 
   toggleChat() {
     this.chatOpen = !this.chatOpen;
+    if (!this.chatOpen) {
+      this.selectedFriend = null;
+    }
     if (this.chatOpen && this.selectedFriend) {
       this.friendsService.markMessagesAsRead(this.selectedFriend);
     }
@@ -130,14 +124,18 @@ export class UserMenuComponent implements OnInit, OnDestroy {
 
   openChatWith(friend: string) {
     this.selectedFriend = friend;
-    this.chatTab = 'chat';
 
-    const cachedMessages = this.friendsService.getChatMessagesForFriend(friend);
-    if (!cachedMessages?.length) {
+    const cached = this.friendsService.getChatMessagesForFriend(friend);
+    if (!cached?.length) {
       this.friendsService.loadChatMessages(friend);
     }
 
     this.friendsService.markMessagesAsRead(friend);
+
+    setTimeout(() => {
+      const el = this.messagesContainer?.nativeElement;
+      if (el) el.scrollTop = el.scrollHeight;
+    }, 100);
   }
 
   sendMessage() {
@@ -268,7 +266,6 @@ export class UserMenuComponent implements OnInit, OnDestroy {
     this.authSub?.unsubscribe();
     this.friendsSub?.unsubscribe();
     this.pendingRequestsSub?.unsubscribe();
-    this.chatMessagesSub?.unsubscribe();
     this.unreadCountsSub?.unsubscribe();
   }
 

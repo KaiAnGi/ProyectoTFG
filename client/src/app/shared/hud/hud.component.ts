@@ -17,6 +17,8 @@ export class HudComponent implements OnInit, OnDestroy {
   @Input() showUserDetails = false;
   bones = 50;
   muted = false;
+  sliderOpen = false;
+  volume = 0.2;
   shopOpen = false;
   selectedItem: number | null = null;
 
@@ -44,11 +46,22 @@ export class HudComponent implements OnInit, OnDestroy {
       this.bones = user?.bones ?? 0;
     });
 
-    this.audioService.playMusic('/sounds/musicaFondo.mp3', 0.2);
+    this.audioService.playMusic('/sounds/musicaFondo.mp3', this.volume);
   }
 
   toggleMute() {
     this.muted = this.audioService.toggleMute();
+  }
+
+  toggleVolumeSlider() {
+    this.sliderOpen = !this.sliderOpen;
+  }
+
+  onVolumeChange(event: Event) {
+    const input = event.target as HTMLInputElement;
+    this.volume = parseFloat(input.value);
+    this.audioService.setVolume(this.volume);
+    this.muted = this.volume === 0;
   }
 
   toggleShop() {
@@ -149,7 +162,7 @@ export class HudComponent implements OnInit, OnDestroy {
             finish(true);
           }
         } catch {
-          // Si falla el check, seguimos esperando
+          // sigue esperando
         }
       }, 2000);
 

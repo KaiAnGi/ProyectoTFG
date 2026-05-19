@@ -16,22 +16,18 @@ export class AudioService {
   }
 
   playMusic(src: string, volume: number) {
-    // Si ya suena la misma cancion, no hacemos nada
     if (this.music && !this.music.paused && this.music.src.endsWith(src)) return;
 
-    // Paramos lo que habia antes
     this.stopMusic();
 
     this.musicVolume = volume;
 
-    // Si el audio ya fue desbloqueado antes (hay interaccion previa), arrancamos directo
     if (this.music !== null || document.hasFocus()) {
       this.music = new Audio(src);
       this.music.loop = true;
       this.music.volume = this.musicVolume;
       this.music.muted = this.muted;
       this.music.play().catch(() => {
-        // El navegador bloqueo el autoplay, esperamos interaccion
         this.waitForInteraction(src);
       });
       return;
@@ -41,7 +37,6 @@ export class AudioService {
   }
 
   private waitForInteraction(src: string) {
-    // Limpiamos listener anterior si lo habia
     this.removeStartHandler();
 
     this.startHandler = () => {
@@ -83,6 +78,19 @@ export class AudioService {
       if (volume !== undefined) sound.volume = volume;
       sound.play().catch(() => {});
     }
+  }
+
+  setVolume(volume: number) {
+    this.musicVolume = volume;
+    this.muted = volume === 0;
+    if (this.music) {
+      this.music.volume = volume;
+      this.music.muted = this.muted;
+    }
+    this.sounds.forEach(s => {
+      s.volume = volume;
+      s.muted = this.muted;
+    });
   }
 
   toggleMute(): boolean {
