@@ -130,11 +130,19 @@ export function setupGameHandlers(
             await Promise.all(updates);
           }
 
+          // Fetch updated bones for both players
+          const [p1User, p2User] = await Promise.all([
+            User.findOne({ username: room.player1.name }),
+            User.findOne({ username: room.player2.name }),
+          ]);
+
           io.to(roomId).emit("bet_resolved", {
             winner: winnerName,
             amount: totalPot,
             player1Bet: p1Bet,
             player2Bet: p2Bet,
+            player1Bones: p1User?.bones ?? 0,
+            player2Bones: p2User?.bones ?? 0,
           });
         } catch (err) {
           console.error("Error liquidando apuesta:", err);

@@ -370,8 +370,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(0, 0, 0, 0.85);
   z-index: 3;
+  backdrop-filter: blur(4px);
 }
 
 .overlay-text {
@@ -389,22 +390,7 @@
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
-.winner-name {
-  display: block;
-  text-align: center;
-  margin-top: 0.3rem;
-  color: #f1d489;
-  font-size: clamp(0.8rem, 1.5vw, 1rem);
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-shadow: 0 0 8px rgba(241, 212, 137, 0.4);
-  animation: pulse-glow 1.5s ease-in-out infinite;
-}
 
-@keyframes pulse-glow {
-  0%, 100% { opacity: 0.7; }
-  50% { opacity: 1; }
-}
 
 .title-win {
   color: #80754b;

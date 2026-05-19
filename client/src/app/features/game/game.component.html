@@ -62,9 +62,6 @@
       <div class="camera-box"
            [ngClass]="{'winner-highlight': isWinnerHighlightVisible && winnerNameThisRound === playerName}">
         <app-gesture-detector></app-gesture-detector>
-        <div class="camera-overlay" *ngIf="isRoundActive">
-          <span class="overlay-text">PRIVATE</span>
-        </div>
         <video #localWebrtcVideo autoplay playsinline muted class="camera-video webrtc-local-video"></video>
       </div>
       <p class="gesture-label">{{ selectedGestureText(myGesture) }}</p>
@@ -73,9 +70,6 @@
     <!-- RAYO -->
     <div class="vs-divider">
       <img src="/images/rayo.png" alt="vs" class="lightning-img">
-      <span class="winner-name" *ngIf="isWinnerHighlightVisible && winnerNameThisRound">
-        {{ winnerNameThisRound }} wins!
-      </span>
     </div>
 
     <!-- PLAYER 2 -->

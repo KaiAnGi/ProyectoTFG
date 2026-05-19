@@ -62,6 +62,8 @@ export interface ServerToClientEvents {
     amount: number;
     player1Bet: number;
     player2Bet: number;
+    player1Bones: number;
+    player2Bones: number;
   }) => void;
 
   bet_error: (data: { message: string }) => void;
