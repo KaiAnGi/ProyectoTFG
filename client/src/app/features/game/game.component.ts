@@ -32,7 +32,6 @@ export class GameComponent implements OnInit, OnDestroy, AfterViewInit {
   private cdr = inject(ChangeDetectorRef);
 
   @ViewChild('remoteVideo') remoteVideoRef!: ElementRef<HTMLVideoElement>;
-  @ViewChild('localWebrtcVideo') localWebrtcVideoRef!: ElementRef<HTMLVideoElement>;
 
   roomCode = '';
   roomName = '';
@@ -189,6 +188,7 @@ export class GameComponent implements OnInit, OnDestroy, AfterViewInit {
       }),
     );
 
+    // Player1 initiates the offer after a short delay to ensure both sides are listening
     if (this.playerRole === 'player1') {
       setTimeout(() => this.webrtcService.makeOffer(), 1000);
     }

@@ -87,7 +87,6 @@
       <div class="camera-box"
            [ngClass]="{'winner-highlight': isWinnerHighlightVisible && winnerNameThisRound === playerName}">
         <app-gesture-detector></app-gesture-detector>
-        <video #localWebrtcVideo autoplay playsinline muted class="camera-video webrtc-local-video"></video>
       </div>
       <p class="gesture-label">{{ selectedGestureText(myGesture) }}</p>
     </div>
