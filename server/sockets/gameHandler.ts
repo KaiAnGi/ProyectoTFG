@@ -301,7 +301,8 @@ export function setupGameHandlers(
           return;
         }
 
-        if (!room.betAmount || !room.player1BetConfirmed || !room.player2BetConfirmed) {
+        // Require both players to confirm the bet; allow total pot to be 0
+        if (!room.player1BetConfirmed || !room.player2BetConfirmed) {
           socket.emit("bet_error", {
             message: "Both players must confirm the bet before starting",
           });
@@ -365,8 +366,9 @@ export function setupGameHandlers(
         }
 
         const normalizedAmount = Math.floor(Number(amount));
-        if (!Number.isFinite(normalizedAmount) || normalizedAmount <= 0) {
-          socket.emit("bet_error", { message: "Bet must be greater than 0" });
+        // Allow zero bets; only reject negative or non-finite amounts
+        if (!Number.isFinite(normalizedAmount) || normalizedAmount < 0) {
+          socket.emit("bet_error", { message: "Bet must be 0 or greater" });
           return;
         }
 
