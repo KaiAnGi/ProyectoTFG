@@ -192,6 +192,7 @@
   justify-content: center;
   color: #606060;
   transition: all 0.3s ease;
+  overflow: hidden;
 }
 
 .player-avatar svg {
@@ -199,9 +200,52 @@
   height: 70%;
 }
 
+.character-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  display: block;
+}
+
 .player-avatar.waiting {
   opacity: 0.5;
   animation: pulse 2s ease-in-out infinite;
+}
+
+.character-selector {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.char-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #e0d8cc;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease, transform 0.15s ease;
+  font-family: inherit;
+}
+
+.char-btn:hover {
+  background: rgba(255, 255, 255, 0.22);
+  transform: scale(1.1);
+}
+
+.char-index {
+  font-size: 0.72rem;
+  color: #b2aba2;
+  min-width: 32px;
+  text-align: center;
+  letter-spacing: 0.04em;
 }
 
 .ready-button {
@@ -364,7 +408,6 @@
   padding: 0.26rem 0.45rem;
 }
 
-/* Editable numeric input styled to match the application's display */
 .bet-amount-input {
   -webkit-appearance: none;
   -moz-appearance: textfield;
@@ -389,7 +432,6 @@
   caret-color: #ffffff;
 }
 
-/* Hide native number spinners */
 .bet-amount-input::-webkit-outer-spin-button,
 .bet-amount-input::-webkit-inner-spin-button {
   -webkit-appearance: none;
@@ -403,66 +445,6 @@
 
 .bet-amount-input:focus {
   box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.05) inset;
-  border-color: rgba(255, 255, 255, 0.18);
-}
-
-/* Styled numeric input to visually match the previous static display */
-.bet-amount-input {
-  -webkit-appearance: none;
-  -moz-appearance: textfield;
-  appearance: none;
-  min-width: 54px;
-  text-align: center;
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: #fff;
-  background: rgba(0, 0, 0, 0.34);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 6px;
-  padding: 0.26rem 0.45rem;
-  outline: none;
-}
-
-/* Remove spinner controls in WebKit browsers */
-.bet-amount-input::-webkit-outer-spin-button,
-.bet-amount-input::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-
-/* Ensure consistent focus style */
-.bet-amount-input:focus {
-  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.05);
-  border-color: rgba(255, 255, 255, 0.18);
-}
-
-/* Styled numeric input to visually match the previous static display */
-.bet-amount-input {
-  -webkit-appearance: none;
-  -moz-appearance: textfield;
-  appearance: none;
-  min-width: 54px;
-  text-align: center;
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: #fff;
-  background: rgba(0, 0, 0, 0.34);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 6px;
-  padding: 0.26rem 0.45rem;
-  outline: none;
-}
-
-/* Remove spinner controls in WebKit browsers */
-.bet-amount-input::-webkit-outer-spin-button,
-.bet-amount-input::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-
-/* Ensure consistent focus style */
-.bet-amount-input:focus {
-  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.05);
   border-color: rgba(255, 255, 255, 0.18);
 }
 
@@ -805,29 +787,15 @@
 }
 
 @keyframes pulse {
-  0%,
-  100% {
-    opacity: 0.5;
-  }
-
-  50% {
-    opacity: 0.8;
-  }
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 0.8; }
 }
 
 @keyframes blink {
-  0%,
-  100% {
-    opacity: 1;
-  }
-
-  50% {
-    opacity: 0.6;
-  }
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
 }
 
 @keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
+  to { transform: rotate(360deg); }
 }
