@@ -11,7 +11,7 @@ import { HudComponent } from './shared/hud/hud.component';
   standalone: true,
   imports: [CommonModule, RouterOutlet, UserMenuComponent, HudComponent],
   templateUrl: './app.html',
-  styleUrl: './app.css'
+  styleUrl: './app.css',
 })
 export class App implements OnInit, OnDestroy {
   protected readonly title = signal('client');
@@ -29,8 +29,15 @@ export class App implements OnInit, OnDestroy {
     const refreshChromeVisibility = () => {
       const currentUser = this.authService.getCurrentUser();
       const route = this.router.url;
-      const isAuthSurface = route === '/' || route.startsWith('/auth') || route.startsWith('/login') || route.startsWith('/register');
-      this.showUserChrome.set(!!currentUser && !currentUser.guest && !isAuthSurface);
+      const isAuthSurface =
+        route === '/' ||
+        route.startsWith('/auth') ||
+        route.startsWith('/login') ||
+        route.startsWith('/register');
+      const isGameRoute = route.startsWith('/game');
+      this.showUserChrome.set(
+        !!currentUser && !currentUser.guest && !isAuthSurface && !isGameRoute,
+      );
     };
 
     this.authSub = this.authService.user$.subscribe(() => refreshChromeVisibility());
