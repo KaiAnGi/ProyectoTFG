@@ -3,28 +3,53 @@
 
   <div class="victory-overlay" *ngIf="isMatchFinished">
     <div class="victory-card">
+      
       <h2 class="victory-title"
         [ngClass]="matchWinnerName === 'Empate' ? 'title-tie' : (matchWinnerName === playerName ? 'title-win' : 'title-lose')">
         {{ matchWinnerName === 'Empate' ? 'TIE' : (matchWinnerName === playerName ? 'VICTORY' : 'DEFEAT') }}
       </h2>
       <p class="victory-message">
-        {{ matchWinnerName === 'Empate' ? 'It\'s a tie' : (matchWinnerName === playerName ? 'You have won' : 'You have
-        lost') }}
+        {{ matchWinnerName === 'Empate' ? 'It\'s a tie' : (matchWinnerName === playerName ? 'You have won' : 'You have lost') }}
         {{ opponentName ? ' against ' + opponentName : '' }}
       </p>
-      <p class="victory-score">Final Score: {{ myScore }} - {{ opponentScore }}</p>
+
+      <div class="victory-avatars-row">
+        <div class="avatar-col" [class.winner]="matchWinnerName === playerName" [class.loser]="matchWinnerName === opponentName">
+          <img [src]="myAvatar" alt="You" class="end-avatar-img">
+          <span class="end-player-name">{{ playerName }}</span>
+          <span class="end-score">{{ myScore }}</span>
+        </div>
+
+        <div class="vs-text">VS</div>
+
+        <div class="avatar-col" [class.winner]="matchWinnerName === opponentName" [class.loser]="matchWinnerName === playerName">
+          <img [src]="opponentAvatar" alt="Opponent" class="end-avatar-img">
+          <span class="end-player-name">{{ opponentName }}</span>
+          <span class="end-score">{{ opponentScore }}</span>
+        </div>
+      </div>
+
       <div class="bet-result-section" *ngIf="betResolved">
         <div class="bet-divider"></div>
         <p class="bet-result-title">BET RESULT</p>
         <p class="bet-result-msg">{{ betResultMessage }}</p>
-        <div class="bet-detail-line">
-          <span>Your bet: <strong>{{ myBetAmount }}</strong></span>
-          <span>Opponent bet: <strong>{{ opponentBetAmount }}</strong></span>
-        </div>
-        <div class="bet-detail-line total">
-          <span>Total pot: <strong class="pot-highlight">{{ totalBetPot }}</strong></span>
+        
+        <div class="bet-summary-grid">
+          <div class="bet-box">
+            <span class="bet-label">Your Bet</span>
+            <strong class="bet-value">{{ myBetAmount }}</strong>
+          </div>
+          <div class="bet-box total-pot-box">
+            <span class="bet-label">Total Pot</span>
+            <strong class="pot-highlight">{{ totalBetPot }}</strong>
+          </div>
+          <div class="bet-box">
+            <span class="bet-label">Opponent</span>
+            <strong class="bet-value">{{ opponentBetAmount }}</strong>
+          </div>
         </div>
       </div>
+
       <button class="exit-btn" (click)="onBackToMenu()">Back to Menu</button>
     </div>
   </div>
@@ -90,3 +115,4 @@
   <div class="game-footer">
     <button class="exit-btn" (click)="onExit()">EXIT</button>
   </div>
+</div>

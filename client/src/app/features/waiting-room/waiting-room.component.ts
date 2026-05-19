@@ -21,32 +21,40 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
   private betUpdatedSub?: Subscription;
   private betErrorSub?: Subscription;
   private betResolvedSub?: Subscription;
+  private opponentAvatarSub?: Subscription;
 
   roomCode = '';
   roomName = '';
   copyFeedback = false;
   private copyTimeoutId: ReturnType<typeof setTimeout> | null = null;
 
-  // ── NUEVO: selector de personajes ────────────────────────────────
   characters: string[] = [
-   'characters/java.png',
-  'characters/copilot.png',
-  'characters/kai.png',
-  'characters/diego.png',
-  'characters/karen.png',
-];
+    'characters/java.png',
+    'characters/copilot.png',
+    'characters/kai.png',
+    'characters/diego.png',
+    'characters/karen.png',
+  ];
   selectedCharacterIndex = 0;
 
   nextCharacter(): void {
     this.selectedCharacterIndex =
       (this.selectedCharacterIndex + 1) % this.characters.length;
+    this.updateAvatarInBackend();
   }
 
   prevCharacter(): void {
     this.selectedCharacterIndex =
       (this.selectedCharacterIndex - 1 + this.characters.length) % this.characters.length;
+    this.updateAvatarInBackend();
   }
-  // ────────────────────────────────────────────────────────────────
+
+  updateAvatarInBackend(): void {
+    const selectedAvatar = this.characters[this.selectedCharacterIndex];
+    if (this.roomCode) {
+      this.gameService.updateAvatar(this.roomCode, selectedAvatar);
+    }
+  }
 
   player1 = { name: 'You', isReady: false, isYou: true };
   player2 = { name: 'Opponent', isReady: false, isYou: false, avatar: '' };
@@ -75,7 +83,6 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     const initialUser = this.authService.getCurrentUser();
-    console.log('Usuario inicial:', initialUser);
 
     if (initialUser?.username) {
       this.applyUser(initialUser);
@@ -83,8 +90,6 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
     }
 
     this.userSub = this.authService.user$.subscribe((user) => {
-      console.log('Usuario desde user$:', user);
-
       if (user?.username) {
         this.applyUser(user);
         this.loadBones();
@@ -157,6 +162,12 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
       this.loadBones();
       this.normalizeBetInput();
     });
+
+    this.opponentAvatarSub = this.gameService.opponentAvatar$.subscribe((data) => {
+      if (data && data.avatar) {
+        this.player2.avatar = data.avatar;
+      }
+    });
   }
 
   private applyUser(user: User): void {
@@ -173,11 +184,8 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
       return;
     }
 
-    console.log('Cargando shines para:', this.myUsername);
-
     this.http.get<{ bones: number }>(`/api/bones/${this.myUsername}`).subscribe({
       next: (res) => {
-        console.log('Respuesta bones:', res);
         this.myBones = Number(res.bones ?? 0);
         this.normalizeBetInput();
         this.betError = '';
@@ -272,6 +280,7 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
     if (!this.roomCode) return;
 
     if (this.player1.isReady) {
+      this.updateAvatarInBackend();
       this.gameService.sendCameraReady(this.roomCode);
     } else {
       this.gameService.sendCameraNotReady(this.roomCode);
@@ -329,6 +338,7 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
     this.betUpdatedSub?.unsubscribe();
     this.betErrorSub?.unsubscribe();
     this.betResolvedSub?.unsubscribe();
+    this.opponentAvatarSub?.unsubscribe();
 
     if (this.copyTimeoutId) {
       clearTimeout(this.copyTimeoutId);

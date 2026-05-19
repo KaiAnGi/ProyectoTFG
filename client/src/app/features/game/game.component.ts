@@ -33,7 +33,6 @@ export class GameComponent implements OnInit, OnDestroy, AfterViewInit {
 
   @ViewChild('remoteVideo') remoteVideoRef!: ElementRef<HTMLVideoElement>;
 
-  // Estado UI
   roomCode = '';
   roomName = '';
   playerName = '';
@@ -71,6 +70,9 @@ export class GameComponent implements OnInit, OnDestroy, AfterViewInit {
   showOpponentVideo = false;
   winnerNameThisRound: string | null = null;
   isWinnerHighlightVisible = false;
+
+  myAvatar = 'characters/karen.png';
+  opponentAvatar = 'characters/java.png';
 
   ngOnInit() {
     this.stateSub = this.gameService.gameState$
@@ -121,7 +123,9 @@ export class GameComponent implements OnInit, OnDestroy, AfterViewInit {
 
         this.roundResultText = this.getRoundResultText(state);
 
-        // --- WebRTC show/hide logic ---
+        this.myAvatar = (state as any).playerAvatar || 'characters/karen.png';
+        this.opponentAvatar = (state as any).opponentAvatar || 'characters/java.png';
+
         if (state.isRoundActive) {
           this.showOpponentVideo = false;
           this.isWinnerHighlightVisible = false;
@@ -172,6 +176,14 @@ export class GameComponent implements OnInit, OnDestroy, AfterViewInit {
       this.webrtcService.remoteStream$.subscribe((stream) => {
         if (this.remoteVideoRef?.nativeElement) {
           this.remoteVideoRef.nativeElement.srcObject = stream;
+        }
+      }),
+    );
+
+    this.webrtcSubs.push(
+      this.webrtcService.localStream$.subscribe((stream) => {
+        if (this.localWebrtcVideoRef?.nativeElement) {
+          this.localWebrtcVideoRef.nativeElement.srcObject = stream;
         }
       }),
     );
