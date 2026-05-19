@@ -15,7 +15,6 @@ import {
 })
 export class GameService {
   private socketService = inject(SocketService);
-  private http = inject(HttpClient);
   private authService = inject(AuthService);
 
   private gameStateSubject = new BehaviorSubject<GameState>({ ...INITIAL_GAME_STATE });
