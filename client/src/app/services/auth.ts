@@ -145,6 +145,7 @@ export class AuthService {
     this.currentUser.set(null);
     sessionStorage.removeItem('rps_user');
     sessionStorage.removeItem('rps_token');
+    this.clearPaypalStorage();
     this.user$.next(null);
   }
 
@@ -154,5 +155,19 @@ export class AuthService {
 
   getCurrentUser() {
     return this.currentUser();
+  }
+
+  clearPaypalStorage() {
+    try {
+      localStorage.removeItem('__paypal_storage__');
+    } catch {
+      // Ignore storage access issues.
+    }
+
+    try {
+      sessionStorage.removeItem('__paypal_storage__');
+    } catch {
+      // Ignore storage access issues.
+    }
   }
 }

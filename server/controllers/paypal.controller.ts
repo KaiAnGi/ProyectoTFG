@@ -247,30 +247,30 @@ export class PaypalController {
       }
 
       if (!user.paypalEmail) {
-        return res.status(400).json({ success: false, message: "No tienes un método de pago registrado. Debes comprar shines al menos una vez antes de solicitar un reembolso." });
+        return res.status(400).json({ success: false, message: "You do not have a registered payment method. You must buy shines at least once before requesting a refund." });
       }
 
       if (amount === "all") {
         shinesToRefund = user.bones ?? 0;
         if (shinesToRefund <= 0) {
-          return res.status(400).json({ success: false, message: "No tienes shines para reembolsar" });
+          return res.status(400).json({ success: false, message: "You have no shines to refund" });
         }
       } else {
         shinesToRefund = Number(amount);
         if (!Number.isFinite(shinesToRefund) || ![100, 200, 500, 1000].includes(shinesToRefund)) {
-          return res.status(400).json({ success: false, message: "Cantidad inválida. Opciones: 100, 200, 500, 1000" });
+          return res.status(400).json({ success: false, message: "Invalid amount. Options: 100, 200, 500, 1000" });
         }
       }
 
       const currentBones = user.bones ?? 0;
       if (currentBones < shinesToRefund) {
-        return res.status(400).json({ success: false, message: "No tienes suficientes shines" });
+        return res.status(400).json({ success: false, message: "You do not have enough shines" });
       }
 
       const eurValue = Math.round((shinesToRefund * 4.65 / 100) * 100) / 100;
 
       if (eurValue < 1.0) {
-        return res.status(400).json({ success: false, message: "El mínimo de reembolso es 1.00€ (equivalente a ~22 shines)" });
+        return res.status(400).json({ success: false, message: "The minimum refund is 1.00€ (equivalent to about 22 shines)" });
       }
 
       const token = await getAccessToken();
@@ -286,8 +286,8 @@ export class PaypalController {
         body: JSON.stringify({
           sender_batch_header: {
             sender_batch_id: payoutBatchId,
-            email_subject: "Reembolso RPS Game",
-            email_message: `Has recibido un reembolso de ${eurValue.toFixed(2)}€ por ${shinesToRefund} shines.`,
+            email_subject: "RPS Game Refund",
+            email_message: `You have received a refund of ${eurValue.toFixed(2)}€ for ${shinesToRefund} shines.`,
           },
           items: [
             {
@@ -297,7 +297,7 @@ export class PaypalController {
                 currency: "EUR",
               },
               receiver: user.paypalEmail,
-              note: `Reembolso de ${shinesToRefund} shines`,
+              note: `Refund of ${shinesToRefund} shines`,
               sender_item_id: `refund_${shinesToRefund}`,
             },
           ],
@@ -307,10 +307,10 @@ export class PaypalController {
       const payoutData = await payoutResponse.json() as PaypalPayoutResponse;
 
       if (!payoutResponse.ok) {
-        console.error("Error en payout PayPal:", payoutData);
+        console.error("Error in PayPal payout:", payoutData);
         return res.status(500).json({
           success: false,
-          message: "Error procesando el reembolso en PayPal",
+          message: "Error processing the refund in PayPal",
           details: payoutData,
         });
       }
@@ -324,7 +324,7 @@ export class PaypalController {
       if (!updatedUser) {
         return res.status(500).json({
           success: false,
-          message: "Error actualizando los shines después del reembolso",
+          message: "Error updating shines after the refund",
         });
       }
 
@@ -337,8 +337,8 @@ export class PaypalController {
       });
 
     } catch (error) {
-      console.error("Error in refund:", error);
-      res.status(500).json({ success: false, message: "Error interno del servidor" });
+      console.error("Error processing refund:", error);
+      res.status(500).json({ success: false, message: "Internal server error" });
     }
   }
 

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnDestroy, OnInit, signal } from '@angular/core';
+import { Component, HostListener, OnDestroy, OnInit, signal } from '@angular/core';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { filter, Subscription } from 'rxjs';
 import { AuthService } from './services/auth';
@@ -44,5 +44,10 @@ export class App implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.authSub?.unsubscribe();
     this.routerSub?.unsubscribe();
+  }
+
+  @HostListener('window:beforeunload')
+  onBeforeUnload() {
+    this.authService.clearPaypalStorage();
   }
 }

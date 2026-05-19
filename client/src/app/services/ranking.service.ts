@@ -1,4 +1,3 @@
-// services/ranking.service.ts
 import { Injectable, inject, effect } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable } from 'rxjs';
@@ -12,11 +11,11 @@ export class RankingService {
   private socket!: Socket;
   private leaderboardSubject = new BehaviorSubject<ILeaderboard[]>([]);
 
-  readonly baseUrl = environment.apiUrl; // Tipo-safe, no expuesto
+  readonly baseUrl = environment.apiUrl; // Type-safe and not exposed
   readonly leaderboard$ = this.leaderboardSubject.asObservable();
 
   constructor() {
-    // effect() se ejecuta cuando el servicio se monta (primera inyección)
+    // effect() runs when the service is instantiated (first injection)
     effect(() => {
       this.connectSocket();
     });
@@ -36,7 +35,7 @@ export class RankingService {
   loadInitial() {
     this.getTopRanking(50).subscribe({
       next: (top) => this.leaderboardSubject.next(top),
-      error: (err) => console.error('Error cargando ranking inicial:', err),
+      error: (err) => console.error('Error loading initial leaderboard:', err),
     });
   }
 
