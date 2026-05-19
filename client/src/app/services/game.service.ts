@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { SocketService } from './socket.service';
 import { AuthService } from './auth';
 import {
@@ -38,6 +38,8 @@ export class GameService {
     player1Bones: number;
     player2Bones: number;
   } | null>(null);
+
+  private avatarSelectedSubject = new Subject<number>();
 
   public gameState$ = this.gameStateSubject.asObservable();
 
@@ -197,6 +199,10 @@ export class GameService {
       }
     });
 
+    this.socketService.on('avatar_selected').subscribe((data: any) => {
+      this.avatarSelectedSubject.next(Number(data?.characterIndex ?? 0));
+    });
+
     this.socketService.on('error').subscribe((data: any) => {
       console.error('Socket error:', data?.message || data);
     });
@@ -272,6 +278,10 @@ export class GameService {
     return this.gameStateSubject.value.roomId;
   }
 
+  sendAvatarSelection(roomId: string, characterIndex: number): void {
+    this.socketService.emit('avatar_selected', { roomId, characterIndex });
+  }
+
   sendCameraReady(roomId: string): void {
     this.socketService.emit('camera_ready', { roomId });
   }
@@ -324,5 +334,9 @@ export class GameService {
     player2Bones: number;
   } | null> {
     return this.betResolvedSubject.asObservable();
+  }
+
+  onAvatarSelected(): Observable<number> {
+    return this.avatarSelectedSubject.asObservable();
   }
 }

@@ -312,6 +312,16 @@ export function setupGameHandlers(
         startTimedRound(roomId);
       });
 
+      // --- AVATAR SELECTION RELAY ---
+      socket.on("avatar_selected", ({ roomId, characterIndex }) => {
+        const room = gameRooms.getRoom(roomId);
+        if (!room) return;
+        const targetId = room.player1.id === socket.id ? room.player2?.id : room.player1.id;
+        if (targetId) {
+          io.to(targetId).emit("avatar_selected", { characterIndex });
+        }
+      });
+
       // --- WEBRTC SIGNALING RELAY ---
       socket.on("webrtc_offer", ({ sdp, roomId }) => {
         const room = gameRooms.getRoom(roomId);
