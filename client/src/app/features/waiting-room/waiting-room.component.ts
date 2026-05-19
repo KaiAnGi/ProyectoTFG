@@ -27,8 +27,29 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
   copyFeedback = false;
   private copyTimeoutId: ReturnType<typeof setTimeout> | null = null;
 
+  // ── NUEVO: selector de personajes ────────────────────────────────
+  characters: string[] = [
+   'characters/java.png',
+  'characters/copilot.png',
+  'characters/kai.png',
+  'characters/diego.png',
+  'characters/karen.png',
+];
+  selectedCharacterIndex = 0;
+
+  nextCharacter(): void {
+    this.selectedCharacterIndex =
+      (this.selectedCharacterIndex + 1) % this.characters.length;
+  }
+
+  prevCharacter(): void {
+    this.selectedCharacterIndex =
+      (this.selectedCharacterIndex - 1 + this.characters.length) % this.characters.length;
+  }
+  // ────────────────────────────────────────────────────────────────
+
   player1 = { name: 'You', isReady: false, isYou: true };
-  player2 = { name: 'Opponent', isReady: false, isYou: false };
+  player2 = { name: 'Opponent', isReady: false, isYou: false, avatar: '' };
 
   myBones = 0;
   betInput = 1;
@@ -176,7 +197,6 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
   }
 
   private normalizeBetInput(): void {
-    // Allow betting 0. Clamp the betInput between 0 and myBones.
     if (this.myBones <= 0) {
       this.betInput = 0;
       return;
@@ -192,7 +212,6 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
   }
 
   canDecreaseBet(): boolean {
-    // Can decrease while not confirmed and betInput greater than 0
     return !this.player1BetConfirmed && this.betInput > 0;
   }
 
@@ -201,14 +220,12 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
   }
 
   canConfirmBet(): boolean {
-    // Allow confirming a 0 bet even if myBones is 0
     return !this.player1BetConfirmed && this.betInput >= 0 && this.betInput <= this.myBones;
   }
 
   confirmBet(): void {
     if (!this.roomCode) return;
 
-    // Validate bet: allow 0 (even if myBones is 0)
     if (this.betInput < 0) {
       this.betError = 'La apuesta mínima es 0';
       return;
@@ -236,7 +253,6 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
   }
 
   onBetInputChange(value: any): void {
-    // Normalize direct input from the user (string or number)
     const parsed = Number(value);
     if (isNaN(parsed)) {
       this.betInput = 0;
@@ -244,7 +260,6 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
       this.betInput = Math.floor(parsed);
     }
 
-    // Clamp to valid range
     if (this.betInput < 0) this.betInput = 0;
     if (this.betInput > this.myBones) this.betInput = this.myBones;
 
