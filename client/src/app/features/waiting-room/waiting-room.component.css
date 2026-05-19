@@ -364,6 +364,78 @@
   padding: 0.26rem 0.45rem;
 }
 
+/* Editable numeric input styled to match the application's display */
+.bet-amount-input {
+  -webkit-appearance: none;
+  -moz-appearance: textfield;
+  appearance: none;
+  display: inline-block;
+  box-sizing: border-box;
+  width: 54px;
+  min-width: 54px;
+  height: 34px;
+  line-height: 34px;
+  text-align: center;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #ffffff;
+  background: rgba(0, 0, 0, 0.34);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  padding: 0 0.45rem;
+  outline: none;
+  vertical-align: middle;
+  font-family: inherit;
+  caret-color: #ffffff;
+}
+
+/* Hide native number spinners */
+.bet-amount-input::-webkit-outer-spin-button,
+.bet-amount-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.bet-amount-input[type=number] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+.bet-amount-input:focus {
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.05) inset;
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+/* Styled numeric input to visually match the previous static display */
+.bet-amount-input {
+  -webkit-appearance: none;
+  -moz-appearance: textfield;
+  appearance: none;
+  min-width: 54px;
+  text-align: center;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.34);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  padding: 0.26rem 0.45rem;
+  outline: none;
+}
+
+/* Remove spinner controls in WebKit browsers */
+.bet-amount-input::-webkit-outer-spin-button,
+.bet-amount-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Ensure consistent focus style */
+.bet-amount-input:focus {
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
 /* Styled numeric input to visually match the previous static display */
 .bet-amount-input {
   -webkit-appearance: none;
