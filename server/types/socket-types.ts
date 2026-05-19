@@ -62,11 +62,37 @@ export interface ServerToClientEvents {
     amount: number;
     player1Bet: number;
     player2Bet: number;
+    player1Bones: number;
+    player2Bones: number;
   }) => void;
 
   bet_error: (data: { message: string }) => void;
 
   error: (data: { message: string }) => void;
+
+  // --- WEBRTC ---
+  webrtc_offer: (data: WebrtcOfferData) => void;
+  webrtc_answer: (data: WebrtcAnswerData) => void;
+  webrtc_ice_candidate: (data: WebrtcIceCandidateData) => void;
+}
+
+export interface WebrtcOfferData {
+  sdp: string;
+  type: "offer";
+  targetSocketId: string;
+}
+
+export interface WebrtcAnswerData {
+  sdp: string;
+  type: "answer";
+  targetSocketId: string;
+}
+
+export interface WebrtcIceCandidateData {
+  candidate: string;
+  sdpMid: string | null;
+  sdpMLineIndex: number | null;
+  targetSocketId: string;
 }
 
 export interface ClientToServerEvents {
@@ -93,4 +119,9 @@ export interface ClientToServerEvents {
   // Chat
   send_chat_message: (data: { to: string; message: string }) => void;
   mark_chat_messages_read: (data: { friendUsername: string }) => void;
+
+  // --- WEBRTC ---
+  webrtc_offer: (data: { sdp: string; roomId: string }) => void;
+  webrtc_answer: (data: { sdp: string; roomId: string }) => void;
+  webrtc_ice_candidate: (data: { candidate: string; sdpMid: string | null; sdpMLineIndex: number | null; roomId: string }) => void;
 }

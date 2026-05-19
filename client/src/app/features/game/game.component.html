@@ -59,8 +59,10 @@
     <!-- PLAYER 1 -->
     <div class="player-section">
       <h2 class="player-label">Player 1 (You)</h2>
-      <div class="camera-box">
+      <div class="camera-box"
+           [ngClass]="{'winner-highlight': isWinnerHighlightVisible && winnerNameThisRound === playerName}">
         <app-gesture-detector></app-gesture-detector>
+        <video #localWebrtcVideo autoplay playsinline muted class="camera-video webrtc-local-video"></video>
       </div>
       <p class="gesture-label">{{ selectedGestureText(myGesture) }}</p>
     </div>
@@ -73,7 +75,11 @@
     <!-- PLAYER 2 -->
     <div class="player-section">
       <h2 class="player-label">Player 2 (Opponent)</h2>
-      <div class="camera-box">
+      <div class="camera-box"
+           [ngClass]="{'winner-highlight': isWinnerHighlightVisible && winnerNameThisRound === opponentName}">
+        <div class="camera-overlay" *ngIf="!showOpponentVideo">
+          <span class="overlay-text">PRIVATE</span>
+        </div>
         <video #remoteVideo autoplay playsinline class="camera-video"></video>
       </div>
       <p class="gesture-label">{{ selectedGestureText(opponentGesture) }}</p>

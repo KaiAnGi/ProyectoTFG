@@ -5,6 +5,9 @@ import {
   inject,
   ChangeDetectionStrategy,
   ChangeDetectorRef,
+  ViewChild,
+  ElementRef,
+  AfterViewInit,
 } from '@angular/core';
 import { Router } from '@angular/router';
 import { GameService } from '../../services/game.service';
@@ -12,6 +15,7 @@ import { GestureDetectorComponent } from './game-components/gesture-detector/ges
 import { CommonModule } from '@angular/common';
 import { Choice } from '../../models/game-state.model';
 import { Subscription, distinctUntilChanged } from 'rxjs';
+import { WebrtcService } from '../../services/webrtc.service';
 
 @Component({
   selector: 'app-game',
@@ -21,10 +25,14 @@ import { Subscription, distinctUntilChanged } from 'rxjs';
   styleUrls: ['./game.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class GameComponent implements OnInit, OnDestroy {
+export class GameComponent implements OnInit, OnDestroy, AfterViewInit {
   private router = inject(Router);
   private gameService = inject(GameService);
+  private webrtcService = inject(WebrtcService);
   private cdr = inject(ChangeDetectorRef);
+
+  @ViewChild('remoteVideo') remoteVideoRef!: ElementRef<HTMLVideoElement>;
+  @ViewChild('localWebrtcVideo') localWebrtcVideoRef!: ElementRef<HTMLVideoElement>;
 
   // Estado UI
   roomCode = '';
@@ -59,6 +67,11 @@ export class GameComponent implements OnInit, OnDestroy {
 
   private stateSub?: Subscription;
   private betResolvedSub?: Subscription;
+  private webrtcSubs: Subscription[] = [];
+
+  showOpponentVideo = false;
+  winnerNameThisRound: string | null = null;
+  isWinnerHighlightVisible = false;
 
   ngOnInit() {
     this.stateSub = this.gameService.gameState$
@@ -109,6 +122,16 @@ export class GameComponent implements OnInit, OnDestroy {
 
         this.roundResultText = this.getRoundResultText(state);
 
+        // --- WebRTC show/hide logic ---
+        if (state.isRoundActive) {
+          this.showOpponentVideo = false;
+          this.isWinnerHighlightVisible = false;
+        } else if (state.lastRoundResult) {
+          this.showOpponentVideo = true;
+          this.winnerNameThisRound = state.lastRoundWinnerName || null;
+          this.isWinnerHighlightVisible = true;
+        }
+
         this.cdr.markForCheck();
       });
 
@@ -138,6 +161,34 @@ export class GameComponent implements OnInit, OnDestroy {
     });
 
     this.cdr.markForCheck();
+  }
+
+  async ngAfterViewInit(): Promise<void> {
+    const roomId = this.gameService.getCurrentRoomId();
+    if (!roomId) return;
+
+    await this.webrtcService.init(roomId);
+
+    this.webrtcSubs.push(
+      this.webrtcService.remoteStream$.subscribe((stream) => {
+        if (this.remoteVideoRef?.nativeElement) {
+          this.remoteVideoRef.nativeElement.srcObject = stream;
+        }
+      }),
+    );
+
+    this.webrtcSubs.push(
+      this.webrtcService.localStream$.subscribe((stream) => {
+        if (this.localWebrtcVideoRef?.nativeElement) {
+          this.localWebrtcVideoRef.nativeElement.srcObject = stream;
+        }
+      }),
+    );
+
+    // Player1 initiates the offer after a short delay to ensure both sides are listening
+    if (this.playerRole === 'player1') {
+      setTimeout(() => this.webrtcService.makeOffer(), 1000);
+    }
   }
 
   private getRoundResultText(state: any): string {
@@ -180,5 +231,7 @@ export class GameComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.stateSub?.unsubscribe();
     this.betResolvedSub?.unsubscribe();
+    this.webrtcSubs.forEach((s) => s.unsubscribe());
+    this.webrtcService.cleanup();
   }
 }

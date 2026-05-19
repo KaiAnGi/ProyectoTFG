@@ -1,5 +1,4 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { SocketService } from './socket.service';
 import { AuthService } from './auth';
@@ -16,7 +15,6 @@ import {
 })
 export class GameService {
   private socketService = inject(SocketService);
-  private http = inject(HttpClient);
   private authService = inject(AuthService);
 
   private gameStateSubject = new BehaviorSubject<GameState>({ ...INITIAL_GAME_STATE });
@@ -37,6 +35,8 @@ export class GameService {
     amount: number;
     player1Bet: number;
     player2Bet: number;
+    player1Bones: number;
+    player2Bones: number;
   } | null>(null);
 
   public gameState$ = this.gameStateSubject.asObservable();
@@ -178,22 +178,18 @@ export class GameService {
         amount: Number(data?.amount ?? 0),
         player1Bet: Number(data?.player1Bet ?? 0),
         player2Bet: Number(data?.player2Bet ?? 0),
+        player1Bones: Number(data?.player1Bones ?? 0),
+        player2Bones: Number(data?.player2Bones ?? 0),
       });
 
       const user = this.authService.getCurrentUser();
-      console.log('[GameService] Usuario actual:', user);
-      const username = user?.username;
-      if (username) {
-        console.log('[GameService] Solicitando bones para:', username);
-        this.http.get<{ bones: number }>(`/api/bones/${username}`).subscribe({
-          next: (res) => {
-            console.log('[GameService] Respuesta bones:', res);
-            this.authService.updateBones(Number(res.bones ?? 0));
-          },
-          error: (err) => console.error('[GameService] Error fetching bones after bet resolved:', err),
-        });
-      } else {
-        console.warn('[GameService] No se encontró usuario para actualizar bones');
+      if (!user) return;
+      const isPlayerTwo = this.gameStateSubject.value.playerRole === 'player2';
+      const myBones = isPlayerTwo
+        ? Number(data?.player2Bones ?? 0)
+        : Number(data?.player1Bones ?? 0);
+      if (myBones > 0) {
+        this.authService.updateBones(myBones);
       }
     });
 
@@ -308,6 +304,8 @@ export class GameService {
     amount: number;
     player1Bet: number;
     player2Bet: number;
+    player1Bones: number;
+    player2Bones: number;
   } | null> {
     return this.betResolvedSubject.asObservable();
   }
