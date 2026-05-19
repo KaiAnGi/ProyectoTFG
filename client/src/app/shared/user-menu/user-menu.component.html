@@ -41,7 +41,7 @@
       </button>
 
       <button class="dropdown-action" (click)="toggleRefund()">
-        ↻ Reembolsar Shines
+        ↻ Refound shines
       </button>
 
     </div>
@@ -75,9 +75,9 @@
 
   <div class="refund-panel" *ngIf="refundOpen">
     <div class="refund-frame">
-      <h1 class="refund-title">REEMBOLSO</h1>
+      <h1 class="refund-title">REFUND</h1>
 
-      <p class="refund-bones-info">Tus shines: <strong>{{ bones }}</strong></p>
+      <p class="refund-bones-info">Your shines: <strong>{{ bones }}</strong></p>
 
       <div class="refund-items">
         <div class="refund-item" *ngFor="let amt of refundAmounts; let i = index"
@@ -86,7 +86,7 @@
           <span class="refund-item-price">{{ (amt * 4.65 / 100).toFixed(2) }}€</span>
         </div>
         <div class="refund-item" [class.selected]="selectedRefundAmount === 'all'" (click)="selectRefundAmount('all')">
-          <span class="refund-item-label">Todos los shines</span>
+          <span class="refund-item-label">All shines</span>
           <span class="refund-item-price">{{ (bones * 4.65 / 100).toFixed(2) }}€</span>
         </div>
       </div>
@@ -94,7 +94,7 @@
       <div class="refund-actions">
         <button class="refund-back-btn" (click)="toggleRefund()">BACK</button>
         <button class="refund-btn" (click)="onRefund()" [disabled]="refunding || !selectedRefundAmount">
-          {{ refunding ? 'PROCESANDO...' : 'REEMBOLSAR' }}
+          {{ refunding ? 'PROCESSING...' : 'REFUND' }}
         </button>
       </div>
 

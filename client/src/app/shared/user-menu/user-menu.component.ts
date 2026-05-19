@@ -172,7 +172,7 @@ export class UserMenuComponent implements OnInit, OnDestroy {
 
   async onRefund() {
     if (!this.selectedRefundAmount) {
-      this.refundError = 'Selecciona una cantidad de shines a reembolsar.';
+      this.refundError = 'Select a shine amount to refund.';
       return;
     }
 
@@ -184,13 +184,13 @@ export class UserMenuComponent implements OnInit, OnDestroy {
       const result = await this.paypalService.requestRefund(this.selectedRefundAmount);
       if (result.success) {
         this.authService.updateBones(result.bones);
-        this.refundMessage = `Reembolso de ${result.refundedShines} shines (${result.refundedEur.toFixed(2)}€) procesado con éxito.`;
+        this.refundMessage = `Refund of ${result.refundedShines} shines (${result.refundedEur.toFixed(2)}€) processed successfully.`;
         this.selectedRefundAmount = null;
       } else {
-        this.refundError = 'El reembolso no se pudo procesar.';
+        this.refundError = 'The refund could not be processed.';
       }
     } catch (err: any) {
-      this.refundError = err.error?.message || 'Error al procesar el reembolso.';
+      this.refundError = err.error?.message || 'Error processing the refund.';
     } finally {
       this.refunding = false;
     }
