@@ -370,9 +370,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(0, 0, 0, 0.85);
+  background: #000;
   z-index: 3;
-  backdrop-filter: blur(4px);
 }
 
 .overlay-text {
