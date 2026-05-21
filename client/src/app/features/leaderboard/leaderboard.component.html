@@ -3,21 +3,23 @@
   <button class="back-button" (click)="onBack()">BACK</button>
   <div class="leaderboard-container">
     <h2>Leaderboard - Top Players</h2>
-    <table class="leaderboard-table">
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>Player</th>
-          <th>Wins</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let player of leaderboard$ | async; let i = index">
-          <td>{{ i + 1 }}</td>
-          <td>{{ player.playerName }}</td>
-          <td>{{ player.matchVictories }}</td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="table-wrapper">
+      <table class="leaderboard-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Player</th>
+            <th>Wins</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let player of leaderboard$ | async; let i = index">
+            <td>{{ i + 1 }}</td>
+            <td>{{ player.playerName }}</td>
+            <td>{{ player.matchVictories }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>

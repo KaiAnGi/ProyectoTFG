@@ -146,6 +146,32 @@
   position: relative;
 }
 
+/* BOTÓN X CERRAR */
+.shop-close-btn {
+  position: absolute;
+  top: 1.2rem;
+  right: 1.2rem;
+  background: rgba(155, 18, 18, 0.85);
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  border-radius: 50%;
+  color: #fff;
+  font-size: 1.1rem;
+  width: 2.4rem;
+  height: 2.4rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease, transform 0.2s ease;
+  z-index: 10;
+  font-family: system-ui, sans-serif;
+}
+
+.shop-close-btn:hover {
+  background: rgba(210, 30, 30, 0.95);
+  transform: scale(1.1);
+}
+
 .shop-title {
   font-family: 'Metal Mania', cursive;
   color: #d4c09a;
@@ -215,32 +241,6 @@
   justify-content: center;
   align-items: center;
   margin-top: 0.5rem;
-  position: relative;
-  transform: translateX(-1.8rem) translateY(-1.5rem);
-}
-
-.back-btn {
-  position: absolute;
-  bottom: -0.3rem;
-  left: -10rem;
-  background: rgba(80, 80, 80, 0.5);
-  border: none;
-  color: #b0b0b0;
-  padding: 0.6rem 1.5rem;
-  font-size: clamp(0.85rem, 1.8vw, 1rem);
-  font-family: 'Metal Mania', cursive;
-  cursor: pointer;
-  border-radius: 10px;
-  transition: all 0.3s ease;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-  background-blend-mode: overlay;
-  z-index: 10;
-  letter-spacing: 0.05em;
-}
-
-.back-btn:hover {
-  filter: brightness(1.15);
-  transform: scale(1.05);
 }
 
 .pay-btn {

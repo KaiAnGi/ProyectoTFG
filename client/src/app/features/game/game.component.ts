@@ -32,6 +32,7 @@ export class GameComponent implements OnInit, OnDestroy, AfterViewInit {
   private cdr = inject(ChangeDetectorRef);
 
   @ViewChild('remoteVideo') remoteVideoRef!: ElementRef<HTMLVideoElement>;
+  @ViewChild('localWebrtcVideo') localWebrtcVideoRef!: ElementRef<HTMLVideoElement>; 
 
   roomCode = '';
   roomName = '';
