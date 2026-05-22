@@ -70,6 +70,11 @@ export interface ServerToClientEvents {
 
   error: (data: { message: string }) => void;
 
+  // --- REVANCHA ---
+  rematch_opponent_status: (data: { wantsRematch: boolean }) => void;
+  rematch_start: (data: { roomId: string }) => void;
+  rematch_declined: () => void;
+
   // --- AVATAR ---
   avatar_selected: (data: { characterIndex: number }) => void;
 
@@ -122,6 +127,10 @@ export interface ClientToServerEvents {
   // Chat
   send_chat_message: (data: { to: string; message: string }) => void;
   mark_chat_messages_read: (data: { friendUsername: string }) => void;
+
+  // --- REVANCHA ---
+  rematch_request: (data: { roomId: string }) => void;
+  rematch_decline: (data: { roomId: string }) => void;
 
   // --- AVATAR ---
   avatar_selected: (data: { roomId: string; characterIndex: number }) => void;

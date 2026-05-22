@@ -153,8 +153,17 @@ export function setupGameHandlers(
       }
 
       console.log(`Match finished in ${roomId}. Winner: ${winnerName}`);
-      gameRooms.cleanupRoom(roomId);
       clearRoundTimer(roomId);
+
+      room.isFinished = true;
+      room.player1WantsRematch = false;
+      room.player2WantsRematch = false;
+
+      room.rematchCleanupTimer = setTimeout(() => {
+        console.log(`Auto-cleaning room ${roomId} after rematch timeout`);
+        gameRooms.cleanupRoom(roomId);
+      }, 60000);
+
       return;
     }
 
@@ -361,6 +370,38 @@ export function setupGameHandlers(
             targetSocketId: socket.id,
           });
         }
+      });
+
+      // --- REVANCHA ---
+      socket.on("rematch_request", ({ roomId }) => {
+        const room = gameRooms.getRoom(roomId);
+        if (!room || !room.isFinished) return;
+
+        gameRooms.setRematchRequest(roomId, socket.id);
+
+        // Notify the other player about this player's rematch status
+        const targetId = room.player1.id === socket.id ? room.player2?.id : room.player1.id;
+        if (targetId) {
+          io.to(targetId).emit("rematch_opponent_status", { wantsRematch: true });
+        }
+
+        if (gameRooms.isBothRematch(roomId)) {
+          if (room.rematchCleanupTimer) {
+            clearTimeout(room.rematchCleanupTimer);
+          }
+          gameRooms.resetForRematch(roomId);
+          io.to(roomId).emit("rematch_start", { roomId });
+        }
+      });
+
+      socket.on("rematch_decline", ({ roomId }) => {
+        const room = gameRooms.getRoom(roomId);
+        if (!room) return;
+        const targetId = room.player1.id === socket.id ? room.player2?.id : room.player1.id;
+        if (targetId) {
+          io.to(targetId).emit("rematch_declined");
+        }
+        gameRooms.cleanupRoom(roomId);
       });
 
       socket.on("set_bet", async ({ roomId, amount }) => {

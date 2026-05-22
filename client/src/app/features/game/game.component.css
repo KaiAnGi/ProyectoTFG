@@ -78,6 +78,50 @@
   font-family: 'Outfit', sans-serif;
 }
 
+.rematch-section {
+  margin: 0.8rem 0;
+}
+
+.rematch-btn {
+  font-size: clamp(0.85rem, 1.5vw, 1.05rem);
+  font-weight: bold;
+  letter-spacing: 0.25em;
+  padding: 0.55rem 2rem;
+  border-radius: 10px;
+  cursor: pointer;
+  font-family: 'Metal Mania', system-ui, cursive;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  background: rgba(50, 120, 50, 0.5);
+  border: 1px solid rgba(144, 238, 144, 0.3);
+  color: #90ee90;
+}
+
+.rematch-btn:hover:not(:disabled) {
+  background: rgba(60, 160, 60, 0.6);
+  color: #b0f0b0;
+  transform: translateY(-2px);
+}
+
+.rematch-btn.active {
+  background: rgba(30, 80, 30, 0.6);
+  border-color: rgba(144, 238, 144, 0.5);
+  color: #70c070;
+  cursor: default;
+}
+
+.rematch-btn:disabled {
+  opacity: 0.7;
+  cursor: default;
+}
+
+.rematch-status {
+  margin-top: 0.4rem;
+  font-size: clamp(0.7rem, 1.2vw, 0.85rem);
+  color: #f1d489;
+  letter-spacing: 0.08em;
+}
+
 .game-header,
 .players-container,
 .game-footer {

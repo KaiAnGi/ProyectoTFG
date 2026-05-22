@@ -32,7 +32,6 @@ export class GameComponent implements OnInit, OnDestroy, AfterViewInit {
   private cdr = inject(ChangeDetectorRef);
 
   @ViewChild('remoteVideo') remoteVideoRef!: ElementRef<HTMLVideoElement>;
-  @ViewChild('localWebrtcVideo') localWebrtcVideoRef!: ElementRef<HTMLVideoElement>; 
 
   roomCode = '';
   roomName = '';
@@ -67,6 +66,10 @@ export class GameComponent implements OnInit, OnDestroy, AfterViewInit {
   private stateSub?: Subscription;
   private betResolvedSub?: Subscription;
   private webrtcSubs: Subscription[] = [];
+  private rematchSubs: Subscription[] = [];
+
+  wantsRematch = false;
+  opponentWantsRematch = false;
 
   showOpponentVideo = false;
   winnerNameThisRound: string | null = null;
@@ -164,6 +167,27 @@ export class GameComponent implements OnInit, OnDestroy, AfterViewInit {
       this.cdr.markForCheck();
     });
 
+    this.rematchSubs.push(
+      this.gameService.onRematchOpponentStatus().subscribe((wants) => {
+        this.opponentWantsRematch = wants;
+        this.cdr.markForCheck();
+      }),
+    );
+
+    this.rematchSubs.push(
+      this.gameService.onRematchStart().subscribe((roomId) => {
+        this.gameService.resetGame();
+        this.router.navigate(['/waiting-room']);
+      }),
+    );
+
+    this.rematchSubs.push(
+      this.gameService.onRematchDeclined().subscribe(() => {
+        this.opponentWantsRematch = false;
+        this.cdr.markForCheck();
+      }),
+    );
+
     this.cdr.markForCheck();
   }
 
@@ -211,13 +235,18 @@ export class GameComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
-  onExit() {
-    this.gameService.resetGame();
-    this.router.navigate(['/room-menu']);
+  onRequestRematch() {
+    if (!this.roomCode) return;
+    this.wantsRematch = true;
+    this.gameService.sendRematchRequest(this.roomCode);
   }
 
   onBackToMenu() {
-    this.onExit();
+    if (this.roomCode && this.isMatchFinished) {
+      this.gameService.sendRematchDecline(this.roomCode);
+    }
+    this.gameService.resetGame();
+    this.router.navigate(['/room-menu']);
   }
 
   sendCameraReady() {
@@ -228,6 +257,7 @@ export class GameComponent implements OnInit, OnDestroy, AfterViewInit {
     this.stateSub?.unsubscribe();
     this.betResolvedSub?.unsubscribe();
     this.webrtcSubs.forEach((s) => s.unsubscribe());
+    this.rematchSubs.forEach((s) => s.unsubscribe());
     this.webrtcService.cleanup();
   }
 }
