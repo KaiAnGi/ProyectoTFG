@@ -50,34 +50,8 @@ La aplicación sigue una arquitectura SPA con un backend API REST + Socket.IO.
 
 ### 2.2 Organización general de la aplicación
 
-┌─────────────────────────────────────────────────────────────────────┐
-│ FRONTEND (Angular 20) │
-│ │
-│ ┌───────────┐ ┌──────────┐ ┌──────────┐ ┌───────────────────┐ │
-│ │ Auth │ │ Game │ │ Friends │ │ Shared │ │
-│ │ (login, │ │ (rooms, │ │ (solic., │ │ (HUD, user-menu, │ │
-│ │ register)│ │ rounds, │ │ chat) │ │ audio, shop) │ │
-│ └───────────┘ │ bets, │ └──────────┘ └───────────────────┘ │
-│ │ webrtc) │ │
-│ └──────────┘ │
-│ │
-│ Comunicación: │
-│ - HTTP REST (HttpClient) ── autenticación, ranking, amigos, PayPal │
-│ - Socket.IO ────────────── salas de juego, rondas, apuestas, │
-│ señalización WebRTC, chat, amigos │
-│ │
-│ Servicios internos: │
-│ - MediaPipe Hands (detección de gestos, 100% cliente) │
-│ - WebRTC (RTCPeerConnection) — videollamada peer-to-peer │
-│ - Google STUN — NAT traversal para WebRTC │
-└─────────────────────────────────────────────────────────────────────┘
-│
-▼
-┌─────────────────────────────────────────────────────────────────────┐
-│ BACKEND (Express + Socket.IO) │
-└─────────────────────────────────────────────────────────────────────┘
+<img width="1536" height="1024" alt="9020b97c-6bea-4a92-ac4c-aca96876e4ef" src="https://github.com/user-attachments/assets/105d4e38-5c21-467e-88d9-c1ef62c7078c" />
 
-text
 
 ### 2.3 Tecnologías y herramientas
 
