@@ -50,7 +50,7 @@ La aplicación sigue una arquitectura SPA con un backend API REST + Socket.IO.
 
 ### 2.2 Organización general de la aplicación
 
-<img width="1536" height="1024" alt="9020b97c-6bea-4a92-ac4c-aca96876e4ef" src="https://github.com/user-attachments/assets/105d4e38-5c21-467e-88d9-c1ef62c7078c" />
+<img width="1024" height="682" alt="6ff1fa6e-a349-418d-b4a4-8ccdadda13f9" src="https://github.com/user-attachments/assets/2b3a7a53-68bb-4bdb-8b1c-7a134b08525e" />
 
 ### 2.3 Tecnologías y herramientas
 
@@ -144,13 +144,9 @@ La aplicación sigue una arquitectura SPA con un backend API REST + Socket.IO.
 
 ### 2.7 Estructura de navegación
 
-<img width="805" height="1024" alt="0787eb35-17b3-41a7-a23d-97a0caf2f097" src="https://github.com/user-attachments/assets/95b6aa92-3d09-442f-912d-a644c138d7fe" />
+<img width="1024" height="559" alt="113222a8-e84b-4988-add0-796cfb95ded3" src="https://github.com/user-attachments/assets/99239de2-d3df-4556-86d8-cfe692b260c1" />
 
-**Backend (lógica de negocio)**
-- `routes/index.ts` — monta routers REST
-- `sockets/gameHandler.ts` — eventos de juego (salas, rondas, apuestas, signaling)
-- `sockets/friendsHandler.ts` — amigos y chat
-- Servicios: `auth-service.ts`, `ranking-service.ts`, `friends-service.ts`
+<img width="1024" height="559" alt="950a7938-dc72-436f-b6e5-7147fe00ef2e" src="https://github.com/user-attachments/assets/b7a8cd17-50ae-4d37-9623-b9797db5444a" />
 
 ---
 
