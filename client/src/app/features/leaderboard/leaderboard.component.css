@@ -51,8 +51,8 @@
 }
 
 .leaderboard-container {
-  max-width: 720px;
-  width: 100%;
+  max-width: 820px;
+  width: min(92vw, 820px);
   padding: 2rem;
   background: rgba(15, 6, 6, 0.95);
   border: 1px solid rgba(200, 20, 20, 0.35);
@@ -67,17 +67,21 @@
 }
 
 .leaderboard-container h2 {
-  margin-bottom: 1.4rem;
-  font-size: clamp(2.2rem, 3vw, 2.8rem);
+  margin-bottom: 1.2rem;
+  font-size: clamp(1.2rem, 2vw, 2rem);
   color: #ffb4b4;
   text-align: center;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.08em;
   text-shadow: 0 0 16px rgba(190, 50, 50, 0.45);
   flex-shrink: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .leaderboard-table {
   width: 100%;
+  min-width: 520px;
   border-collapse: collapse;
   border-radius: 18px;
 }
@@ -125,6 +129,7 @@
 .table-wrapper {
   flex: 1;
   overflow-y: auto;
+  overflow-x: auto;
   border-radius: 18px;
   scrollbar-width: thin;
   scrollbar-color: rgba(155, 18, 18, 0.7) rgba(255, 255, 255, 0.05);
@@ -132,6 +137,7 @@
 
 .table-wrapper::-webkit-scrollbar {
   width: 6px;
+  height: 6px;
 }
 
 .table-wrapper::-webkit-scrollbar-track {
@@ -152,4 +158,34 @@
   position: sticky;
   top: 0;
   z-index: 1;
+}
+
+@media (max-width: 640px) {
+  .leaderboard-screen {
+    padding: 1.5rem 1rem 5rem;
+    align-items: flex-start;
+  }
+
+  .leaderboard-container {
+    padding: 1.25rem;
+    max-height: 78vh;
+  }
+
+  .leaderboard-container h2 {
+    font-size: clamp(1rem, 4vw, 1.35rem);
+    letter-spacing: 0.05em;
+  }
+
+  .leaderboard-table th,
+  .leaderboard-table td {
+    padding: 0.85rem 0.9rem;
+    font-size: 0.95rem;
+  }
+
+  .back-button {
+    left: 1rem;
+    bottom: 1rem;
+    padding: 0.7rem 1.2rem;
+    font-size: 0.85rem;
+  }
 }
