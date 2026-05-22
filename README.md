@@ -50,7 +50,7 @@ La aplicación sigue una arquitectura SPA con un backend API REST + Socket.IO.
 
 ### 2.2 Organización general de la aplicación
 
-<img width="1024" height="682" alt="6ff1fa6e-a349-418d-b4a4-8ccdadda13f9" src="https://github.com/user-attachments/assets/2b3a7a53-68bb-4bdb-8b1c-7a134b08525e" />
+<img width="1024" height="682" alt="6ff1fa6e-a349-418d-b4a4-8ccdadda13f9" src="https://github.com/user-attachments/assets/8e986eb0-adc4-4265-983e-56bbed04ede3" />
 
 ### 2.3 Tecnologías y herramientas
 
@@ -144,8 +144,10 @@ La aplicación sigue una arquitectura SPA con un backend API REST + Socket.IO.
 
 ### 2.7 Estructura de navegación
 
+**FRONTEND**
 <img width="1024" height="559" alt="113222a8-e84b-4988-add0-796cfb95ded3" src="https://github.com/user-attachments/assets/99239de2-d3df-4556-86d8-cfe692b260c1" />
 
+**BACKEND**
 <img width="1024" height="559" alt="950a7938-dc72-436f-b6e5-7147fe00ef2e" src="https://github.com/user-attachments/assets/b7a8cd17-50ae-4d37-9623-b9797db5444a" />
 
 ---
