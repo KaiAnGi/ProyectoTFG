@@ -51,7 +51,7 @@ const userSchema: Schema<IUser> = new Schema(
     bones: {
       type: Number,
       required: false,
-      default: 25,
+      default: 0,
     },
     paypalVaultId: { type: String, required: false },
     paypalEmail: { type: String, required: false },
