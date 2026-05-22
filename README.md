@@ -52,7 +52,6 @@ La aplicación sigue una arquitectura SPA con un backend API REST + Socket.IO.
 
 <img width="1536" height="1024" alt="9020b97c-6bea-4a92-ac4c-aca96876e4ef" src="https://github.com/user-attachments/assets/105d4e38-5c21-467e-88d9-c1ef62c7078c" />
 
-
 ### 2.3 Tecnologías y herramientas
 
 **Frontend**
@@ -145,24 +144,7 @@ La aplicación sigue una arquitectura SPA con un backend API REST + Socket.IO.
 
 ### 2.7 Estructura de navegación
 
-src/
-└── app/
-├── features/
-│ ├── auth/
-│ ├── create-room/
-│ ├── game/
-│ │ └── game-components/gesture-detector/
-│ ├── home/
-│ ├── join-room/
-│ ├── leaderboard/
-│ ├── login/
-│ ├── register/
-│ └── waiting-room/
-├── models/
-├── services/
-└── shared/
-
-text
+<img width="805" height="1024" alt="0787eb35-17b3-41a7-a23d-97a0caf2f097" src="https://github.com/user-attachments/assets/95b6aa92-3d09-442f-912d-a644c138d7fe" />
 
 **Backend (lógica de negocio)**
 - `routes/index.ts` — monta routers REST
