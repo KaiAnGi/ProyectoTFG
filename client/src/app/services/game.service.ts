@@ -286,6 +286,24 @@ export class GameService {
     this.socketService.disconnect();
   }
 
+  resetForRematch(): void {
+    const current = this.gameStateSubject.value;
+    this.gameStateSubject.next({
+      ...INITIAL_GAME_STATE,
+      roomId: current.roomId,
+      roomName: current.roomName,
+      playerName: current.playerName,
+      playerRole: current.playerRole,
+      opponentName: current.opponentName,
+      maxRounds: current.maxRounds,
+      isWaitingForReady: false,
+    });
+    this.betUpdatedSubject.next(null);
+    this.betErrorSubject.next(null);
+    this.betResolvedSubject.next(null);
+    this.opponentAvatarSubject.next(null);
+  }
+
   get currentState(): GameState {
     return this.gameStateSubject.value;
   }

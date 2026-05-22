@@ -176,7 +176,7 @@ export class GameComponent implements OnInit, OnDestroy, AfterViewInit {
 
     this.rematchSubs.push(
       this.gameService.onRematchStart().subscribe((roomId) => {
-        this.gameService.resetGame();
+        this.gameService.resetForRematch();
         this.router.navigate(['/waiting-room']);
       }),
     );
