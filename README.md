@@ -144,10 +144,10 @@ La aplicación sigue una arquitectura SPA con un backend API REST + Socket.IO.
 
 ### 2.7 Estructura de navegación
 
-**FRONTEND**
+**Frontend**
 <img width="1024" height="559" alt="113222a8-e84b-4988-add0-796cfb95ded3" src="https://github.com/user-attachments/assets/99239de2-d3df-4556-86d8-cfe692b260c1" />
 
-**BACKEND**
+**Backend**
 <img width="1024" height="559" alt="950a7938-dc72-436f-b6e5-7147fe00ef2e" src="https://github.com/user-attachments/assets/b7a8cd17-50ae-4d37-9623-b9797db5444a" />
 
 ---
