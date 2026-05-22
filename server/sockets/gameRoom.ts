@@ -218,7 +218,50 @@ export class GameRooms {
     return null;
   }
 
+  setRematchRequest(roomId: string, socketId: string): boolean {
+    const room = this.rooms.get(roomId);
+    if (!room) return false;
+    if (room.player1.id === socketId) {
+      room.player1WantsRematch = true;
+    } else if (room.player2?.id === socketId) {
+      room.player2WantsRematch = true;
+    }
+    return true;
+  }
+
+  isBothRematch(roomId: string): boolean {
+    const room = this.rooms.get(roomId);
+    return !!(room && room.player1WantsRematch && room.player2WantsRematch);
+  }
+
+  resetForRematch(roomId: string): GameRoom | null {
+    const room = this.rooms.get(roomId);
+    if (!room || !room.player2) return null;
+
+    room.roundNumber = 1;
+    room.player1.roundsWon = 0;
+    room.player2.roundsWon = 0;
+    room.player1.choice = null;
+    room.player2.choice = null;
+    room.player1.cameraReady = false;
+    room.player2.cameraReady = false;
+    room.player1WantsRematch = false;
+    room.player2WantsRematch = false;
+    room.isFinished = false;
+    room.betAmount = 0;
+    room.player1BetAmount = 0;
+    room.player2BetAmount = 0;
+    room.player1BetConfirmed = false;
+    room.player2BetConfirmed = false;
+
+    return room;
+  }
+
   cleanupRoom(roomId: string): void {
+    const room = this.rooms.get(roomId);
+    if (room?.rematchCleanupTimer) {
+      clearTimeout(room.rematchCleanupTimer);
+    }
     this.rooms.delete(roomId);
   }
 }
