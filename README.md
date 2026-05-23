@@ -1,6 +1,6 @@
 # RPS — Rock Paper Scissors
 
-## Hecho por: Kai, Diego y Karen
+## Desarrolladores: Kai, Diego y Karen
 ## Ciclo formativo de Grado Superior en Desarrollo de Aplicaciones Web (Curso 2025-2026)
 ## Alonso de Avellaneda
 
