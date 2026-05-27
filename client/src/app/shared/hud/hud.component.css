@@ -8,6 +8,10 @@
   gap: 0.8rem;
 }
 
+.hud.game-layout {
+  top: 3.5rem;
+}
+
 .volume-wrapper {
   position: relative;
   display: flex;

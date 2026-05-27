@@ -16,6 +16,7 @@ import { HudComponent } from './shared/hud/hud.component';
 export class App implements OnInit, OnDestroy {
   protected readonly title = signal('client');
   protected readonly showUserChrome = signal(false);
+  protected readonly isGameRoute = signal(false);
 
   private authSub?: Subscription;
   private routerSub?: Subscription;
@@ -38,6 +39,7 @@ export class App implements OnInit, OnDestroy {
       this.showUserChrome.set(
         !!currentUser && !currentUser.guest && !isAuthSurface && !isGameRoute,
       );
+      this.isGameRoute.set(isGameRoute);
     };
 
     this.authSub = this.authService.user$.subscribe(() => refreshChromeVisibility());

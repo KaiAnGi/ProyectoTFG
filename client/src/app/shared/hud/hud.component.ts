@@ -15,6 +15,7 @@ import { Subscription } from 'rxjs';
 })
 export class HudComponent implements OnInit, OnDestroy {
   @Input() showUserDetails = false;
+  @Input() isGameRoute = false;
   bones = 50;
   muted = false;
   sliderOpen = false;
