@@ -206,3 +206,10 @@
     padding: 0.7rem 2rem;
   }
 }
+
+@media (max-width: 380px) {
+  .game-title { font-size: 1.4rem; }
+  .hand-icon { width: 80px; }
+  .game-subtitle { font-size: 0.9rem; }
+  .start-button { font-size: 1.1rem; padding: 0.5rem 1.5rem; }
+}

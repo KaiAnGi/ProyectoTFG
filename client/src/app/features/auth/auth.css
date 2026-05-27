@@ -156,13 +156,13 @@
 .back-btn {
   position: fixed;
   bottom: 20px;
-  top: 20px;
+  left: 20px;
   padding: 0.6rem 2rem;
   background: rgba(60, 60, 60, 0.8);
   color: #ccc;
   border: none;
   border-radius: 12px;
-  font-family: 'Metal Mania', system-ui, cursive; /* ← era 'Outfit' */
+  font-family: 'Metal Mania', system-ui, cursive;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.3s;
@@ -198,4 +198,6 @@
   .hands-container { gap: 1rem; }
   .hand-icon { width: 140px; }
   .game-subtitle { font-size: 1.1rem; margin: 1rem 0 2rem 0; }
+  .auth-btn { padding: 0.7rem 2rem; font-size: 1.2rem; }
+  .back-btn { padding: 0.4rem 1.2rem; font-size: 0.85rem; bottom: 12px; left: 12px; }
 }

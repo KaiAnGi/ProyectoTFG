@@ -176,10 +176,14 @@
     letter-spacing: 0.05em;
   }
 
+  .leaderboard-table {
+    min-width: 400px;
+  }
+
   .leaderboard-table th,
   .leaderboard-table td {
-    padding: 0.85rem 0.9rem;
-    font-size: 0.95rem;
+    padding: 0.75rem 0.7rem;
+    font-size: 0.85rem;
   }
 
   .back-button {
@@ -188,4 +192,14 @@
     padding: 0.7rem 1.2rem;
     font-size: 0.85rem;
   }
+}
+
+@media (max-width: 480px) {
+  .leaderboard-screen { padding: 1rem 0.5rem 4rem; }
+  .leaderboard-container { padding: 1rem; border-radius: 16px; }
+  .leaderboard-container h2 { font-size: 1rem; white-space: normal; }
+  .leaderboard-table { min-width: 300px; }
+  .leaderboard-table th,
+  .leaderboard-table td { padding: 0.6rem 0.5rem; font-size: 0.78rem; }
+  .back-button { padding: 0.5rem 1rem; font-size: 0.78rem; left: 0.5rem; bottom: 0.5rem; }
 }
