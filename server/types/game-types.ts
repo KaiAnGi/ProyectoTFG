@@ -21,7 +21,12 @@ export interface GameRoom {
   player2BetAmount?: number;
   player1BetConfirmed?: boolean;
   player2BetConfirmed?: boolean;
- 
+
+  // --- REVANCHA ---
+  player1WantsRematch?: boolean;
+  player2WantsRematch?: boolean;
+  isFinished?: boolean;
+  rematchCleanupTimer?: ReturnType<typeof setTimeout>;
 }
 
 export interface RoundResult {

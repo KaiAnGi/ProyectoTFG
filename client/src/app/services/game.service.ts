@@ -47,6 +47,10 @@ export class GameService {
   private opponentAvatarSubject = new BehaviorSubject<{ avatar: string } | null>(null);
   public opponentAvatar$ = this.opponentAvatarSubject.asObservable();
 
+  private rematchOpponentStatusSubject = new Subject<boolean>();
+  private rematchStartSubject = new Subject<string>();
+  private rematchDeclinedSubject = new Subject<void>();
+
   constructor() {
     this.initListeners();
   }
@@ -203,6 +207,18 @@ export class GameService {
       this.avatarSelectedSubject.next(Number(data?.characterIndex ?? 0));
     });
 
+    this.socketService.on('rematch_opponent_status').subscribe((data: any) => {
+      this.rematchOpponentStatusSubject.next(!!data?.wantsRematch);
+    });
+
+    this.socketService.on('rematch_start').subscribe((data: any) => {
+      this.rematchStartSubject.next(data?.roomId || '');
+    });
+
+    this.socketService.on('rematch_declined').subscribe(() => {
+      this.rematchDeclinedSubject.next();
+    });
+
     this.socketService.on('error').subscribe((data: any) => {
       console.error('Socket error:', data?.message || data);
     });
@@ -270,12 +286,50 @@ export class GameService {
     this.socketService.disconnect();
   }
 
+  resetForRematch(): void {
+    const current = this.gameStateSubject.value;
+    this.gameStateSubject.next({
+      ...INITIAL_GAME_STATE,
+      roomId: current.roomId,
+      roomName: current.roomName,
+      playerName: current.playerName,
+      playerRole: current.playerRole,
+      opponentName: current.opponentName,
+      maxRounds: current.maxRounds,
+      isWaitingForReady: false,
+    });
+    this.betUpdatedSubject.next(null);
+    this.betErrorSubject.next(null);
+    this.betResolvedSubject.next(null);
+    this.opponentAvatarSubject.next(null);
+  }
+
   get currentState(): GameState {
     return this.gameStateSubject.value;
   }
 
   getCurrentRoomId(): string | null {
     return this.gameStateSubject.value.roomId;
+  }
+
+  sendRematchRequest(roomId: string): void {
+    this.socketService.emit('rematch_request', { roomId });
+  }
+
+  sendRematchDecline(roomId: string): void {
+    this.socketService.emit('rematch_decline', { roomId });
+  }
+
+  onRematchOpponentStatus(): Observable<boolean> {
+    return this.rematchOpponentStatusSubject.asObservable();
+  }
+
+  onRematchStart(): Observable<string> {
+    return this.rematchStartSubject.asObservable();
+  }
+
+  onRematchDeclined(): Observable<void> {
+    return this.rematchDeclinedSubject.asObservable();
   }
 
   sendAvatarSelection(roomId: string, characterIndex: number): void {

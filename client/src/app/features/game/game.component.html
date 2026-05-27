@@ -50,6 +50,20 @@
         </div>
       </div>
 
+      <div class="rematch-section">
+        <button class="rematch-btn"
+                [class.active]="wantsRematch"
+                [disabled]="wantsRematch"
+                (click)="onRequestRematch()">
+          {{ wantsRematch ? 'REMATCH REQUESTED' : 'REMATCH' }}
+        </button>
+        <p class="rematch-status" *ngIf="wantsRematch && opponentWantsRematch">
+          Opponent also wants rematch!
+        </p>
+        <p class="rematch-status" *ngIf="wantsRematch && !opponentWantsRematch">
+          Waiting for opponent...
+        </p>
+      </div>
       <button class="exit-btn" (click)="onBackToMenu()">Back to Menu</button>
     </div>
   </div>
@@ -113,6 +127,6 @@
 
   <!-- FOOTER -->
   <div class="game-footer">
-    <button class="exit-btn" (click)="onExit()">EXIT</button>
+    <button class="exit-btn" (click)="onBackToMenu()">EXIT</button>
   </div>
 </div>
