@@ -49,12 +49,14 @@ export class HudComponent implements OnInit, OnDestroy {
     this.audioService.playMusic('/sounds/musicaFondo.mp3', this.volume);
   }
 
-  toggleMute() {
-    this.muted = this.audioService.toggleMute();
-  }
-
-  toggleVolumeSlider() {
-    this.sliderOpen = !this.sliderOpen;
+  onMuteBtnClick() {
+    if (this.muted) {
+      this.muted = this.audioService.toggleMute();
+      this.sliderOpen = true;
+    } else {
+      this.muted = this.audioService.toggleMute(); 
+      this.sliderOpen = false;
+    }
   }
 
   onVolumeChange(event: Event) {

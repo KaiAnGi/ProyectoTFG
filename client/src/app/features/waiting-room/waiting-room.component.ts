@@ -35,6 +35,8 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
     'characters/kai.png',
     'characters/diego.png',
     'characters/karen.png',
+    'characters/pablete.png',
+    'characters/melola.png',
   ];
   selectedCharacterIndex = 0;
 

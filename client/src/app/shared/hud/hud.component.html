@@ -1,7 +1,7 @@
 <div class="hud">
   <div class="volume-wrapper">
     <button class="mute-btn"
-      (click)="toggleMute(); toggleVolumeSlider()"
+      (click)="onMuteBtnClick()"
       [attr.aria-label]="muted ? 'Activar sonido' : 'Silenciar'">
       <img [src]="muted ? '/images/novolumen.png' : '/images/volumen.png'" alt="" class="mute-icon" />
     </button>
