@@ -895,7 +895,7 @@
   .pablo-side-img { height: 55px; }
   .copy-button { width: 1.5rem; height: 1.5rem; }
   .copy-button svg { width: 0.75rem; height: 0.75rem; }
-  .loading-spinner { right: 0.5rem; bottom: 0.5rem; }
+  .loading-spinner { left: 0.5rem; right: auto; bottom: 0.5rem; }
   .spinner { width: 24px; height: 24px; border-width: 3px; }
 }
 
