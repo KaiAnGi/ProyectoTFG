@@ -799,6 +799,9 @@
 /* ── FIN PABLO ── */
 
 @media (max-width: 640px) {
+  .waiting-room-container {
+    overflow-y: auto;
+  }
   .content {
     padding: 0.6rem 0.8rem 3rem;
     gap: 0.4rem;
@@ -859,6 +862,9 @@
 }
 
 @media (max-width: 480px) {
+  .waiting-room-container {
+    overflow-y: auto;
+  }
   .content {
     padding: 0.4rem 0.4rem 2.5rem;
     gap: 0.3rem;
@@ -874,8 +880,7 @@
   .player-title { font-size: 0.75rem; }
   .player-avatar { width: 60px; height: 60px; }
   .character-img { width: 100%; height: 100%; }
-  .camera-preview { min-height: 75px; height: 75px; border-radius: 8px; }
-  .camera-preview app-gesture-detector { min-height: 75px; }
+  .camera-preview { display: none; }
   .character-selector { gap: 0.3rem; }
   .char-btn { width: 24px; height: 24px; font-size: 0.65rem; }
   .char-index { font-size: 0.6rem; min-width: 24px; }
