@@ -102,11 +102,10 @@ export class PaypalController {
       };
 
       if (user?.paypalVaultId) {
-        // Compra recurrente con vault token
+        // Compra recurrente con vault_id guardado en PayPal
         body.payment_source = {
-          token: {
-            id: user.paypalVaultId,
-            type: "PAYMENT_METHOD_TOKEN",
+          paypal: {
+            vault_id: user.paypalVaultId,
           },
         };
       } else {
