@@ -99,9 +99,6 @@ export class AuthController {
           username: user.username,
           email: user.email,
           bones: user.bones ?? 25,
-          paypalVaultId: user.paypalVaultId,
-          paypalEmail: user.paypalEmail,
-          paypalCustomerId: user.paypalCustomerId,
         },
       });
     } catch (error) {

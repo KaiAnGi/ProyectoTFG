@@ -8,6 +8,17 @@ interface PaypalTokenResponse {
   expires_in: number;
 }
 
+interface PaypalPaymentToken {
+  id?: string;
+}
+
+interface PaypalCustomerTokensResponse {
+  customer?: {
+    id?: string;
+  };
+  payment_tokens?: PaypalPaymentToken[];
+}
+
 interface PaypalCapture {
   id: string;
   status: string;
@@ -16,6 +27,23 @@ interface PaypalCapture {
 interface PaypalOrderResponse {
   id: string;
   status: string;
+  payment_source?: {
+    paypal?: {
+      email_address?: string;
+      payer_id?: string;
+      account_id?: string;
+      attributes?: {
+        vault?: {
+          id?: string;
+          status?: string;
+          customer?: {
+            id?: string;
+            merchant_customer_id?: string;
+          };
+        };
+      };
+    };
+  };
   purchase_units: {
     payments?: {
       captures?: PaypalCapture[];
@@ -62,6 +90,27 @@ async function getAccessToken(): Promise<string> {
   return data.access_token;
 }
 
+async function getPaymentTokenForCustomer(customerId: string): Promise<string | undefined> {
+  const token = await getAccessToken();
+
+  const response = await fetch(
+    `${BASE}/v3/vault/payment-tokens?customer_id=${encodeURIComponent(customerId)}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    },
+  );
+
+  if (!response.ok) {
+    return undefined;
+  }
+
+  const data = await response.json() as PaypalCustomerTokensResponse;
+  return data.payment_tokens?.[0]?.id;
+}
+
 export class PaypalController {
   static async createOrder(req: Request, res: Response) {
     try {
@@ -81,6 +130,19 @@ export class PaypalController {
       const token = await getAccessToken();
 
       const user = await User.findOne({ username: usernameRaw });
+      let reusableVaultId = user?.paypalVaultId;
+
+      if (!reusableVaultId && user?.paypalCustomerId) {
+        reusableVaultId = await getPaymentTokenForCustomer(user.paypalCustomerId);
+
+        if (reusableVaultId) {
+          await User.findOneAndUpdate(
+            { username: usernameRaw },
+            { $set: { paypalVaultId: reusableVaultId } },
+          );
+        }
+      }
+
       const body: Record<string, any> = {
         intent: "CAPTURE",
         purchase_units: [
@@ -101,12 +163,11 @@ export class PaypalController {
         },
       };
 
-      if (user?.paypalVaultId) {
+      if (reusableVaultId) {
         // Compra recurrente con vault_id guardado en PayPal
-        delete body.application_context;
         body.payment_source = {
           paypal: {
-            vault_id: user.paypalVaultId,
+            vault_id: reusableVaultId,
           },
         };
       } else {
@@ -124,31 +185,60 @@ export class PaypalController {
         };
       }
 
-      const response = await fetch(`${BASE}/v2/checkout/orders`, {
+      const createOrder = async (payload: Record<string, any>) => fetch(`${BASE}/v2/checkout/orders`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(body),
+        body: JSON.stringify(payload),
       });
 
+      let response = await createOrder(body);
+
       if (!response.ok) {
-        const errorText = await response.text();
-        let error: unknown = errorText;
+        const error = await response.json().catch(() => null);
 
-        try {
-          error = JSON.parse(errorText);
-        } catch {
-          // Keep the raw text when PayPal does not return JSON.
+        if (user?.paypalVaultId) {
+          const fallbackBody: Record<string, any> = {
+            ...body,
+            payment_source: {
+              paypal: {
+                attributes: {
+                  vault: {
+                    store_in_vault: "ON_SUCCESS",
+                    usage_type: "MERCHANT",
+                    customer_type: "CONSUMER",
+                  },
+                },
+              },
+            },
+          };
+
+          const fallbackResponse = await createOrder(fallbackBody);
+
+          if (!fallbackResponse.ok) {
+            const fallbackError = await fallbackResponse.json().catch(() => null);
+            return res.status(500).json({
+              success: false,
+              message: "Error creando orden en PayPal",
+              details: fallbackError,
+            });
+          }
+
+          await User.findOneAndUpdate(
+            { username: usernameRaw },
+            { $unset: { paypalVaultId: "" } },
+          );
+
+          response = fallbackResponse;
+        } else {
+          return res.status(500).json({
+            success: false,
+            message: "Error creando orden en PayPal",
+            details: error,
+          });
         }
-
-        console.error("PayPal createOrder rejected the request:", response.status, error);
-        return res.status(500).json({
-          success: false,
-          message: "Error creando orden en PayPal",
-          details: error,
-        });
       }
 
       const data = await response.json() as PaypalOrderResponse;
@@ -207,26 +297,14 @@ export class PaypalController {
 
       // Extraer vault ID y email del capture
       const paypalSource = (data as any)?.payment_source?.paypal;
-      const vaultId: string | undefined =
-        paypalSource?.attributes?.vault?.id ??
-        paypalSource?.vault_id ??
-        (data as any)?.payment_source?.token?.id;
-      const vaultEmail: string | undefined =
-        paypalSource?.email_address ??
-        paypalSource?.customer?.email_address;
-      const paypalCustomerId: string | undefined =
-        paypalSource?.attributes?.vault?.customer?.id ??
-        paypalSource?.customer?.id;
+      const vaultId: string | undefined = paypalSource?.attributes?.vault?.id;
+      const vaultCustomerId: string | undefined = paypalSource?.attributes?.vault?.customer?.id;
+      const vaultEmail: string | undefined = paypalSource?.email_address;
 
       const vaultUpdate: Record<string, any> = { $inc: { bones: pack.shines } };
       if (vaultId) vaultUpdate.$set = { paypalVaultId: vaultId };
       if (vaultEmail) vaultUpdate.$set = { ...(vaultUpdate.$set || {}), paypalEmail: vaultEmail };
-      if (paypalCustomerId) {
-        vaultUpdate.$set = {
-          ...(vaultUpdate.$set || {}),
-          paypalCustomerId,
-        };
-      }
+      if (vaultCustomerId) vaultUpdate.$set = { ...(vaultUpdate.$set || {}), paypalCustomerId: vaultCustomerId };
 
       const updatedUser = await User.findOneAndUpdate(
         { username: usernameRaw },

@@ -9,9 +9,6 @@ export interface User {
   email?: string;
   guest?: boolean;
   bones?: number;
-  paypalVaultId?: string;
-  paypalEmail?: string;
-  paypalCustomerId?: string;
 }
 
 interface AuthApiResponse {
@@ -22,9 +19,6 @@ interface AuthApiResponse {
     username?: string;
     email?: string;
     bones?: number;
-    paypalVaultId?: string;
-    paypalEmail?: string;
-    paypalCustomerId?: string;
   };
   error?: string;
 }
@@ -65,9 +59,6 @@ export class AuthService {
               email: parsed.email,
               guest: parsed.guest,
               bones: parsed.bones ?? 25,
-              paypalVaultId: parsed.paypalVaultId,
-              paypalEmail: parsed.paypalEmail,
-              paypalCustomerId: parsed.paypalCustomerId,
             };
             this.setUser(normalized);
           } else {
@@ -109,9 +100,6 @@ export class AuthService {
       email: response.user?.email,
       guest: false,
       bones: response.user?.bones ?? 25,
-      paypalVaultId: response.user?.paypalVaultId,
-      paypalEmail: response.user?.paypalEmail,
-      paypalCustomerId: response.user?.paypalCustomerId,
     };
 
     if (response.token) {

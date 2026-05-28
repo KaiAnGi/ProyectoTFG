@@ -89,21 +89,17 @@ export class HudComponent implements OnInit, OnDestroy {
     }
 
     const pack = this.shopItems[this.selectedItem];
-    const currentUser = this.authService.getCurrentUser();
-    const useSavedVault = !!currentUser?.paypalVaultId;
     this.paying = true;
     this.payMessage = '';
     this.payError = '';
 
     try {
       const { orderID } = await this.paypalService.createOrder(pack.id);
-      if (!useSavedVault) {
-        const approved = await this.openPaypalWindow(orderID);
+      const approved = await this.openPaypalWindow(orderID);
 
-        if (!approved) {
-          this.payError = 'Pago cancelado.';
-          return;
-        }
+      if (!approved) {
+        this.payError = 'Pago cancelado.';
+        return;
       }
 
       const result = await this.paypalService.captureOrder(orderID, pack.id);
