@@ -684,7 +684,15 @@
 }
 
 @media (max-width: 640px) {
-  .refund-frame {
+  .user-toggle {
+    font-size: 0;
+    padding: 0.35rem 0.6rem;
+    gap: 0;
+  }
+  .user-toggle .arrow {
+    font-size: 1rem;
+  }
+  .refund-panel .refund-frame {
     width: 94vw;
     height: 92vh;
     max-height: 600px;
@@ -697,9 +705,9 @@
     border: 1px solid rgba(110, 32, 32, 0.55);
     border-radius: 12px;
   }
-  .refund-title { font-size: 2.2rem; flex-shrink: 0; }
-  .refund-bones-info { font-size: 0.9rem; flex-shrink: 0; }
-  .refund-items {
+  .refund-frame .refund-title { font-size: 2.2rem; flex-shrink: 0; }
+  .refund-frame .refund-bones-info { font-size: 0.9rem; flex-shrink: 0; }
+  .refund-frame .refund-items {
     flex: 1;
     overflow-y: auto;
     min-height: 0;
@@ -709,7 +717,7 @@
     align-items: stretch;
     padding: 0.2rem 0;
   }
-  .refund-item {
+  .refund-frame .refund-item {
     width: auto;
     height: auto;
     max-width: none;
@@ -725,17 +733,17 @@
     cursor: pointer;
     transition: filter 0.2s;
   }
-  .refund-item:hover {
+  .refund-frame .refund-item:hover {
     filter: brightness(1.3);
   }
-  .refund-item.selected {
+  .refund-frame .refund-item.selected {
     filter: brightness(1.5);
     border-color: rgba(212, 192, 154, 0.5);
     box-shadow: 0 0 12px rgba(212, 192, 154, 0.3);
   }
-  .refund-item-label { font-size: 0.9rem; }
-  .refund-item-price { font-size: 0.8rem; padding: 0.15rem 0.5rem; }
-  .refund-actions {
+  .refund-frame .refund-item-label { font-size: 0.9rem; }
+  .refund-frame .refund-item-price { font-size: 0.8rem; padding: 0.15rem 0.5rem; }
+  .refund-frame .refund-actions {
     transform: none;
     flex-shrink: 0;
     margin-top: 0;
@@ -745,13 +753,13 @@
     align-items: center;
     gap: 0.6rem;
   }
-  .refund-back-btn {
+  .refund-frame .refund-back-btn {
     position: static;
     margin: 0;
     width: auto;
     padding: 0.5rem 1rem;
   }
-  .refund-btn {
+  .refund-frame .refund-btn {
     width: min(60vw, 180px);
     height: 65px;
     font-size: 1.6rem;
@@ -759,7 +767,15 @@
 }
 
 @media (max-width: 480px) {
-  .refund-frame {
+  .user-toggle {
+    font-size: 0;
+    padding: 0.25rem 0.4rem;
+    gap: 0;
+  }
+  .user-toggle .arrow {
+    font-size: 0.85rem;
+  }
+  .refund-panel .refund-frame {
     padding: 2rem 0.6rem 0.8rem;
     gap: 0.4rem;
     overflow: hidden;
@@ -769,9 +785,9 @@
     border: 1px solid rgba(110, 32, 32, 0.55);
     border-radius: 10px;
   }
-  .refund-title { font-size: 1.8rem; flex-shrink: 0; }
-  .refund-bones-info { font-size: 0.75rem; flex-shrink: 0; }
-  .refund-items {
+  .refund-frame .refund-title { font-size: 1.8rem; flex-shrink: 0; }
+  .refund-frame .refund-bones-info { font-size: 0.75rem; flex-shrink: 0; }
+  .refund-frame .refund-items {
     flex: 1;
     overflow-y: auto;
     min-height: 0;
@@ -781,7 +797,7 @@
     align-items: stretch;
     padding: 0.1rem 0;
   }
-  .refund-item {
+  .refund-frame .refund-item {
     width: auto;
     height: auto;
     max-width: none;
@@ -797,17 +813,17 @@
     cursor: pointer;
     transition: filter 0.2s;
   }
-  .refund-item:hover {
+  .refund-frame .refund-item:hover {
     filter: brightness(1.3);
   }
-  .refund-item.selected {
+  .refund-frame .refund-item.selected {
     filter: brightness(1.5);
     border-color: rgba(212, 192, 154, 0.5);
     box-shadow: 0 0 8px rgba(212, 192, 154, 0.25);
   }
-  .refund-item-label { font-size: 0.8rem; }
-  .refund-item-price { font-size: 0.7rem; padding: 0.1rem 0.4rem; }
-  .refund-actions {
+  .refund-frame .refund-item-label { font-size: 0.8rem; }
+  .refund-frame .refund-item-price { font-size: 0.7rem; padding: 0.1rem 0.4rem; }
+  .refund-frame .refund-actions {
     transform: none;
     flex-shrink: 0;
     margin-top: 0;
@@ -817,14 +833,14 @@
     align-items: center;
     gap: 0.5rem;
   }
-  .refund-back-btn {
+  .refund-frame .refund-back-btn {
     position: static;
     margin: 0;
     width: auto;
     padding: 0.4rem 0.8rem;
     font-size: 0.8rem;
   }
-  .refund-btn {
+  .refund-frame .refund-btn {
     width: min(60vw, 150px);
     height: 55px;
     font-size: 1.3rem;
