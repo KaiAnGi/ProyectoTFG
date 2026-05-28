@@ -72,6 +72,9 @@ export class AuthService {
           email: user.email,
           profilePicture: user.profilePicture,
           createdAt: user.createdAt,
+          paypalVaultId: user.paypalVaultId,
+          paypalEmail: user.paypalEmail,
+          paypalCustomerId: user.paypalCustomerId,
         },
       };
     } catch (error: any) {
@@ -157,6 +160,9 @@ export class AuthService {
           email: user.email,
           profilePicture: user.profilePicture,
           bones: user.bones ?? 25,
+          paypalVaultId: user.paypalVaultId,
+          paypalEmail: user.paypalEmail,
+          paypalCustomerId: user.paypalCustomerId,
         },
       };
     } catch (error) {

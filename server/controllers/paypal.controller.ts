@@ -103,6 +103,7 @@ export class PaypalController {
 
       if (user?.paypalVaultId) {
         // Compra recurrente con vault_id guardado en PayPal
+        delete body.application_context;
         body.payment_source = {
           paypal: {
             vault_id: user.paypalVaultId,
@@ -133,7 +134,16 @@ export class PaypalController {
       });
 
       if (!response.ok) {
-        const error = await response.json();
+        const errorText = await response.text();
+        let error: unknown = errorText;
+
+        try {
+          error = JSON.parse(errorText);
+        } catch {
+          // Keep the raw text when PayPal does not return JSON.
+        }
+
+        console.error("PayPal createOrder rejected the request:", response.status, error);
         return res.status(500).json({
           success: false,
           message: "Error creando orden en PayPal",
@@ -197,12 +207,26 @@ export class PaypalController {
 
       // Extraer vault ID y email del capture
       const paypalSource = (data as any)?.payment_source?.paypal;
-      const vaultId: string | undefined = paypalSource?.attributes?.vault?.id;
-      const vaultEmail: string | undefined = paypalSource?.email_address;
+      const vaultId: string | undefined =
+        paypalSource?.attributes?.vault?.id ??
+        paypalSource?.vault_id ??
+        (data as any)?.payment_source?.token?.id;
+      const vaultEmail: string | undefined =
+        paypalSource?.email_address ??
+        paypalSource?.customer?.email_address;
+      const paypalCustomerId: string | undefined =
+        paypalSource?.attributes?.vault?.customer?.id ??
+        paypalSource?.customer?.id;
 
       const vaultUpdate: Record<string, any> = { $inc: { bones: pack.shines } };
       if (vaultId) vaultUpdate.$set = { paypalVaultId: vaultId };
       if (vaultEmail) vaultUpdate.$set = { ...(vaultUpdate.$set || {}), paypalEmail: vaultEmail };
+      if (paypalCustomerId) {
+        vaultUpdate.$set = {
+          ...(vaultUpdate.$set || {}),
+          paypalCustomerId,
+        };
+      }
 
       const updatedUser = await User.findOneAndUpdate(
         { username: usernameRaw },
