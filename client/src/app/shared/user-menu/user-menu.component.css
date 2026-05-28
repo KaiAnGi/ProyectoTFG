@@ -666,9 +666,173 @@
   padding: 1rem 0;
 }
 
+@media (max-width: 640px) {
+  .user-menu { right: 0.8rem; }
+  .user-toggle { font-size: 0.8rem; padding: 0.35rem 0.8rem; }
+  .dropdown { min-width: 180px; right: 0; }
+  .modal { min-width: unset; width: 92vw; padding: 1.5rem; }
+  .modal-actions { flex-direction: column; gap: 0.6rem; }
+  .modal-btn { width: 100%; text-align: center; }
+}
+
 @media (max-width: 480px) {
-  .chat-panel { width: calc(100vw - 3rem); right: 1rem; }
-  .chat-toggle { right: 1rem; }
+  .chat-panel { width: calc(100vw - 2rem); right: 0.8rem; }
+  .chat-toggle { right: 0.8rem; bottom: 0.8rem; }
+  .ouija-icon { width: 32px; height: 32px; }
+  .chat-tab { font-size: 0.75rem; padding: 0.5rem; }
+  .chat-messages { max-height: 180px; }
+}
+
+@media (max-width: 640px) {
+  .user-toggle {
+    font-size: 0;
+    padding: 0.35rem 0.6rem;
+    gap: 0;
+  }
+  .user-toggle .arrow {
+    font-size: 1rem;
+  }
+  .refund-panel .refund-frame {
+    width: 94vw;
+    height: 92vh;
+    max-height: 600px;
+    padding: 2.5rem 1rem 1rem;
+    gap: 0.5rem;
+    overflow: hidden;
+    justify-content: flex-start;
+    background-image: none;
+    background-color: rgba(10, 6, 6, 0.98);
+    border: 1px solid rgba(110, 32, 32, 0.55);
+    border-radius: 12px;
+  }
+  .refund-frame .refund-title { font-size: 2.2rem; flex-shrink: 0; }
+  .refund-frame .refund-bones-info { font-size: 0.9rem; flex-shrink: 0; }
+  .refund-frame .refund-items {
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    align-items: stretch;
+    padding: 0.2rem 0;
+  }
+  .refund-frame .refund-item {
+    width: auto;
+    height: auto;
+    max-width: none;
+    padding: 0.5rem 0.8rem;
+    gap: 0.3rem;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    background-image: none;
+    background-color: rgba(40, 18, 18, 0.6);
+    border: 1px solid rgba(110, 35, 35, 0.3);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: filter 0.2s;
+  }
+  .refund-frame .refund-item:hover {
+    filter: brightness(1.3);
+  }
+  .refund-frame .refund-item.selected {
+    filter: brightness(1.5);
+    border-color: rgba(212, 192, 154, 0.5);
+    box-shadow: 0 0 12px rgba(212, 192, 154, 0.3);
+  }
+  .refund-frame .refund-item-label { font-size: 0.9rem; }
+  .refund-frame .refund-item-price { font-size: 0.8rem; padding: 0.15rem 0.5rem; }
+  .refund-frame .refund-actions {
+    transform: none;
+    flex-shrink: 0;
+    margin-top: 0;
+    padding-top: 0.3rem;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  .refund-frame .refund-btn {
+    width: min(60vw, 180px);
+    height: 65px;
+    font-size: 1.6rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .user-toggle {
+    font-size: 0;
+    padding: 0.25rem 0.4rem;
+    gap: 0;
+  }
+  .user-toggle .arrow {
+    font-size: 0.85rem;
+  }
+  .refund-panel .refund-frame {
+    padding: 2rem 0.6rem 0.8rem;
+    gap: 0.4rem;
+    overflow: hidden;
+    justify-content: flex-start;
+    background-image: none;
+    background-color: rgba(10, 6, 6, 0.98);
+    border: 1px solid rgba(110, 32, 32, 0.55);
+    border-radius: 10px;
+  }
+  .refund-frame .refund-title { font-size: 1.8rem; flex-shrink: 0; }
+  .refund-frame .refund-bones-info { font-size: 0.75rem; flex-shrink: 0; }
+  .refund-frame .refund-items {
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    align-items: stretch;
+    padding: 0.1rem 0;
+  }
+  .refund-frame .refund-item {
+    width: auto;
+    height: auto;
+    max-width: none;
+    padding: 0.4rem 0.6rem;
+    gap: 0.25rem;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    background-image: none;
+    background-color: rgba(40, 18, 18, 0.6);
+    border: 1px solid rgba(110, 35, 35, 0.3);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: filter 0.2s;
+  }
+  .refund-frame .refund-item:hover {
+    filter: brightness(1.3);
+  }
+  .refund-frame .refund-item.selected {
+    filter: brightness(1.5);
+    border-color: rgba(212, 192, 154, 0.5);
+    box-shadow: 0 0 8px rgba(212, 192, 154, 0.25);
+  }
+  .refund-frame .refund-item-label { font-size: 0.8rem; }
+  .refund-frame .refund-item-price { font-size: 0.7rem; padding: 0.1rem 0.4rem; }
+  .refund-frame .refund-actions {
+    transform: none;
+    flex-shrink: 0;
+    margin-top: 0;
+    padding-top: 0.2rem;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .refund-frame .refund-btn {
+    width: min(60vw, 150px);
+    height: 55px;
+    font-size: 1.3rem;
+    padding: 0 0 4px 0;
+  }
 }
 
 /* ================================================
@@ -709,6 +873,31 @@
   padding: 3.5rem 4rem 2.5rem 4rem;
   box-sizing: border-box;
   position: relative;
+}
+
+.refund-close-btn {
+  position: absolute;
+  top: 1.2rem;
+  right: 1.2rem;
+  background: rgba(155, 18, 18, 0.85);
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  border-radius: 50%;
+  color: #fff;
+  font-size: 1.1rem;
+  width: 2.4rem;
+  height: 2.4rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease, transform 0.2s ease;
+  z-index: 10;
+  font-family: system-ui, sans-serif;
+}
+
+.refund-close-btn:hover {
+  background: rgba(210, 30, 30, 0.95);
+  transform: scale(1.1);
 }
 
 .refund-title {
@@ -789,30 +978,6 @@
   margin-top: 0.3rem;
   position: relative;
   transform: translateX(-1.8rem) translateY(-1.5rem);
-}
-
-.refund-back-btn {
-  position: absolute;
-  bottom: -0.3rem;
-  left: -10rem;
-  background: rgba(80, 80, 80, 0.5);
-  border: none;
-  color: #b0b0b0;
-  padding: 0.6rem 1.5rem;
-  font-size: clamp(0.85rem, 1.8vw, 1rem);
-  font-family: 'Metal Mania', cursive;
-  cursor: pointer;
-  border-radius: 10px;
-  transition: all 0.3s ease;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4'%3E%3Cpath d='M0 0h4v4H0z' fill='%23555' fill-opacity='0.1'/%3E%3C/svg%3E");
-  background-blend-mode: overlay;
-  z-index: 10;
-  letter-spacing: 0.05em;
-}
-
-.refund-back-btn:hover {
-  filter: brightness(1.15);
-  transform: scale(1.05);
 }
 
 .refund-btn {

@@ -371,9 +371,14 @@
 
 /* ── RESPONSIVE ── */
 @media (max-width: 768px) {
+  .game-header {
+    padding: 0.5rem 0.8rem 0.2rem;
+  }
+
   .players-container {
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 0.3rem;
+    padding: 0.3rem 1.5rem;
   }
 
   .vs-divider {
@@ -381,8 +386,8 @@
   }
 
   .player-section {
-    max-width: 50%;
-    width: 50%;
+    max-width: 70%;
+    width: 70%;
   }
 
   .game-footer {
@@ -390,6 +395,74 @@
     gap: 0.5rem;
     align-items: center;
   }
+
+  .timer-box {
+    width: 48px;
+    height: 48px;
+    font-size: 1.3rem;
+  }
+
+  .score-row { gap: 0.6rem; }
+  .score-chip { font-size: 0.75rem; padding: 0.25rem 0.7rem; }
+
+  .victory-card {
+    width: min(94vw, 420px);
+    padding: 1.2rem;
+  }
+
+  .bet-summary-grid {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .bet-box { min-width: 70px; padding: 0.4rem 0.7rem; }
+}
+
+@media (max-width: 480px) {
+  .game-header {
+    padding: 0.4rem 0.5rem 0.1rem;
+  }
+  .game-title { font-size: clamp(1.2rem, 6vw, 1.6rem); }
+  .room-name { font-size: clamp(0.6rem, 3vw, 0.7rem); }
+  .room-code { font-size: clamp(0.55rem, 2.5vw, 0.65rem); }
+  .round-info { font-size: clamp(0.55rem, 2.5vw, 0.65rem); }
+
+  .player-section {
+    max-width: 85%;
+    width: 85%;
+  }
+  .players-container {
+    padding: 0.2rem 1rem;
+    gap: 0.2rem;
+  }
+  .player-label { font-size: 0.85rem; }
+  .gesture-label { font-size: 0.85rem; }
+
+  .timer-box {
+    width: 40px;
+    height: 40px;
+    font-size: 1.1rem;
+  }
+  .status-row { margin-top: 0.2rem; }
+  .score-row { margin-top: 0.2rem; gap: 0.4rem; }
+  .score-chip { font-size: 0.65rem; padding: 0.2rem 0.5rem; }
+
+  .victory-card { padding: 1rem; }
+  .victory-title { font-size: clamp(1.2rem, 5vw, 1.6rem); }
+  .victory-message { font-size: 0.9rem; }
+
+  .end-avatar-img { width: 50px; height: 50px; }
+  .end-score { font-size: 1.3rem; }
+  .vs-text { font-size: 1rem; }
+
+  .bet-box { min-width: 60px; padding: 0.3rem 0.5rem; }
+  .bet-label { font-size: 0.6rem; }
+  .bet-value { font-size: 1rem; }
+  .pot-highlight { font-size: 1.1rem; }
+  .bet-result-title { font-size: 0.85rem; }
+  .bet-result-msg { font-size: 0.9rem; }
+
+  .rematch-btn { font-size: 0.8rem; padding: 0.4rem 1.2rem; }
+  .exit-btn { font-size: 0.8rem; padding: 0.35rem 1.2rem; }
 }
 
 .camera-video {

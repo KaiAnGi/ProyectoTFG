@@ -281,3 +281,15 @@
   .action-buttons { flex-direction: column; gap: 0.8rem; }
   .back-button { position: static; margin-top: 1rem; }
 }
+
+@media (max-width: 480px) {
+  .create-room-content { padding: 1rem 1rem 4rem; }
+  .page-title { font-size: 1.6rem; }
+  .create-form { max-width: 100%; gap: 0.6rem; }
+  .form-label { font-size: 0.9rem; }
+  .form-input { font-size: 0.85rem; padding: 0.5rem 0.8rem; }
+  .rounds-buttons { gap: 0.8rem; }
+  .round-button { width: 40px; height: 40px; font-size: 1.1rem; }
+  .submit-button, .cancel-button { font-size: 0.9rem; padding: 0.5rem 1.2rem; }
+  .back-button { font-size: 0.85rem; padding: 0.4rem 1.2rem; }
+}

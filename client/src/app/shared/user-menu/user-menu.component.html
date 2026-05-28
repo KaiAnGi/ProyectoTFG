@@ -75,6 +75,7 @@
 
   <div class="refund-panel" *ngIf="refundOpen">
     <div class="refund-frame">
+      <button class="refund-close-btn" (click)="toggleRefund()" aria-label="Cerrar refund">✕</button>
       <h1 class="refund-title">REFUND</h1>
 
       <p class="refund-bones-info">Your shines: <strong>{{ bones }}</strong></p>
@@ -92,7 +93,6 @@
       </div>
 
       <div class="refund-actions">
-        <button class="refund-back-btn" (click)="toggleRefund()">BACK</button>
         <button class="refund-btn" (click)="onRefund()" [disabled]="refunding || !selectedRefundAmount">
           {{ refunding ? 'PROCESSING...' : 'REFUND' }}
         </button>
